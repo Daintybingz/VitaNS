@@ -1,0 +1,20 @@
+{
+    "name": "VitaNS - PS Vita Emulator",
+    "author": "VitaNS Team",
+    "version": "1.0.0",
+    "title_id": "0x0100000000000123",
+    "display_version": "1.0.0",
+    "startup_user_account": false,
+    "user_account_save_data_size": "0x4000000",
+    "user_account_save_data_journal_size": "0x4000000",
+    "device_save_data_size": "0x4000000",
+    "device_save_data_journal_size": "0x4000000",
+    "rating_age": {
+        "default": 12,
+        "cero": 12,
+        "esrb": 13,
+        "usk": 12,
+        "pegi": 12,
+        "acb": 12
+    }
+} 

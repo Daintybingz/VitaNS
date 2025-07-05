@@ -1,0 +1,89 @@
+# Build directories
+build/
+_building/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+*.nro
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Package files
+*.deb
+*.rpm
+*.zip
+*.tar.gz
+
+# Firmware files (large and potentially copyrighted)
+*.bin
+*.img
+*.pup
+
+# Game files (large and potentially copyrighted)
+*.vpk
+*.pkg
+
+# Backup files
+*.bak
+*.backup
+
+# CMake generated files
+CMakeScripts/
+Testing/
+cmake-build-*/
+
+# Switch specific
+*.nso
+*.nca
+*.nro
+
+# Vita specific
+*.vpk
+*.pkg
+*.bin 
