@@ -1,0 +1,91 @@
+name: Build VitaNS
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch: # Allow manual triggers
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        
+    - name: Setup devkitPro
+      uses: devkitPro/install-dkp@v3
+      with:
+        platform: switch
+        
+    - name: Install additional dependencies
+      run: |
+        sudo dkp-pacman -S --noconfirm \
+          switch-sdl2 \
+          switch-mesa \
+          switch-glm \
+          switch-sdl2_ttf \
+          switch-sdl2_image \
+          cmake \
+          make \
+          git
+        
+    - name: Create build directory
+      run: mkdir -p build
+      
+    - name: Configure CMake
+      run: |
+        cd build
+        cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
+      env:
+        DEVKITPRO: /opt/devkitpro
+        
+    - name: Build VitaNS
+      run: |
+        cd build
+        make -j$(nproc)
+      env:
+        DEVKITPRO: /opt/devkitpro
+        
+    - name: Check build artifacts
+      run: |
+        ls -la build/
+        if [ -f build/VitaNS.nro ]; then
+          echo "✅ Build successful! VitaNS.nro created."
+          file build/VitaNS.nro
+        else
+          echo "❌ Build failed! VitaNS.nro not found."
+          exit 1
+        fi
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: VitaNS-build
+        path: build/VitaNS.nro
+        retention-days: 30
+        
+    - name: Create release on tag
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: build/VitaNS.nro
+        body: |
+          ## VitaNS Release
+          
+          **Build Date:** ${{ github.event.head_commit.timestamp }}
+          **Commit:** ${{ github.sha }}
+          
+          ### Installation
+          1. Download VitaNS.nro
+          2. Copy to `/switch/VitaNS/` on your SD card
+          3. Launch from homebrew menu
+          
+          ### Changes
+          See the [commit history](https://github.com/${{ github.repository }}/commits) for details.
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

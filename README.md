@@ -1,5 +1,7 @@
 # VitaNS (Vita3K for Nintendo Switch)
 
+[![Build Status](https://github.com/Daintybingz/VitaNS/workflows/Build%20VitaNS/badge.svg)](https://github.com/Daintybingz/VitaNS/actions)
+
 VitaNS is a **Nintendo Switch port** of the [Vita3K](https://github.com/Vita3K/Vita3K) PlayStation Vita emulator. This project is based on the excellent work of the original Vita3K development team, who created the cross-platform PlayStation Vita emulator that runs on Windows, macOS, and Linux.
 
 ## Acknowledgments
