@@ -1,11 +1,11 @@
-name: Build VitaNS
+name: Build VitaNS for Switch
 
 on:
   push:
     branches: [ master, main ]
   pull_request:
     branches: [ master, main ]
-  workflow_dispatch: # Allow manual triggers
+  workflow_dispatch:
 
 jobs:
   build:
@@ -17,17 +17,18 @@ jobs:
       with:
         submodules: recursive
         
-    - name: Setup devkitPro
+    - name: Install devkitPro
       run: |
-        # Install devkitPro pacman
+        echo "Installing devkitPro..."
         wget https://github.com/devkitPro/pacman/releases/latest/download/devkitpro-pacman.deb
         sudo apt install ./devkitpro-pacman.deb
         
-        # Install Switch toolchain
+        echo "Installing Switch toolchain..."
         sudo dkp-pacman -S --noconfirm switch-dev
         
-    - name: Install additional dependencies
+    - name: Install dependencies
       run: |
+        echo "Installing additional dependencies..."
         sudo dkp-pacman -S --noconfirm \
           switch-sdl2 \
           switch-mesa \
@@ -38,25 +39,19 @@ jobs:
           make \
           git
         
-    - name: Create build directory
-      run: mkdir -p build
-      
-    - name: Configure CMake
-      run: |
-        cd build
-        cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
-      env:
-        DEVKITPRO: /opt/devkitpro
-        
     - name: Build VitaNS
       run: |
+        echo "Building VitaNS..."
+        mkdir -p build
         cd build
+        cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
         make -j$(nproc)
       env:
         DEVKITPRO: /opt/devkitpro
         
-    - name: Check build artifacts
+    - name: Verify build
       run: |
+        echo "Verifying build artifacts..."
         ls -la build/
         if [ -f build/VitaNS.nro ]; then
           echo "✅ Build successful! VitaNS.nro created."
@@ -66,30 +61,9 @@ jobs:
           exit 1
         fi
         
-    - name: Upload build artifacts
+    - name: Upload build
       uses: actions/upload-artifact@v4
       with:
-        name: VitaNS-build
+        name: VitaNS-Switch
         path: build/VitaNS.nro
-        retention-days: 30
-        
-    - name: Create release on tag
-      if: startsWith(github.ref, 'refs/tags/')
-      uses: softprops/action-gh-release@v1
-      with:
-        files: build/VitaNS.nro
-        body: |
-          ## VitaNS Release
-          
-          **Build Date:** ${{ github.event.head_commit.timestamp }}
-          **Commit:** ${{ github.sha }}
-          
-          ### Installation
-          1. Download VitaNS.nro
-          2. Copy to `/switch/VitaNS/` on your SD card
-          3. Launch from homebrew menu
-          
-          ### Changes
-          See the [commit history](https://github.com/${{ github.repository }}/commits) for details.
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+        retention-days: 30 
