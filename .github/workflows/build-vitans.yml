@@ -1,0 +1,93 @@
+name: Build VitaNS for Nintendo Switch
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        
+    - name: Debug - Show current directory
+      run: |
+        echo "Current directory: $(pwd)"
+        echo "Listing files:"
+        ls -la
+        
+    - name: Install devkitPro (Official Method)
+      run: |
+        echo "=== INSTALLING DEVKITPRO USING OFFICIAL METHOD ==="
+        echo "Step 1: Update package list"
+        sudo apt-get update
+        
+        echo "Step 2: Install wget"
+        sudo apt-get install -y wget
+        
+        echo "Step 3: Download official install script"
+        wget https://apt.devkitpro.org/install-devkitpro-pacman
+        ls -la install-devkitpro-pacman
+        
+        echo "Step 4: Make script executable"
+        chmod +x install-devkitpro-pacman
+        
+        echo "Step 5: Run official installer"
+        sudo ./install-devkitpro-pacman
+        
+        echo "Step 6: Update pacman database"
+        sudo dkp-pacman -Sy
+        
+        echo "Step 7: Install switch-dev"
+        sudo dkp-pacman -S --noconfirm switch-dev
+        
+        echo "=== DEVKITPRO INSTALLATION COMPLETED SUCCESSFULLY ==="
+        
+    - name: Install dependencies
+      run: |
+        echo "Installing additional dependencies..."
+        sudo dkp-pacman -S --noconfirm \
+          switch-sdl2 \
+          switch-mesa \
+          switch-glm \
+          switch-sdl2_ttf \
+          switch-sdl2_image \
+          cmake \
+          make \
+          git
+        
+    - name: Build VitaNS
+      run: |
+        echo "Building VitaNS..."
+        mkdir -p build
+        cd build
+        cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
+        make -j$(nproc)
+      env:
+        DEVKITPRO: /opt/devkitpro
+        
+    - name: Verify build
+      run: |
+        echo "Verifying build artifacts..."
+        ls -la build/
+        if [ -f build/VitaNS.nro ]; then
+          echo "✅ Build successful! VitaNS.nro created."
+          file build/VitaNS.nro
+        else
+          echo "❌ Build failed! VitaNS.nro not found."
+          exit 1
+        fi
+        
+    - name: Upload build
+      uses: actions/upload-artifact@v4
+      with:
+        name: VitaNS-Switch
+        path: build/VitaNS.nro
+        retention-days: 30 
