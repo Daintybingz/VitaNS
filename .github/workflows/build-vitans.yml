@@ -10,35 +10,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkita64:latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Install devkitPro (with user-agent)
-        run: |
-          echo "Downloading install-devkitpro-pacman with user-agent workaround"
-          wget --user-agent="Mozilla/5.0" https://apt.devkitpro.org/install-devkitpro-pacman
-          chmod +x install-devkitpro-pacman
-          sudo ./install-devkitpro-pacman
-          # Retry logic for dkp-pacman
-          for i in {1..5}; do sudo dkp-pacman -Sy && break || sleep 10; done
-          for i in {1..5}; do sudo dkp-pacman -S --noconfirm switch-dev && break || sleep 10; done
-
       - name: Install dependencies
         run: |
           echo "Installing additional dependencies..."
-          # Install system packages from apt
-          sudo apt-get update
-          sudo apt-get install -y cmake make git
-          # Install Switch libraries from dkp-pacman
-          sudo dkp-pacman -S --noconfirm \
-            switch-sdl2 \
-            switch-mesa \
-            switch-glm \
-            switch-sdl2_ttf \
-            switch-sdl2_image
+          dkp-pacman -Sy --noconfirm
+          dkp-pacman -S --noconfirm switch-dev switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image cmake make git
 
       - name: Build VitaNS
         run: |
@@ -46,8 +30,6 @@ jobs:
           cd build
           cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
           make -j$(nproc)
-        env:
-          DEVKITPRO: /opt/devkitpro
 
       - name: Verify build
         run: |
