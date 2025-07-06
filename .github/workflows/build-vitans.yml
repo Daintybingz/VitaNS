@@ -10,18 +10,33 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: devkitpro/devkita64:latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Install dependencies
+      - name: Install devkitPro (Community Mirror)
         run: |
-          dkp-pacman -Sy --noconfirm
-          dkp-pacman -S --noconfirm switch-dev switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image cmake make git
+          echo "deb [trusted=yes] https://dkpcommunity.github.io/apt/ ./ " | sudo tee /etc/apt/sources.list.d/devkitpro-community.list
+          sudo apt-get update
+          sudo apt-get install -y devkitpro-pacman
+          sudo dkp-pacman -Sy
+          sudo dkp-pacman -S --noconfirm switch-dev
+
+      - name: Install build tools (cmake, make, git)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake make git
+
+      - name: Install devkitPro Switch dependencies
+        run: |
+          sudo dkp-pacman -S --noconfirm \
+            switch-sdl2 \
+            switch-mesa \
+            switch-glm \
+            switch-sdl2_ttf \
+            switch-sdl2_image
 
       - name: Build VitaNS
         run: |
@@ -29,6 +44,8 @@ jobs:
           cd build
           cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
           make -j$(nproc)
+        env:
+          DEVKITPRO: /opt/devkitpro
 
       - name: Verify build
         run: |
