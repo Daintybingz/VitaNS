@@ -18,9 +18,13 @@ jobs:
         submodules: recursive
         
     - name: Setup devkitPro
-      uses: devkitPro/install-dkp@v3
-      with:
-        platform: switch
+      run: |
+        # Install devkitPro pacman
+        wget https://github.com/devkitPro/pacman/releases/latest/download/devkitpro-pacman.deb
+        sudo apt install ./devkitpro-pacman.deb
+        
+        # Install Switch toolchain
+        sudo dkp-pacman -S --noconfirm switch-dev
         
     - name: Install additional dependencies
       run: |
