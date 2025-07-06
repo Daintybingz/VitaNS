@@ -20,13 +20,13 @@ jobs:
 
       - name: Install system dependencies
         run: |
-          echo "Installing system dependencies..."
+          echo "Installing system dependencies with apt-get..."
           apt-get update
           apt-get install -y cmake make git
 
       - name: Install Switch dependencies
         run: |
-          echo "Installing Switch libraries..."
+          echo "Installing Switch libraries with dkp-pacman..."
           dkp-pacman -Sy --noconfirm
           dkp-pacman -S --noconfirm switch-dev switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image
 
