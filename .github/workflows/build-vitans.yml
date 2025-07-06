@@ -37,16 +37,14 @@ jobs:
         
     - name: Install dependencies
       run: |
-        echo "Installing additional dependencies..."
+        sudo apt-get update
+        sudo apt-get install -y cmake make git
         sudo dkp-pacman -S --noconfirm \
           switch-sdl2 \
           switch-mesa \
           switch-glm \
           switch-sdl2_ttf \
-          switch-sdl2_image \
-          cmake \
-          make \
-          git
+          switch-sdl2_image
         
     - name: Build VitaNS
       run: |
