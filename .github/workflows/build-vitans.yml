@@ -10,18 +10,29 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: devkitpro/devkita64
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
         submodules: recursive
 
+    - name: Install devkitPro (Official Method)
+      run: |
+        echo "=== INSTALLING DEVKITPRO USING OFFICIAL METHOD ==="
+        sudo apt-get update
+        sudo apt-get install -y wget
+        wget https://apt.devkitpro.org/install-devkitpro-keyring.deb
+        sudo apt-get install -y ./install-devkitpro-keyring.deb
+        sudo apt-get update
+        sudo apt-get install -y devkitpro-pacman
+        sudo dkp-pacman -Sy
+        sudo dkp-pacman -S --noconfirm switch-dev
+
     - name: Install dependencies (Switch libraries)
       run: |
-        dkp-pacman -Sy
-        dkp-pacman -S --noconfirm switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image
+        sudo dkp-pacman -Sy
+        sudo dkp-pacman -S --noconfirm switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image
+        sudo apt-get install -y cmake make git
 
     - name: Build VitaNS
       run: |
