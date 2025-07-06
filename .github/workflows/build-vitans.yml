@@ -18,6 +18,12 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Setup devkitPro
+        run: |
+          echo "Setting up devkitPro..."
+          dkp-pacman -Sy --noconfirm
+          dkp-pacman -S --noconfirm switch-dev
+
       - name: Install dependencies (dkp packages)
         run: |
           echo "Installing Switch dependencies with dkp-pacman..."
@@ -41,6 +47,7 @@ jobs:
           make --version
           git --version
           echo "Switch toolchain location: $DEVKITPRO"
+          ls -la $DEVKITPRO/cmake/
 
       - name: Build VitaNS
         run: |
