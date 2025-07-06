@@ -10,61 +10,40 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkita64:latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-    - name: Install devkitPro (Official Method)
-      run: |
-        echo "=== INSTALLING DEVKITPRO USING OFFICIAL METHOD ==="
-        sudo apt-get update
-        sudo apt-get install -y wget
-        wget https://apt.devkitpro.org/install-devkitpro-keyring.deb
-        sudo apt-get install -y ./install-devkitpro-keyring.deb
-        sudo apt-get update
-        sudo apt-get install -y devkitpro-pacman
-        sudo dkp-pacman -Sy
-        sudo dkp-pacman -S --noconfirm switch-dev
+      - name: Install dependencies
+        run: |
+          dkp-pacman -Sy --noconfirm
+          dkp-pacman -S --noconfirm switch-dev switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image cmake make git
 
-    - name: Install build tools (cmake, make, git)
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y cmake make git
+      - name: Build VitaNS
+        run: |
+          mkdir -p build
+          cd build
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
+          make -j$(nproc)
 
-    - name: Install devkitPro Switch dependencies
-      run: |
-        sudo dkp-pacman -S --noconfirm \
-          switch-sdl2 \
-          switch-mesa \
-          switch-glm \
-          switch-sdl2_ttf \
-          switch-sdl2_image
+      - name: Verify build
+        run: |
+          ls -la build/
+          if [ -f build/VitaNS.nro ]; then
+            echo "✅ Build successful! VitaNS.nro created."
+            file build/VitaNS.nro
+          else
+            echo "❌ Build failed! VitaNS.nro not found."
+            exit 1
+          fi
 
-    - name: Build VitaNS
-      run: |
-        mkdir -p build
-        cd build
-        cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
-        make -j$(nproc)
-      env:
-        DEVKITPRO: /opt/devkitpro
-
-    - name: Verify build
-      run: |
-        ls -la build/
-        if [ -f build/VitaNS.nro ]; then
-          echo "✅ Build successful! VitaNS.nro created."
-          file build/VitaNS.nro
-        else
-          echo "❌ Build failed! VitaNS.nro not found."
-          exit 1
-        fi
-
-    - name: Upload build
-      uses: actions/upload-artifact@v4
-      with:
-        name: VitaNS-Switch
-        path: build/VitaNS.nro
-        retention-days: 30 
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: VitaNS-Switch
+          path: build/VitaNS.nro
+          retention-days: 30 
