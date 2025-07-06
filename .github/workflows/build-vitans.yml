@@ -18,11 +18,25 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install dependencies
+      - name: Install system dependencies
         run: |
-          echo "Installing additional dependencies..."
+          echo "Installing system dependencies..."
+          apt-get update
+          apt-get install -y cmake make git
+
+      - name: Install Switch dependencies
+        run: |
+          echo "Installing Switch libraries..."
           dkp-pacman -Sy --noconfirm
-          dkp-pacman -S --noconfirm switch-dev switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image cmake make git
+          dkp-pacman -S --noconfirm switch-dev switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image
+
+      - name: Verify dependencies
+        run: |
+          echo "Verifying installed dependencies..."
+          cmake --version
+          make --version
+          git --version
+          echo "Switch toolchain location: $DEVKITPRO"
 
       - name: Build VitaNS
         run: |
