@@ -30,7 +30,7 @@ This document provides instructions for setting up the development environment a
 2. Install Switch development packages:
    ```bash
    sudo dkp-pacman -S switch-dev switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image
-   ```
+```
 
 #### macOS (for code browsing only; Switch builds require Linux)
 - You may install devkitPro pacman, but Switch homebrew builds are not supported on macOS. Use a Linux VM for actual builds.
