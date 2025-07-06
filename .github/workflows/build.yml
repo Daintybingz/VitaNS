@@ -19,12 +19,12 @@ jobs:
         
     - name: Install devkitPro
       run: |
-        echo "Installing devkitPro..."
+        sudo apt-get update
+        sudo apt-get install -y wget
         wget https://github.com/devkitPro/pacman/releases/latest/download/devkitpro-pacman.deb
-        sudo apt install ./devkitpro-pacman.deb
-        
-        echo "Installing Switch toolchain..."
-        sudo dkp-pacman -S --noconfirm switch-dev
+        sudo dpkg -i devkitpro-pacman.deb
+        sudo dkp-pacman -Sy
+        sudo dkp-pacman -S switch-dev
         
     - name: Install dependencies
       run: |
