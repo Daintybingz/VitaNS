@@ -18,17 +18,21 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install system dependencies
+      - name: Install dependencies (dkp packages)
         run: |
-          echo "Installing system dependencies with apt-get..."
+          echo "Installing Switch dependencies with dkp-pacman..."
+          dkp-pacman -S --noconfirm \
+            switch-sdl2 \
+            switch-mesa \
+            switch-glm \
+            switch-sdl2_ttf \
+            switch-sdl2_image
+
+      - name: Install build tools (system)
+        run: |
+          echo "Installing build tools with apt..."
           apt-get update
           apt-get install -y cmake make git
-
-      - name: Install Switch dependencies
-        run: |
-          echo "Installing Switch libraries with dkp-pacman..."
-          dkp-pacman -Sy --noconfirm
-          dkp-pacman -S --noconfirm switch-dev switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image
 
       - name: Verify dependencies
         run: |
