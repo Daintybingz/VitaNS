@@ -10,55 +10,30 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+    container:
+      image: devkitpro/devkita64
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
         submodules: recursive
-        
-    - name: Debug - Show current directory
+
+    - name: Install dependencies (Switch libraries)
       run: |
-        echo "Current directory: $(pwd)"
-        echo "Listing files:"
-        ls -la
-        
-    - name: Install devkitPro (Recommended CI Method)
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y wget gnupg
-        wget https://apt.devkitpro.org/devkitpro-keyring.gpg
-        sudo install -o root -g root -m 644 devkitpro-keyring.gpg /usr/share/keyrings/
-        echo "deb [signed-by=/usr/share/keyrings/devkitpro-keyring.gpg] https://apt.devkitpro.org stable main" | sudo tee /etc/apt/sources.list.d/devkitpro.list
-        sudo apt-get update
-        sudo apt-get install -y devkitpro-pacman
-        sudo dkp-pacman -Sy
-        sudo dkp-pacman -S --noconfirm switch-dev
-        
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y cmake make git
-        sudo dkp-pacman -S --noconfirm \
-          switch-sdl2 \
-          switch-mesa \
-          switch-glm \
-          switch-sdl2_ttf \
-          switch-sdl2_image
-        
+        dkp-pacman -Sy
+        dkp-pacman -S --noconfirm switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image
+
     - name: Build VitaNS
       run: |
-        echo "Building VitaNS..."
         mkdir -p build
         cd build
         cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
         make -j$(nproc)
       env:
         DEVKITPRO: /opt/devkitpro
-        
+
     - name: Verify build
       run: |
-        echo "Verifying build artifacts..."
         ls -la build/
         if [ -f build/VitaNS.nro ]; then
           echo "✅ Build successful! VitaNS.nro created."
@@ -67,7 +42,7 @@ jobs:
           echo "❌ Build failed! VitaNS.nro not found."
           exit 1
         fi
-        
+
     - name: Upload build
       uses: actions/upload-artifact@v4
       with:
