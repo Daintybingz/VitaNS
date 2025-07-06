@@ -16,13 +16,15 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install devkitPro (Community Mirror)
+      - name: Install devkitPro (with user-agent)
         run: |
-          echo "deb [trusted=yes] https://dkpcommunity.github.io/apt/ ./ " | sudo tee /etc/apt/sources.list.d/devkitpro-community.list
-          sudo apt-get update
-          sudo apt-get install -y devkitpro-pacman
-          sudo dkp-pacman -Sy
-          sudo dkp-pacman -S --noconfirm switch-dev
+          echo "Downloading install-devkitpro-pacman with user-agent workaround"
+          wget --user-agent="Mozilla/5.0" https://apt.devkitpro.org/install-devkitpro-pacman
+          chmod +x install-devkitpro-pacman
+          sudo ./install-devkitpro-pacman
+          # Retry logic for dkp-pacman
+          for i in {1..5}; do sudo dkp-pacman -Sy && break || sleep 10; done
+          for i in {1..5}; do sudo dkp-pacman -S --noconfirm switch-dev && break || sleep 10; done
 
       - name: Install build tools (cmake, make, git)
         run: |
