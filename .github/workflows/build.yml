@@ -21,10 +21,11 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y wget
-        wget https://github.com/devkitPro/pacman/releases/latest/download/devkitpro-pacman.deb
-        sudo dpkg -i devkitpro-pacman.deb
+        wget https://apt.devkitpro.org/install-devkitpro-pacman
+        chmod +x install-devkitpro-pacman
+        sudo ./install-devkitpro-pacman
         sudo dkp-pacman -Sy
-        sudo dkp-pacman -S switch-dev
+        sudo dkp-pacman -S --noconfirm switch-dev
         
     - name: Install dependencies
       run: |
