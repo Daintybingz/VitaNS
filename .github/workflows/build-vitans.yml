@@ -28,11 +28,13 @@ jobs:
         sudo dkp-pacman -Sy
         sudo dkp-pacman -S --noconfirm switch-dev
 
-    - name: Install dependencies
+    - name: Install build tools (cmake, make, git)
       run: |
-        echo "Installing additional dependencies..."
         sudo apt-get update
         sudo apt-get install -y cmake make git
+
+    - name: Install devkitPro Switch dependencies
+      run: |
         sudo dkp-pacman -S --noconfirm \
           switch-sdl2 \
           switch-mesa \
