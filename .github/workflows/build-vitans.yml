@@ -18,39 +18,23 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setup devkitPro
+      - name: Verify environment
         run: |
-          echo "Setting up devkitPro..."
-          dkp-pacman -Sy --noconfirm
-          dkp-pacman -S --noconfirm switch-dev
-
-      - name: Install dependencies (dkp packages)
-        run: |
-          echo "Installing Switch dependencies with dkp-pacman..."
-          dkp-pacman -S --noconfirm \
-            switch-sdl2 \
-            switch-mesa \
-            switch-glm \
-            switch-sdl2_ttf \
-            switch-sdl2_image
-
-      - name: Install build tools (system)
-        run: |
-          echo "Installing build tools with apt..."
-          apt-get update
-          apt-get install -y cmake make git
-
-      - name: Verify dependencies
-        run: |
-          echo "Verifying installed dependencies..."
+          echo "Verifying devkitPro environment..."
+          echo "DEVKITPRO: $DEVKITPRO"
+          ls -la $DEVKITPRO/
+          ls -la $DEVKITPRO/cmake/
+          echo "Available tools:"
+          which cmake
+          which make
+          which git
           cmake --version
           make --version
           git --version
-          echo "Switch toolchain location: $DEVKITPRO"
-          ls -la $DEVKITPRO/cmake/
 
       - name: Build VitaNS
         run: |
+          echo "Building VitaNS..."
           mkdir -p build
           cd build
           cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
