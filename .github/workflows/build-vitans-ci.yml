@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/daintybingz/vitans-devkit:latest  # Updated to use custom GHCR image
+      options: --entrypoint /bin/bash
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
