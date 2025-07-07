@@ -43,8 +43,9 @@ jobs:
           ls -la
           ls -la ..
           ls -la ../..
+          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
           echo "Running cmake with toolchain: $DEVKITPRO/cmake/Switch.cmake"
-          cmake $GITHUB_WORKSPACE/Vita3K-Switch -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
           echo "Running make..."
           make -j$(nproc)
 
