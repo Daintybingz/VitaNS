@@ -8,4 +8,6 @@ RUN apt-get update && apt-get install -y cmake make git
 #     dkp-pacman -S --noconfirm switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image
 
 # Clean up (optional)
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* 
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+ENTRYPOINT ["/bin/bash"] 
