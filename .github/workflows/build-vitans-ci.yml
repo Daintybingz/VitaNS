@@ -1,3 +1,4 @@
+# Workflow cache buster: 2025-07-07
 # This is the updated workflow file to force GitHub Actions to use the correct version and break cache
 name: Build VitaNS for Nintendo Switch (CI)
 
