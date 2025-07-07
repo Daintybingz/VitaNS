@@ -35,7 +35,7 @@ jobs:
       - name: Build VitaNS
         run: |
           echo "=== BUILDING VITANS ==="
-          cd Vita3K-Switch
+          cd VitaNS/Vita3K-Switch
           mkdir -p build
           cd build
           echo "Running cmake with toolchain: $DEVKITPRO/cmake/Switch.cmake"
