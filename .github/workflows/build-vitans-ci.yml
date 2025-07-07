@@ -19,6 +19,12 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Install system build tools
+        run: |
+          echo "Installing system build tools with apt-get..."
+          apt-get update
+          apt-get install -y cmake make git
+
       - name: Verify environment
         run: |
           echo "=== VERIFYING ENVIRONMENT ==="
