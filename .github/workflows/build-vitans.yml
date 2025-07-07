@@ -20,34 +20,47 @@ jobs:
 
       - name: Verify environment
         run: |
-          echo "Verifying devkitPro environment..."
+          echo "=== VERIFYING DEVKITPRO DOCKER ENVIRONMENT ==="
           echo "DEVKITPRO: $DEVKITPRO"
+          echo "Current directory: $(pwd)"
+          echo "Container info:"
+          cat /etc/os-release
+          echo ""
+          echo "DevkitPro installation:"
           ls -la $DEVKITPRO/
+          echo ""
+          echo "Switch toolchain:"
           ls -la $DEVKITPRO/cmake/
-          echo "Available tools:"
-          which cmake
-          which make
-          which git
-          cmake --version
-          make --version
-          git --version
+          echo ""
+          echo "Available build tools:"
+          which cmake && cmake --version
+          which make && make --version
+          which git && git --version
+          echo ""
+          echo "Environment variables:"
+          env | grep -E "(DEVKIT|PATH)" || echo "No devkit environment variables found"
 
       - name: Build VitaNS
         run: |
-          echo "Building VitaNS..."
+          echo "=== BUILDING VITANS ==="
           mkdir -p build
           cd build
+          echo "Running cmake with toolchain: $DEVKITPRO/cmake/Switch.cmake"
           cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
+          echo "Running make..."
           make -j$(nproc)
 
       - name: Verify build
         run: |
+          echo "=== VERIFYING BUILD ==="
           ls -la build/
           if [ -f build/VitaNS.nro ]; then
             echo "✅ Build successful! VitaNS.nro created."
             file build/VitaNS.nro
           else
             echo "❌ Build failed! VitaNS.nro not found."
+            echo "Build directory contents:"
+            ls -la build/
             exit 1
           fi
 
