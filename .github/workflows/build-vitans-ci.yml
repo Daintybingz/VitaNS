@@ -38,8 +38,10 @@ jobs:
           cd VitaNS/Vita3K-Switch
           mkdir -p build
           cd build
+          pwd
+          ls -la ..
           echo "Running cmake with toolchain: $DEVKITPRO/cmake/Switch.cmake"
-          cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
+          cmake $GITHUB_WORKSPACE/VitaNS/Vita3K-Switch -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
           echo "Running make..."
           make -j$(nproc)
 
