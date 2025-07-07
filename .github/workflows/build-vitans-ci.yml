@@ -40,7 +40,9 @@ jobs:
           mkdir -p build
           cd build
           pwd
+          ls -la
           ls -la ..
+          ls -la ../..
           echo "Running cmake with toolchain: $DEVKITPRO/cmake/Switch.cmake"
           cmake $GITHUB_WORKSPACE/Vita3K-Switch -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
           echo "Running make..."
