@@ -1,0 +1,85 @@
+# This is the updated workflow file to force GitHub Actions to use the correct version and break cache
+name: Build VitaNS for Nintendo Switch (CI)
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkita64:latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup devkitPro
+        run: |
+          echo "=== SETTING UP DEVKITPRO ==="
+          dkp-pacman -Sy --noconfirm
+          dkp-pacman -S --noconfirm switch-dev
+
+      - name: Install system build tools
+        run: |
+          echo "Installing system build tools with apt-get..."
+          apt-get update
+          apt-get install -y cmake make git
+
+      - name: Install Switch dependencies
+        run: |
+          echo "Installing Switch libraries with dkp-pacman..."
+          dkp-pacman -Sy --noconfirm
+          dkp-pacman -S --noconfirm \
+            switch-sdl2 \
+            switch-mesa \
+            switch-glm \
+            switch-sdl2_ttf \
+            switch-sdl2_image
+
+      - name: Verify environment
+        run: |
+          echo "=== VERIFYING ENVIRONMENT ==="
+          echo "DEVKITPRO: $DEVKITPRO"
+          echo "Available build tools:"
+          which cmake && cmake --version
+          which make && make --version
+          which git && git --version
+          echo "Switch toolchain:"
+          ls -la $DEVKITPRO/cmake/
+
+      - name: Build VitaNS
+        run: |
+          echo "=== BUILDING VITANS ==="
+          mkdir -p build
+          cd build
+          echo "Running cmake with toolchain: $DEVKITPRO/cmake/Switch.cmake"
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
+          echo "Running make..."
+          make -j$(nproc)
+
+      - name: Verify build
+        run: |
+          echo "=== VERIFYING BUILD ==="
+          ls -la build/
+          if [ -f build/VitaNS.nro ]; then
+            echo "✅ Build successful! VitaNS.nro created."
+            file build/VitaNS.nro
+          else
+            echo "❌ Build failed! VitaNS.nro not found."
+            echo "Build directory contents:"
+            ls -la build/
+            exit 1
+          fi
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: VitaNS-Switch
+          path: build/VitaNS.nro
+          retention-days: 30 
