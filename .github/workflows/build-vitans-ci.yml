@@ -43,6 +43,7 @@ jobs:
           ls -la
           ls -la ..
           ls -la ../..
+          find $GITHUB_WORKSPACE
           echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
           echo "Running cmake with toolchain: $DEVKITPRO/cmake/Switch.cmake"
           cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
