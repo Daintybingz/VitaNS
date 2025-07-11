@@ -16,9 +16,20 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Debug - Check environment
+        run: |
+          echo "=== Debug: Checking environment ==="
+          echo "PWD: $PWD"
+          echo "SHELL: $SHELL"
+          echo "PATH: $PATH"
+          echo "DEVKITPRO: $DEVKITPRO"
+          echo "All environment variables:"
+          env | sort
+
       - name: Install devkitPro
         run: |
           echo "=== Installing devkitPro ==="
+          set -x
           sudo apt-get update
           sudo apt-get install -y curl wget
           curl -L https://github.com/devkitPro/pacman/releases/latest/download/devkitpro-pacman-installer.sh | sudo bash
@@ -29,6 +40,7 @@ jobs:
       - name: Verify toolchain
         run: |
           echo "=== Verifying toolchain ==="
+          set -x
           echo "DEVKITPRO: $DEVKITPRO"
           ls -la $DEVKITPRO/cmake/
           which cmake && cmake --version
@@ -37,6 +49,7 @@ jobs:
       - name: Build VitaNS
         run: |
           echo "=== Building VitaNS ==="
+          set -x
           cd VitaNS/Vita3K-Switch
           mkdir -p build
           cd build
@@ -55,6 +68,7 @@ jobs:
       - name: Verify build
         run: |
           echo "=== Verifying build ==="
+          set -x
           if [ -f VitaNS/Vita3K-Switch/build/VitaNS.nro ]; then
             echo "Build successful! VitaNS.nro created."
             file VitaNS/Vita3K-Switch/build/VitaNS.nro
