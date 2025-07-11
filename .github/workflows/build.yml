@@ -16,50 +16,45 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
-
-      - name: Test Docker image
+      - name: Install devkitPro
         run: |
-          echo "=== Testing Docker image ==="
-          docker run --rm --platform linux/arm64 ghcr.io/daintybingz/vitans-devkit:latest bash -c "
-            echo 'Docker image is working'
-            echo 'DEVKITPRO: '\$DEVKITPRO
-            ls -la \$DEVKITPRO/cmake/ || echo 'Toolchain not found'
-            which cmake && cmake --version
-            which make && make --version
-          "
+          echo "=== Installing devkitPro ==="
+          sudo apt-get update
+          sudo apt-get install -y curl wget
+          
+          # Install devkitPro
+          curl -L https://github.com/devkitPro/pacman/releases/latest/download/devkitpro-pacman-installer.sh | sudo bash
+          sudo dkp-pacman -Sy
+          
+          # Install Switch toolchain
+          sudo dkp-pacman -S --noconfirm switch-dev
+          sudo dkp-pacman -S --noconfirm switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image
+
+      - name: Verify toolchain
+        run: |
+          echo "=== Verifying toolchain ==="
+          echo "DEVKITPRO: $DEVKITPRO"
+          ls -la $DEVKITPRO/cmake/
+          which cmake && cmake --version
+          which make && make --version
 
       - name: Build VitaNS
         run: |
           echo "=== Building VitaNS ==="
-          docker run --rm \
-            --platform linux/arm64 \
-            --memory=4g \
-            --cpus=2 \
-            -v ${{ github.workspace }}:/workspace \
-            -w /workspace \
-            ghcr.io/daintybingz/vitans-devkit:latest \
-            bash -c "
-              set -e
-              echo 'Starting build process...'
-              cd VitaNS/Vita3K-Switch
-              mkdir -p build
-              cd build
-              echo 'Current directory: '\$(pwd)
-              echo 'Directory contents:'
-              ls -la
-              echo 'Running cmake...'
-              cmake .. -DCMAKE_TOOLCHAIN_FILE=\$DEVKITPRO/cmake/Switch.cmake
-              echo 'CMake completed successfully'
-              echo 'Running make...'
-              make -j\$(nproc)
-              echo 'Make completed successfully'
-              echo 'Build artifacts:'
-              ls -la
-            "
+          cd VitaNS/Vita3K-Switch
+          mkdir -p build
+          cd build
+          echo "Current directory: $(pwd)"
+          echo "Directory contents:"
+          ls -la
+          echo "Running cmake..."
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
+          echo "CMake completed successfully"
+          echo "Running make..."
+          make -j$(nproc)
+          echo "Make completed successfully"
+          echo "Build artifacts:"
+          ls -la
 
       - name: Verify build
         run: |
