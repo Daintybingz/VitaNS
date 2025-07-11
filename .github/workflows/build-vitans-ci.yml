@@ -19,56 +19,60 @@ jobs:
           submodules: recursive
           path: .
 
-      - name: Verify environment
+      - name: Test Docker image
         run: |
           set -e
-          echo "=== VERIFYING ENVIRONMENT ==="
+          echo "=== TESTING DOCKER IMAGE ==="
           docker run --rm ghcr.io/daintybingz/vitans-devkit:latest bash -c "
-            echo 'DEVKITPRO: \$DEVKITPRO'
-            echo 'Available build tools:'
+            echo 'Container is working'
+            echo 'DEVKITPRO: '\$DEVKITPRO
+            ls -la \$DEVKITPRO/cmake/ || echo 'Toolchain not found'
             which cmake && cmake --version
             which make && make --version
-            which git && git --version
-            echo 'Switch toolchain:'
-            ls -la \$DEVKITPRO/cmake/
           "
 
       - name: Build VitaNS
         run: |
           set -e
           echo "=== BUILDING VITANS ==="
+          # Use a more robust Docker run command with better error handling
           docker run --rm \
+            --memory=4g \
+            --cpus=2 \
             -v ${{ github.workspace }}:/workspace \
             -w /workspace \
             ghcr.io/daintybingz/vitans-devkit:latest \
             bash -c "
+              set -e
+              echo 'Starting build process...'
               cd VitaNS/Vita3K-Switch
               mkdir -p build
               cd build
-              pwd
+              echo 'Current directory: '\$(pwd)
+              echo 'Directory contents:'
               ls -la
-              ls -la ..
-              ls -la ../..
-              find /workspace
-              echo 'GITHUB_WORKSPACE: /workspace'
-              echo 'Running cmake with toolchain: \$DEVKITPRO/cmake/Switch.cmake'
-              cmake .. -DCMAKE_TOOLCHAIN_FILE=\$DEVKITPRO/cmake/Switch.cmake
+              echo 'Running cmake...'
+              cmake .. -DCMAKE_TOOLCHAIN_FILE=\$DEVKITPRO/cmake/Switch.cmake || { echo 'CMake failed'; exit 1; }
+              echo 'CMake completed successfully'
               echo 'Running make...'
-              make -j\$(nproc)
+              make -j\$(nproc) || { echo 'Make failed'; exit 1; }
+              echo 'Make completed successfully'
+              echo 'Build artifacts:'
+              ls -la
             "
 
       - name: Verify build
         run: |
           set -e
           echo "=== VERIFYING BUILD ==="
-          ls -la VitaNS/Vita3K-Switch/build/
           if [ -f VitaNS/Vita3K-Switch/build/VitaNS.nro ]; then
             echo "✅ Build successful! VitaNS.nro created."
             file VitaNS/Vita3K-Switch/build/VitaNS.nro
+            ls -la VitaNS/Vita3K-Switch/build/
           else
             echo "❌ Build failed! VitaNS.nro not found."
             echo "Build directory contents:"
-            ls -la VitaNS/Vita3K-Switch/build/
+            ls -la VitaNS/Vita3K-Switch/build/ || echo "Build directory does not exist"
             exit 1
           fi
 
