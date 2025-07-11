@@ -1,0 +1,77 @@
+name: Build VitaNS for Nintendo Switch
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Test Docker image
+        run: |
+          echo "=== Testing Docker image ==="
+          docker run --rm ghcr.io/daintybingz/vitans-devkit:latest bash -c "
+            echo 'Docker image is working'
+            echo 'DEVKITPRO: '\$DEVKITPRO
+            ls -la \$DEVKITPRO/cmake/ || echo 'Toolchain not found'
+            which cmake && cmake --version
+            which make && make --version
+          "
+
+      - name: Build VitaNS
+        run: |
+          echo "=== Building VitaNS ==="
+          docker run --rm \
+            --memory=4g \
+            --cpus=2 \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            ghcr.io/daintybingz/vitans-devkit:latest \
+            bash -c "
+              set -e
+              echo 'Starting build process...'
+              cd VitaNS/Vita3K-Switch
+              mkdir -p build
+              cd build
+              echo 'Current directory: '\$(pwd)
+              echo 'Directory contents:'
+              ls -la
+              echo 'Running cmake...'
+              cmake .. -DCMAKE_TOOLCHAIN_FILE=\$DEVKITPRO/cmake/Switch.cmake
+              echo 'CMake completed successfully'
+              echo 'Running make...'
+              make -j\$(nproc)
+              echo 'Make completed successfully'
+              echo 'Build artifacts:'
+              ls -la
+            "
+
+      - name: Verify build
+        run: |
+          echo "=== Verifying build ==="
+          if [ -f VitaNS/Vita3K-Switch/build/VitaNS.nro ]; then
+            echo "✅ Build successful! VitaNS.nro created."
+            file VitaNS/Vita3K-Switch/build/VitaNS.nro
+            ls -la VitaNS/Vita3K-Switch/build/
+          else
+            echo "❌ Build failed! VitaNS.nro not found."
+            echo "Build directory contents:"
+            ls -la VitaNS/Vita3K-Switch/build/ || echo "Build directory does not exist"
+            exit 1
+          fi
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VitaNS-Switch
+          path: VitaNS/Vita3K-Switch/build/VitaNS.nro
+          retention-days: 30 
