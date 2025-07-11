@@ -28,8 +28,14 @@ jobs:
           echo "Installing devkitPro"
           sudo apt-get update
           sudo apt-get install -y curl wget
-          curl -L https://github.com/devkitPro/pacman/releases/latest/download/devkitpro-pacman-installer.sh | sudo bash
+          
+          # Install devkitPro using the correct method
+          curl -L https://apt.devkitpro.org/install-devkitpro-pacman | sudo bash
+          
+          # Initialize pacman
           sudo dkp-pacman -Sy
+          
+          # Install Switch toolchain
           sudo dkp-pacman -S --noconfirm switch-dev
           sudo dkp-pacman -S --noconfirm switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image
 
