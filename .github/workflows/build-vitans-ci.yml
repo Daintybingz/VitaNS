@@ -23,6 +23,7 @@ jobs:
 
       - name: Verify environment
         run: |
+          set -e
           echo "=== VERIFYING ENVIRONMENT ==="
           echo "DEVKITPRO: $DEVKITPRO"
           echo "Available build tools:"
@@ -34,6 +35,7 @@ jobs:
 
       - name: Build VitaNS
         run: |
+          set -e
           echo "=== BUILDING VITANS ==="
           cd VitaNS/Vita3K-Switch
           mkdir -p build
@@ -51,6 +53,7 @@ jobs:
 
       - name: Verify build
         run: |
+          set -e
           echo "=== VERIFYING BUILD ==="
           ls -la build/
           if [ -f build/VitaNS.nro ]; then
