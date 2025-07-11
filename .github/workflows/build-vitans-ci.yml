@@ -12,8 +12,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/daintybingz/vitans-devkit:latest  # Updated to use custom GHCR image
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,44 +23,52 @@ jobs:
         run: |
           set -e
           echo "=== VERIFYING ENVIRONMENT ==="
-          echo "DEVKITPRO: $DEVKITPRO"
-          echo "Available build tools:"
-          which cmake && cmake --version
-          which make && make --version
-          which git && git --version
-          echo "Switch toolchain:"
-          ls -la $DEVKITPRO/cmake/
+          docker run --rm ghcr.io/daintybingz/vitans-devkit:latest bash -c "
+            echo 'DEVKITPRO: \$DEVKITPRO'
+            echo 'Available build tools:'
+            which cmake && cmake --version
+            which make && make --version
+            which git && git --version
+            echo 'Switch toolchain:'
+            ls -la \$DEVKITPRO/cmake/
+          "
 
       - name: Build VitaNS
         run: |
           set -e
           echo "=== BUILDING VITANS ==="
-          cd VitaNS/Vita3K-Switch
-          mkdir -p build
-          cd build
-          pwd
-          ls -la
-          ls -la ..
-          ls -la ../..
-          find $GITHUB_WORKSPACE
-          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-          echo "Running cmake with toolchain: $DEVKITPRO/cmake/Switch.cmake"
-          cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
-          echo "Running make..."
-          make -j$(nproc)
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            ghcr.io/daintybingz/vitans-devkit:latest \
+            bash -c "
+              cd VitaNS/Vita3K-Switch
+              mkdir -p build
+              cd build
+              pwd
+              ls -la
+              ls -la ..
+              ls -la ../..
+              find /workspace
+              echo 'GITHUB_WORKSPACE: /workspace'
+              echo 'Running cmake with toolchain: \$DEVKITPRO/cmake/Switch.cmake'
+              cmake .. -DCMAKE_TOOLCHAIN_FILE=\$DEVKITPRO/cmake/Switch.cmake
+              echo 'Running make...'
+              make -j\$(nproc)
+            "
 
       - name: Verify build
         run: |
           set -e
           echo "=== VERIFYING BUILD ==="
-          ls -la build/
-          if [ -f build/VitaNS.nro ]; then
+          ls -la VitaNS/Vita3K-Switch/build/
+          if [ -f VitaNS/Vita3K-Switch/build/VitaNS.nro ]; then
             echo "✅ Build successful! VitaNS.nro created."
-            file build/VitaNS.nro
+            file VitaNS/Vita3K-Switch/build/VitaNS.nro
           else
             echo "❌ Build failed! VitaNS.nro not found."
             echo "Build directory contents:"
-            ls -la build/
+            ls -la VitaNS/Vita3K-Switch/build/
             exit 1
           fi
 
@@ -70,5 +76,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: VitaNS-Switch
-          path: build/VitaNS.nro
+          path: VitaNS/Vita3K-Switch/build/VitaNS.nro
           retention-days: 30 
