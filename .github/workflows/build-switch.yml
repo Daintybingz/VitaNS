@@ -30,19 +30,19 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y curl wget
           
-          # Test the installer URL first
-          echo "Testing devkitPro installer URL..."
-          INSTALLER_URL="https://apt.devkitpro.org/install-devkitpro-pacman"
-          if curl -f -s "$INSTALLER_URL" > /dev/null; then
-            echo "Installer URL is accessible"
-          else
-            echo "ERROR: Installer URL is not accessible"
+          # Download the installer script first
+          echo "Downloading devkitPro installer..."
+          curl -L -o /tmp/devkitpro-installer.sh https://apt.devkitpro.org/install-devkitpro-pacman
+          
+          # Check if download was successful
+          if [ ! -f /tmp/devkitpro-installer.sh ]; then
+            echo "ERROR: Failed to download installer script"
             exit 1
           fi
           
-          # Install devkitPro using the correct method with error checking
-          echo "Downloading and running devkitPro installer..."
-          curl -L "$INSTALLER_URL" | sudo bash || {
+          # Make it executable and run it
+          chmod +x /tmp/devkitpro-installer.sh
+          sudo /tmp/devkitpro-installer.sh || {
             echo "ERROR: devkitPro installation failed"
             exit 1
           }
