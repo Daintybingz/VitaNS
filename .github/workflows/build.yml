@@ -1,0 +1,45 @@
+name: Build VitaNS
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install devkitPro
+        run: |
+          echo "Installing devkitPro"
+          sudo apt-get update
+          sudo apt-get install -y curl wget
+          curl -L -o /tmp/installer.sh https://apt.devkitpro.org/install-devkitpro-pacman
+          chmod +x /tmp/installer.sh
+          sudo /tmp/installer.sh
+          sudo dkp-pacman -Sy
+          sudo dkp-pacman -S --noconfirm switch-dev
+          sudo dkp-pacman -S --noconfirm switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image
+
+      - name: Build
+        run: |
+          echo "Building VitaNS"
+          cd VitaNS/Vita3K-Switch
+          mkdir -p build
+          cd build
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
+          make -j$(nproc)
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: VitaNS-Switch
+          path: VitaNS/Vita3K-Switch/build/VitaNS.nro
+          retention-days: 30 
