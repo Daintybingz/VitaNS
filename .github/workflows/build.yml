@@ -21,12 +21,8 @@ jobs:
           echo "=== Installing devkitPro ==="
           sudo apt-get update
           sudo apt-get install -y curl wget
-          
-          # Install devkitPro
           curl -L https://github.com/devkitPro/pacman/releases/latest/download/devkitpro-pacman-installer.sh | sudo bash
           sudo dkp-pacman -Sy
-          
-          # Install Switch toolchain
           sudo dkp-pacman -S --noconfirm switch-dev
           sudo dkp-pacman -S --noconfirm switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image
 
@@ -60,11 +56,11 @@ jobs:
         run: |
           echo "=== Verifying build ==="
           if [ -f VitaNS/Vita3K-Switch/build/VitaNS.nro ]; then
-            echo "✅ Build successful! VitaNS.nro created."
+            echo "Build successful! VitaNS.nro created."
             file VitaNS/Vita3K-Switch/build/VitaNS.nro
             ls -la VitaNS/Vita3K-Switch/build/
           else
-            echo "❌ Build failed! VitaNS.nro not found."
+            echo "Build failed! VitaNS.nro not found."
             echo "Build directory contents:"
             ls -la VitaNS/Vita3K-Switch/build/ || echo "Build directory does not exist"
             exit 1
