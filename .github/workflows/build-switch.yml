@@ -1,4 +1,4 @@
-name: Build VitaNS for Nintendo Switch
+name: Build VitaNS Switch
 
 on:
   push:
@@ -16,20 +16,16 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Debug - Check environment
+      - name: Debug environment
         run: |
-          echo "=== Debug: Checking environment ==="
+          echo "Debug: Starting workflow"
           echo "PWD: $PWD"
           echo "SHELL: $SHELL"
           echo "PATH: $PATH"
-          echo "DEVKITPRO: $DEVKITPRO"
-          echo "All environment variables:"
-          env | sort
 
       - name: Install devkitPro
         run: |
-          echo "=== Installing devkitPro ==="
-          set -x
+          echo "Installing devkitPro"
           sudo apt-get update
           sudo apt-get install -y curl wget
           curl -L https://github.com/devkitPro/pacman/releases/latest/download/devkitpro-pacman-installer.sh | sudo bash
@@ -39,8 +35,7 @@ jobs:
 
       - name: Verify toolchain
         run: |
-          echo "=== Verifying toolchain ==="
-          set -x
+          echo "Verifying toolchain"
           echo "DEVKITPRO: $DEVKITPRO"
           ls -la $DEVKITPRO/cmake/
           which cmake && cmake --version
@@ -48,34 +43,22 @@ jobs:
 
       - name: Build VitaNS
         run: |
-          echo "=== Building VitaNS ==="
-          set -x
+          echo "Building VitaNS"
           cd VitaNS/Vita3K-Switch
           mkdir -p build
           cd build
-          echo "Current directory: $(pwd)"
-          echo "Directory contents:"
-          ls -la
-          echo "Running cmake..."
           cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
-          echo "CMake completed successfully"
-          echo "Running make..."
           make -j$(nproc)
-          echo "Make completed successfully"
-          echo "Build artifacts:"
-          ls -la
 
       - name: Verify build
         run: |
-          echo "=== Verifying build ==="
-          set -x
+          echo "Verifying build"
           if [ -f VitaNS/Vita3K-Switch/build/VitaNS.nro ]; then
-            echo "Build successful! VitaNS.nro created."
+            echo "Build successful!"
             file VitaNS/Vita3K-Switch/build/VitaNS.nro
             ls -la VitaNS/Vita3K-Switch/build/
           else
-            echo "Build failed! VitaNS.nro not found."
-            echo "Build directory contents:"
+            echo "Build failed!"
             ls -la VitaNS/Vita3K-Switch/build/ || echo "Build directory does not exist"
             exit 1
           fi
