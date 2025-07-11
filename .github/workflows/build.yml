@@ -18,12 +18,18 @@ jobs:
 
       - name: Install devkitPro
         run: |
-          echo "Installing devkitPro"
+          echo "Installing devkitPro manually"
           sudo apt-get update
           sudo apt-get install -y curl wget
-          curl -L -o /tmp/installer.sh https://apt.devkitpro.org/install-devkitpro-pacman
-          chmod +x /tmp/installer.sh
-          sudo /tmp/installer.sh
+          
+          # Install devkitPro manually
+          sudo apt-get install -y apt-transport-https
+          wget -O /usr/local/share/keyring/devkitpro-pub.gpg https://apt.devkitpro.org/devkitpro-pub.gpg
+          echo "deb [signed-by=/usr/local/share/keyring/devkitpro-pub.gpg] https://apt.devkitpro.org stable main" | sudo tee /etc/apt/sources.list.d/devkitpro.list
+          sudo apt-get update
+          sudo apt-get install -y devkitpro-pacman
+          
+          # Install Switch toolchain
           sudo dkp-pacman -Sy
           sudo dkp-pacman -S --noconfirm switch-dev
           sudo dkp-pacman -S --noconfirm switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image
