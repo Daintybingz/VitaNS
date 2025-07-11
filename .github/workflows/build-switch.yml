@@ -25,22 +25,49 @@ jobs:
 
       - name: Install devkitPro
         run: |
+          set -x
           echo "Installing devkitPro"
           sudo apt-get update
           sudo apt-get install -y curl wget
           
-          # Install devkitPro using the correct method
-          curl -L https://apt.devkitpro.org/install-devkitpro-pacman | sudo bash
+          # Test the installer URL first
+          echo "Testing devkitPro installer URL..."
+          INSTALLER_URL="https://apt.devkitpro.org/install-devkitpro-pacman"
+          if curl -f -s "$INSTALLER_URL" > /dev/null; then
+            echo "Installer URL is accessible"
+          else
+            echo "ERROR: Installer URL is not accessible"
+            exit 1
+          fi
+          
+          # Install devkitPro using the correct method with error checking
+          echo "Downloading and running devkitPro installer..."
+          curl -L "$INSTALLER_URL" | sudo bash || {
+            echo "ERROR: devkitPro installation failed"
+            exit 1
+          }
           
           # Initialize pacman
-          sudo dkp-pacman -Sy
+          echo "Initializing pacman..."
+          sudo dkp-pacman -Sy || {
+            echo "ERROR: pacman initialization failed"
+            exit 1
+          }
           
           # Install Switch toolchain
-          sudo dkp-pacman -S --noconfirm switch-dev
-          sudo dkp-pacman -S --noconfirm switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image
+          echo "Installing Switch toolchain..."
+          sudo dkp-pacman -S --noconfirm switch-dev || {
+            echo "ERROR: switch-dev installation failed"
+            exit 1
+          }
+          sudo dkp-pacman -S --noconfirm switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image || {
+            echo "ERROR: Switch libraries installation failed"
+            exit 1
+          }
 
       - name: Verify toolchain
         run: |
+          set -x
           echo "Verifying toolchain"
           echo "DEVKITPRO: $DEVKITPRO"
           ls -la $DEVKITPRO/cmake/
@@ -49,6 +76,7 @@ jobs:
 
       - name: Build VitaNS
         run: |
+          set -x
           echo "Building VitaNS"
           cd VitaNS/Vita3K-Switch
           mkdir -p build
@@ -58,6 +86,7 @@ jobs:
 
       - name: Verify build
         run: |
+          set -x
           echo "Verifying build"
           if [ -f VitaNS/Vita3K-Switch/build/VitaNS.nro ]; then
             echo "Build successful!"
