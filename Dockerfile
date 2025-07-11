@@ -13,4 +13,4 @@ RUN apt-get update && apt-get install -y \
 #     dkp-pacman -S --noconfirm switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image
 
 # Keep the container alive for CI
-CMD ["tail", "-f", "/dev/null"] 
+CMD ["sleep", "infinity"] 
