@@ -17,7 +17,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
-          path: .
 
       - name: Test Docker image
         run: |
@@ -35,7 +34,6 @@ jobs:
         run: |
           set -e
           echo "=== BUILDING VITANS ==="
-          # Use a more robust Docker run command with better error handling
           docker run --rm \
             --memory=4g \
             --cpus=2 \
