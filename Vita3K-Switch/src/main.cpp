@@ -2,7 +2,7 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <imgui.h>
-#include "imgui_impl_sdl2.h"
+// #include "imgui_impl_sdl2.h"
 
 int main(int argc, char **argv) {
     // EARLY CRASH DEBUGGING: Write a file as soon as main starts
@@ -42,50 +42,13 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    // Step 3: Add ImGui UI with pinpoint logging
-    spdlog::info("[Step 3] Before ImGui::CreateContext");
+    // Test only IMGUI_CHECKVERSION() with logging before and after
+    spdlog::info("[Step 3] Before IMGUI_CHECKVERSION");
     IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    spdlog::info("[Step 3] After ImGui::CreateContext");
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    ImGui::StyleColorsDark();
-    spdlog::info("[Step 3] Before ImGui_ImplSDL2_InitForSDLRenderer");
-    ImGui_ImplSDL2_InitForSDLRenderer(win, nullptr);
-    spdlog::info("[Step 3] After ImGui_ImplSDL2_InitForSDLRenderer");
+    spdlog::info("[Step 3] After IMGUI_CHECKVERSION");
 
-    bool running = true;
-    Uint32 start = SDL_GetTicks();
-    while (running && SDL_GetTicks() - start < 2000) { // Run for 2 seconds
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            ImGui_ImplSDL2_ProcessEvent(&event);
-            if (event.type == SDL_QUIT) running = false;
-        }
-        spdlog::info("[Step 3] Before ImGui_ImplSDL2_NewFrame");
-        ImGui_ImplSDL2_NewFrame();
-        spdlog::info("[Step 3] After ImGui_ImplSDL2_NewFrame");
-        spdlog::info("[Step 3] Before ImGui::NewFrame");
-        ImGui::NewFrame();
-        spdlog::info("[Step 3] After ImGui::NewFrame");
-        spdlog::info("[Step 3] Before ImGui::Begin");
-        ImGui::Begin("VitaNS Isolation Test");
-        spdlog::info("[Step 3] After ImGui::Begin");
-        ImGui::Text("ImGui is working!");
-        spdlog::info("[Step 3] Before ImGui::End");
-        ImGui::End();
-        spdlog::info("[Step 3] After ImGui::End");
-        spdlog::info("[Step 3] Before ImGui::Render");
-        ImGui::Render();
-        spdlog::info("[Step 3] After ImGui::Render");
-        SDL_UpdateWindowSurface(win); // No renderer, just update surface
-    }
-
-    spdlog::info("[Step 3] Before ImGui_ImplSDL2_Shutdown");
-    ImGui_ImplSDL2_Shutdown();
-    spdlog::info("[Step 3] After ImGui_ImplSDL2_Shutdown");
-    spdlog::info("[Step 3] Before ImGui::DestroyContext");
-    ImGui::DestroyContext();
-    spdlog::info("[Step 3] After ImGui::DestroyContext");
+    // Wait 2 seconds to observe window
+    SDL_Delay(2000);
 
     SDL_DestroyWindow(win);
     SDL_Quit();
