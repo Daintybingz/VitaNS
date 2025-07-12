@@ -1,7 +1,7 @@
 #include <SDL2/SDL.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
-// #include <imgui.h>
+#include <imgui.h>
 // #include "imgui_impl_sdl2.h"
 
 int main(int argc, char **argv) {
