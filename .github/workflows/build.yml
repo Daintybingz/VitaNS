@@ -11,7 +11,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/devkitpro/devkita64:latest
+      image: devkitpro/devkita64:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
