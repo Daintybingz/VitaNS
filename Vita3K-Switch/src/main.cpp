@@ -65,7 +65,17 @@ int main(int argc, char **argv) {
     ImGui::CreateContext();
     spdlog::info("[Step 3] After ImGui::CreateContext");
     
-    // Initialize ImGui SDL2 backend
+    // Test SDL2 renderer without ImGui first
+    spdlog::info("[Step 4] Testing SDL2 renderer without ImGui");
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Red background
+    SDL_RenderClear(renderer);
+    SDL_RenderPresent(renderer);
+    spdlog::info("[Step 4] SDL2 renderer test completed");
+    
+    // Wait 1 second to see red background
+    SDL_Delay(1000);
+    
+    // Now test ImGui initialization
     spdlog::info("[Step 4] Before ImGui_ImplSDL2_InitForSDLRenderer");
     if (!ImGui_ImplSDL2_InitForSDLRenderer(win, renderer)) {
         spdlog::error("ImGui_ImplSDL2_InitForSDLRenderer failed");
@@ -77,11 +87,8 @@ int main(int argc, char **argv) {
     }
     spdlog::info("[Step 4] After ImGui_ImplSDL2_InitForSDLRenderer");
     
-    // Setup ImGui style
-    ImGui::StyleColorsDark();
-    
-    // Test ImGui functionality without complex rendering
-    spdlog::info("[Step 5] Testing ImGui functionality");
+    // Test basic ImGui functions without rendering
+    spdlog::info("[Step 5] Testing basic ImGui functions");
     
     // Test ImGui frame creation
     spdlog::info("[Step 5] Before ImGui_ImplSDL2_NewFrame");
@@ -92,29 +99,29 @@ int main(int argc, char **argv) {
     ImGui::NewFrame();
     spdlog::info("[Step 5] After ImGui::NewFrame");
     
-    // Test ImGui UI creation
+    // Test ImGui UI creation (without rendering)
     spdlog::info("[Step 5] Before ImGui::Begin");
     ImGui::Begin("VitaNS Test");
     spdlog::info("[Step 5] After ImGui::Begin");
     
     ImGui::Text("Hello, VitaNS!");
-    ImGui::Text("ImGui is working on Nintendo Switch!");
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 
-                1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    spdlog::info("[Step 5] After ImGui::Text");
     
     spdlog::info("[Step 5] Before ImGui::End");
     ImGui::End();
     spdlog::info("[Step 5] After ImGui::End");
     
-    // Test ImGui rendering
+    // Test ImGui render (this might be where it crashes)
     spdlog::info("[Step 5] Before ImGui::Render");
     ImGui::Render();
     spdlog::info("[Step 5] After ImGui::Render");
     
     // Simple SDL2 rendering test
+    spdlog::info("[Step 5] Before SDL rendering");
     SDL_SetRenderDrawColor(renderer, (Uint8)(0.45f * 255), (Uint8)(0.55f * 255), (Uint8)(0.60f * 255), (Uint8)(255));
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
+    spdlog::info("[Step 5] After SDL rendering");
     
     spdlog::info("[Step 5] ImGui functionality test completed successfully");
     
