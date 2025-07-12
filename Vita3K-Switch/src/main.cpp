@@ -1,4 +1,6 @@
 #include <SDL2/SDL.h>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
 
 int main(int argc, char **argv) {
     // EARLY CRASH DEBUGGING: Write a file as soon as main starts
@@ -11,6 +13,20 @@ int main(int argc, char **argv) {
         if (root_log) {
             fprintf(root_log, "main() started (root)\n");
             fclose(root_log);
+        }
+    }
+
+    // Step 2: Add Logging
+    try {
+        auto file_logger = spdlog::basic_logger_mt("file_logger", "sdmc:/switch/vitans/log.txt");
+        spdlog::set_default_logger(file_logger);
+        spdlog::set_level(spdlog::level::debug);
+        spdlog::info("[Step 2] Logging initialized and working!");
+    } catch (const spdlog::spdlog_ex& ex) {
+        FILE* log_fail = fopen("sdmc:/switch/vitans/log_fail.txt", "w");
+        if (log_fail) {
+            fprintf(log_fail, "spdlog init failed: %s\n", ex.what());
+            fclose(log_fail);
         }
     }
 
