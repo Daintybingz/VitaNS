@@ -18,6 +18,16 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Debug environment
+        run: |
+          echo "Debug: Starting Docker-based build"
+          echo "PWD: $PWD"
+          echo "DEVKITPRO: $DEVKITPRO"
+          echo "Directory contents:"
+          ls -la
+          echo "VitaNS directory:"
+          ls -la VitaNS/ || echo "VitaNS directory not found"
+
       - name: Build
         run: |
           echo "Building VitaNS"
