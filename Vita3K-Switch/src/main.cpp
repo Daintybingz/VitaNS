@@ -1,6 +1,8 @@
 #include <SDL2/SDL.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <imgui.h>
+#include "imgui_impl_sdl2.h"
 
 int main(int argc, char **argv) {
     // EARLY CRASH DEBUGGING: Write a file as soon as main starts
@@ -40,8 +42,34 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    // Main loop: show window for 2 seconds
-    SDL_Delay(2000);
+    // Step 3: Add ImGui UI
+    spdlog::info("[Step 3] Initializing ImGui");
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplSDL2_InitForSDLRenderer(win, nullptr);
+
+    bool running = true;
+    Uint32 start = SDL_GetTicks();
+    while (running && SDL_GetTicks() - start < 2000) { // Run for 2 seconds
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            ImGui_ImplSDL2_ProcessEvent(&event);
+            if (event.type == SDL_QUIT) running = false;
+        }
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
+        ImGui::Begin("VitaNS Isolation Test");
+        ImGui::Text("ImGui is working!");
+        ImGui::End();
+        ImGui::Render();
+        SDL_UpdateWindowSurface(win); // No renderer, just update surface
+    }
+
+    spdlog::info("[Step 3] Shutting down ImGui");
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
 
     SDL_DestroyWindow(win);
     SDL_Quit();
