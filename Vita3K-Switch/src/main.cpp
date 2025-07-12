@@ -98,50 +98,45 @@ int main(int argc, char **argv) {
     // Wait 1 second to see green background
     SDL_Delay(1000);
     
-    // Test ImGui core functionality WITHOUT SDL2 backend
-    spdlog::info("[Step 4] Testing ImGui core functionality without SDL2 backend");
+    // Test SDL2 functionality without ImGui
+    spdlog::info("[Step 4] Testing SDL2 functionality without ImGui");
     
-    // Test ImGui frame creation (without backend)
-    spdlog::info("[Step 4] Before ImGui::NewFrame (no backend)");
-    ImGui::NewFrame();
-    spdlog::info("[Step 4] After ImGui::NewFrame (no backend)");
+    // Test SDL2 color cycling
+    spdlog::info("[Step 4] Testing SDL2 color cycling");
     
-    // Test ImGui UI creation (without backend)
-    spdlog::info("[Step 4] Before ImGui::Begin (no backend)");
-    ImGui::Begin("VitaNS Test");
-    spdlog::info("[Step 4] After ImGui::Begin (no backend)");
-    
-    ImGui::Text("Hello, VitaNS!");
-    spdlog::info("[Step 4] After ImGui::Text (no backend)");
-    
-    spdlog::info("[Step 4] Before ImGui::End (no backend)");
-    ImGui::End();
-    spdlog::info("[Step 4] After ImGui::End (no backend)");
-    
-    // Test ImGui render (without backend)
-    spdlog::info("[Step 4] Before ImGui::Render (no backend)");
-    ImGui::Render();
-    spdlog::info("[Step 4] After ImGui::Render (no backend)");
-    
-    // Test ImGui draw data access
-    spdlog::info("[Step 4] Before ImGui::GetDrawData");
-    ImDrawData* draw_data = ImGui::GetDrawData();
-    spdlog::info("[Step 4] After ImGui::GetDrawData");
-    
-    if (draw_data) {
-        spdlog::info("[Step 4] Draw data has {} command lists", draw_data->CmdListsCount);
-    } else {
-        spdlog::info("[Step 4] Draw data is null");
+    for (int i = 0; i < 5; i++) {
+        spdlog::info("[Step 4] Color cycle {} - Red", i);
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        SDL_RenderClear(renderer);
+        SDL_RenderPresent(renderer);
+        SDL_Delay(500);
+        
+        spdlog::info("[Step 4] Color cycle {} - Green", i);
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+        SDL_RenderClear(renderer);
+        SDL_RenderPresent(renderer);
+        SDL_Delay(500);
+        
+        spdlog::info("[Step 4] Color cycle {} - Blue", i);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+        SDL_RenderClear(renderer);
+        SDL_RenderPresent(renderer);
+        SDL_Delay(500);
     }
     
-    // Final SDL2 rendering test
-    spdlog::info("[Step 4] Before final SDL rendering");
-    SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); // Blue background
+    spdlog::info("[Step 4] SDL2 functionality test completed successfully");
+    
+    // Test ImGui context destruction
+    spdlog::info("[Step 4] Before ImGui::DestroyContext");
+    ImGui::DestroyContext();
+    spdlog::info("[Step 4] After ImGui::DestroyContext");
+    
+    // Final SDL2 test after ImGui destruction
+    spdlog::info("[Step 4] Final SDL2 test after ImGui destruction");
+    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255); // Yellow background
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
-    spdlog::info("[Step 4] After final SDL rendering");
-    
-    spdlog::info("[Step 4] ImGui core functionality test completed successfully");
+    spdlog::info("[Step 4] Final SDL2 test completed");
     
     // Wait 2 seconds to observe window
     SDL_Delay(2000);
