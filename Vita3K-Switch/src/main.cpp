@@ -42,6 +42,11 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    // Test only IMGUI_CHECKVERSION() with logging before and after
+    spdlog::info("[Step 3] Before IMGUI_CHECKVERSION");
+    IMGUI_CHECKVERSION();
+    spdlog::info("[Step 3] After IMGUI_CHECKVERSION");
+
     // Wait 2 seconds to observe window
     SDL_Delay(2000);
 
