@@ -10,48 +10,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/devkitpro/devkita64:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Install devkitPro
-        run: |
-          echo "Installing devkitPro using alternative method"
-          sudo apt-get update
-          sudo apt-get install -y curl wget ca-certificates gnupg
-          
-          # Create directory for GPG key
-          sudo mkdir -p /usr/local/share/keyring/
-          
-          # Download GPG key
-          wget -O /usr/local/share/keyring/devkitpro-pub.gpg https://apt.devkitpro.org/devkitpro-pub.gpg
-          
-          # Add repository
-          echo "deb [signed-by=/usr/local/share/keyring/devkitpro-pub.gpg] https://apt.devkitpro.org stable main" | sudo tee /etc/apt/sources.list.d/devkitpro.list
-          
-          # Update and install
-          sudo apt-get update
-          sudo apt-get install -y devkitpro-pacman
-          
-          # Set up environment
-          export DEVKITPRO=/opt/devkitpro
-          export DEVKITA64=/opt/devkitpro/devkitA64
-          export PATH=$PATH:$DEVKITPRO/tools/bin
-          
-          # Install Switch toolchain
-          sudo dkp-pacman -Sy
-          sudo dkp-pacman -S --noconfirm switch-dev
-          sudo dkp-pacman -S --noconfirm switch-sdl2 switch-mesa switch-glm switch-sdl2_ttf switch-sdl2_image
-
       - name: Build
         run: |
           echo "Building VitaNS"
-          export DEVKITPRO=/opt/devkitpro
-          export DEVKITA64=/opt/devkitpro/devkitA64
-          export PATH=$PATH:$DEVKITPRO/tools/bin
-          
           cd VitaNS/Vita3K-Switch
           mkdir -p build
           cd build
