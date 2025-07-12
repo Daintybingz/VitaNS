@@ -80,14 +80,13 @@ add_custom_command(TARGET VitaNS POST_BUILD
     COMMENT "Converting VitaNS.elf to VitaNS.nro using elf2nro"
 )
 
-# Add ImGui sources (SDL2 + OpenGL ES)
+# Add ImGui sources (SDL2 only)
 file(GLOB IMGUI_SRC
     external/imgui/imgui.cpp
     external/imgui/imgui_draw.cpp
     external/imgui/imgui_tables.cpp
     external/imgui/imgui_widgets.cpp
     external/imgui/imgui_impl_sdl2.cpp
-    external/imgui/backends/imgui_impl_opengl3.cpp
 )
 target_sources(VitaNS PRIVATE ${IMGUI_SRC})
 target_include_directories(VitaNS PRIVATE external/imgui)

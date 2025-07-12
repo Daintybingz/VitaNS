@@ -3,8 +3,6 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <imgui.h>
 #include "imgui_impl_sdl2.h"
-#include "backends/imgui_impl_opengl3.h"
-#include <GLES2/gl2.h>
 
 int main(int argc, char **argv) {
     // EARLY CRASH DEBUGGING: Write a file as soon as main starts
@@ -34,31 +32,24 @@ int main(int argc, char **argv) {
         }
     }
 
-    // Initialize SDL2 and create a window with OpenGL ES context
+    // Initialize SDL2 and create a window
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         spdlog::error("SDL_Init failed: {}", SDL_GetError());
         return 1;
     }
     
-    // Set OpenGL ES attributes
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-    
     SDL_Window* win = SDL_CreateWindow("VitaNS", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
-                                       1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+                                       1280, 720, SDL_WINDOW_SHOWN);
     if (!win) {
         spdlog::error("SDL_CreateWindow failed: {}", SDL_GetError());
         SDL_Quit();
         return 1;
     }
     
-    // Create OpenGL ES context
-    SDL_GLContext gl_context = SDL_GL_CreateContext(win);
-    if (!gl_context) {
-        spdlog::error("SDL_GL_CreateContext failed: {}", SDL_GetError());
+    // Create SDL2 renderer
+    SDL_Renderer* renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if (!renderer) {
+        spdlog::error("SDL_CreateRenderer failed: {}", SDL_GetError());
         SDL_DestroyWindow(win);
         SDL_Quit();
         return 1;
@@ -75,29 +66,16 @@ int main(int argc, char **argv) {
     spdlog::info("[Step 3] After ImGui::CreateContext");
     
     // Initialize ImGui SDL2 backend
-    spdlog::info("[Step 4] Before ImGui_ImplSDL2_InitForOpenGL");
-    if (!ImGui_ImplSDL2_InitForOpenGL(win, gl_context)) {
-        spdlog::error("ImGui_ImplSDL2_InitForOpenGL failed");
+    spdlog::info("[Step 4] Before ImGui_ImplSDL2_InitForSDLRenderer");
+    if (!ImGui_ImplSDL2_InitForSDLRenderer(win, renderer)) {
+        spdlog::error("ImGui_ImplSDL2_InitForSDLRenderer failed");
         ImGui::DestroyContext();
-        SDL_GL_DeleteContext(gl_context);
+        SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(win);
         SDL_Quit();
         return 1;
     }
-    spdlog::info("[Step 4] After ImGui_ImplSDL2_InitForOpenGL");
-    
-    // Initialize ImGui OpenGL ES backend
-    spdlog::info("[Step 4] Before ImGui_ImplOpenGL3_Init");
-    if (!ImGui_ImplOpenGL3_Init("#version 100")) {
-        spdlog::error("ImGui_ImplOpenGL3_Init failed");
-        ImGui_ImplSDL2_Shutdown();
-        ImGui::DestroyContext();
-        SDL_GL_DeleteContext(gl_context);
-        SDL_DestroyWindow(win);
-        SDL_Quit();
-        return 1;
-    }
-    spdlog::info("[Step 4] After ImGui_ImplOpenGL3_Init");
+    spdlog::info("[Step 4] After ImGui_ImplSDL2_InitForSDLRenderer");
     
     // Setup ImGui style
     ImGui::StyleColorsDark();
@@ -118,7 +96,6 @@ int main(int argc, char **argv) {
         
         // Start the ImGui frame
         ImGui_ImplSDL2_NewFrame();
-        ImGui_ImplOpenGL3_NewFrame();
         ImGui::NewFrame();
         
         // Create a simple ImGui window
@@ -133,26 +110,25 @@ int main(int argc, char **argv) {
         ImGui::End();
         
         // Rendering
-        ImGui::Render();
-        glViewport(0, 0, (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
-        glClearColor(0.45f, 0.55f, 0.60f, 1.00f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        SDL_RenderSetScale(renderer, ImGui::GetIO().DisplayFramebufferScale.x, ImGui::GetIO().DisplayFramebufferScale.y);
+        SDL_SetRenderDrawColor(renderer, (Uint8)(0.45f * 255), (Uint8)(0.55f * 255), (Uint8)(0.60f * 255), (Uint8)(255));
+        SDL_RenderClear(renderer);
         
         // Render ImGui
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        ImGui_ImplSDL2_RenderDrawData(ImGui::GetDrawData());
+        SDL_RenderPresent(renderer);
         
-        SDL_GL_SwapWindow(win);
+
         
         // Cap at 60 FPS
         SDL_Delay(16);
     }
 
     // Cleanup ImGui
-    ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
     
-    SDL_GL_DeleteContext(gl_context);
+    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(win);
     SDL_Quit();
     
