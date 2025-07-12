@@ -79,7 +79,7 @@ add_custom_command(TARGET VitaNS POST_BUILD
     COMMENT "Converting VitaNS.elf to VitaNS.nro using elf2nro"
 )
 
-# Add ImGui sources with OpenGL3 implementation
+# Add ImGui sources (SDL2 only, no OpenGL3)
 file(GLOB IMGUI_SRC
     external/imgui/imgui.cpp
     external/imgui/imgui_draw.cpp
@@ -87,7 +87,6 @@ file(GLOB IMGUI_SRC
     external/imgui/imgui_widgets.cpp
     external/imgui/imgui_demo.cpp
     external/imgui/imgui_impl_sdl2.cpp
-    external/imgui/imgui_impl_opengl3.cpp
 )
 target_sources(VitaNS PRIVATE ${IMGUI_SRC})
 target_include_directories(VitaNS PRIVATE external/imgui)
@@ -96,4 +95,10 @@ target_include_directories(VitaNS PRIVATE external/imgui)
 target_compile_options(VitaNS PRIVATE -fno-common)
 
 # Add linker flags for Switch
-target_link_options(VitaNS PRIVATE -Wl,--gc-sections) 
+target_link_options(VitaNS PRIVATE -Wl,--gc-sections)
+
+# Define Switch-specific macros to avoid dynamic linking
+target_compile_definitions(VitaNS PRIVATE 
+    __SWITCH__=1
+    IMGUI_DISABLE_OPENGL3=1
+) 

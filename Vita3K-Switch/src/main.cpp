@@ -271,7 +271,8 @@ void imgui_main_menu(SDL_Window* win, SDL_GLContext gl_context) {
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui::StyleColorsDark();
     ImGui_ImplSDL2_InitForOpenGL(win, gl_context);
-    ImGui_ImplOpenGL3_Init("#version 300 es");
+    // Remove OpenGL3 initialization for Switch compatibility
+    // ImGui_ImplOpenGL3_Init("#version 300 es");
 
     static char pupPath[256] = "sdmc:/switch/vitans/PSVUPDAT.PUP";
     static char vpkPath[256] = "sdmc:/switch/vitans/games/";
@@ -287,7 +288,8 @@ void imgui_main_menu(SDL_Window* win, SDL_GLContext gl_context) {
             ImGui_ImplSDL2_ProcessEvent(&event);
             if (event.type == SDL_QUIT) running = false;
         }
-        ImGui_ImplOpenGL3_NewFrame();
+        // Remove OpenGL3 frame for Switch compatibility
+        // ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
@@ -371,11 +373,13 @@ void imgui_main_menu(SDL_Window* win, SDL_GLContext gl_context) {
         glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        // Remove OpenGL3 rendering for Switch compatibility
+        // ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(win);
     }
     // Cleanup
-    ImGui_ImplOpenGL3_Shutdown();
+    // Remove OpenGL3 shutdown for Switch compatibility
+    // ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
 }
