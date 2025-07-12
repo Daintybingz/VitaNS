@@ -42,13 +42,16 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    // Step 3: Add ImGui UI
-    spdlog::info("[Step 3] Initializing ImGui");
+    // Step 3: Add ImGui UI with pinpoint logging
+    spdlog::info("[Step 3] Before ImGui::CreateContext");
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    spdlog::info("[Step 3] After ImGui::CreateContext");
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui::StyleColorsDark();
+    spdlog::info("[Step 3] Before ImGui_ImplSDL2_InitForSDLRenderer");
     ImGui_ImplSDL2_InitForSDLRenderer(win, nullptr);
+    spdlog::info("[Step 3] After ImGui_ImplSDL2_InitForSDLRenderer");
 
     bool running = true;
     Uint32 start = SDL_GetTicks();
@@ -58,18 +61,31 @@ int main(int argc, char **argv) {
             ImGui_ImplSDL2_ProcessEvent(&event);
             if (event.type == SDL_QUIT) running = false;
         }
+        spdlog::info("[Step 3] Before ImGui_ImplSDL2_NewFrame");
         ImGui_ImplSDL2_NewFrame();
+        spdlog::info("[Step 3] After ImGui_ImplSDL2_NewFrame");
+        spdlog::info("[Step 3] Before ImGui::NewFrame");
         ImGui::NewFrame();
+        spdlog::info("[Step 3] After ImGui::NewFrame");
+        spdlog::info("[Step 3] Before ImGui::Begin");
         ImGui::Begin("VitaNS Isolation Test");
+        spdlog::info("[Step 3] After ImGui::Begin");
         ImGui::Text("ImGui is working!");
+        spdlog::info("[Step 3] Before ImGui::End");
         ImGui::End();
+        spdlog::info("[Step 3] After ImGui::End");
+        spdlog::info("[Step 3] Before ImGui::Render");
         ImGui::Render();
+        spdlog::info("[Step 3] After ImGui::Render");
         SDL_UpdateWindowSurface(win); // No renderer, just update surface
     }
 
-    spdlog::info("[Step 3] Shutting down ImGui");
+    spdlog::info("[Step 3] Before ImGui_ImplSDL2_Shutdown");
     ImGui_ImplSDL2_Shutdown();
+    spdlog::info("[Step 3] After ImGui_ImplSDL2_Shutdown");
+    spdlog::info("[Step 3] Before ImGui::DestroyContext");
     ImGui::DestroyContext();
+    spdlog::info("[Step 3] After ImGui::DestroyContext");
 
     SDL_DestroyWindow(win);
     SDL_Quit();
