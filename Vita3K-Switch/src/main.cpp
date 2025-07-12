@@ -1,7 +1,7 @@
 #include <SDL2/SDL.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
-#include <imgui.h>
+// #include <imgui.h>
 // #include "imgui_impl_sdl2.h"
 
 int main(int argc, char **argv) {
@@ -18,12 +18,12 @@ int main(int argc, char **argv) {
         }
     }
 
-    // Step 2: Add Logging
+    // Step 2: Add Logging (before any ImGui code)
     try {
         auto file_logger = spdlog::basic_logger_mt("file_logger", "sdmc:/switch/vitans/log.txt");
         spdlog::set_default_logger(file_logger);
         spdlog::set_level(spdlog::level::debug);
-        spdlog::info("[Step 2] Logging initialized and working!");
+        spdlog::info("[Step 2] Logging initialized and working! (before ImGui)");
     } catch (const spdlog::spdlog_ex& ex) {
         FILE* log_fail = fopen("sdmc:/switch/vitans/log_fail.txt", "w");
         if (log_fail) {
@@ -41,11 +41,6 @@ int main(int argc, char **argv) {
         SDL_Quit();
         return 1;
     }
-
-    // Test only IMGUI_CHECKVERSION() with logging before and after
-    spdlog::info("[Step 3] Before IMGUI_CHECKVERSION");
-    IMGUI_CHECKVERSION();
-    spdlog::info("[Step 3] After IMGUI_CHECKVERSION");
 
     // Wait 2 seconds to observe window
     SDL_Delay(2000);
