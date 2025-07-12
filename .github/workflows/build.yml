@@ -18,16 +18,27 @@ jobs:
 
       - name: Install devkitPro
         run: |
-          echo "Installing devkitPro manually"
+          echo "Installing devkitPro using alternative method"
           sudo apt-get update
-          sudo apt-get install -y curl wget
+          sudo apt-get install -y curl wget ca-certificates gnupg
           
-          # Install devkitPro manually
-          sudo apt-get install -y apt-transport-https
+          # Create directory for GPG key
+          sudo mkdir -p /usr/local/share/keyring/
+          
+          # Download GPG key
           wget -O /usr/local/share/keyring/devkitpro-pub.gpg https://apt.devkitpro.org/devkitpro-pub.gpg
+          
+          # Add repository
           echo "deb [signed-by=/usr/local/share/keyring/devkitpro-pub.gpg] https://apt.devkitpro.org stable main" | sudo tee /etc/apt/sources.list.d/devkitpro.list
+          
+          # Update and install
           sudo apt-get update
           sudo apt-get install -y devkitpro-pacman
+          
+          # Set up environment
+          export DEVKITPRO=/opt/devkitpro
+          export DEVKITA64=/opt/devkitpro/devkitA64
+          export PATH=$PATH:$DEVKITPRO/tools/bin
           
           # Install Switch toolchain
           sudo dkp-pacman -Sy
@@ -37,6 +48,10 @@ jobs:
       - name: Build
         run: |
           echo "Building VitaNS"
+          export DEVKITPRO=/opt/devkitpro
+          export DEVKITA64=/opt/devkitpro/devkitA64
+          export PATH=$PATH:$DEVKITPRO/tools/bin
+          
           cd VitaNS/Vita3K-Switch
           mkdir -p build
           cd build
