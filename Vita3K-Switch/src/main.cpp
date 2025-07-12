@@ -80,49 +80,46 @@ int main(int argc, char **argv) {
     // Setup ImGui style
     ImGui::StyleColorsDark();
     
-    // Main render loop
-    bool done = false;
-    SDL_Event event;
+    // Test ImGui functionality without complex rendering
+    spdlog::info("[Step 5] Testing ImGui functionality");
     
-    spdlog::info("[Step 5] Starting main render loop");
+    // Test ImGui frame creation
+    spdlog::info("[Step 5] Before ImGui_ImplSDL2_NewFrame");
+    ImGui_ImplSDL2_NewFrame();
+    spdlog::info("[Step 5] After ImGui_ImplSDL2_NewFrame");
     
-    while (!done) {
-        // Poll and handle events
-        while (SDL_PollEvent(&event)) {
-            ImGui_ImplSDL2_ProcessEvent(&event);
-            if (event.type == SDL_QUIT)
-                done = true;
-        }
-        
-        // Start the ImGui frame
-        ImGui_ImplSDL2_NewFrame();
-        ImGui::NewFrame();
-        
-        // Create a simple ImGui window
-        ImGui::Begin("VitaNS Test");
-        ImGui::Text("Hello, VitaNS!");
-        ImGui::Text("ImGui is working on Nintendo Switch!");
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 
-                    1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-        if (ImGui::Button("Close")) {
-            done = true;
-        }
-        ImGui::End();
-        
-        // Rendering
-        SDL_RenderSetScale(renderer, ImGui::GetIO().DisplayFramebufferScale.x, ImGui::GetIO().DisplayFramebufferScale.y);
-        SDL_SetRenderDrawColor(renderer, (Uint8)(0.45f * 255), (Uint8)(0.55f * 255), (Uint8)(0.60f * 255), (Uint8)(255));
-        SDL_RenderClear(renderer);
-        
-        // Render ImGui
-        ImGui_ImplSDL2_RenderDrawData(ImGui::GetDrawData());
-        SDL_RenderPresent(renderer);
-        
-
-        
-        // Cap at 60 FPS
-        SDL_Delay(16);
-    }
+    spdlog::info("[Step 5] Before ImGui::NewFrame");
+    ImGui::NewFrame();
+    spdlog::info("[Step 5] After ImGui::NewFrame");
+    
+    // Test ImGui UI creation
+    spdlog::info("[Step 5] Before ImGui::Begin");
+    ImGui::Begin("VitaNS Test");
+    spdlog::info("[Step 5] After ImGui::Begin");
+    
+    ImGui::Text("Hello, VitaNS!");
+    ImGui::Text("ImGui is working on Nintendo Switch!");
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 
+                1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    
+    spdlog::info("[Step 5] Before ImGui::End");
+    ImGui::End();
+    spdlog::info("[Step 5] After ImGui::End");
+    
+    // Test ImGui rendering
+    spdlog::info("[Step 5] Before ImGui::Render");
+    ImGui::Render();
+    spdlog::info("[Step 5] After ImGui::Render");
+    
+    // Simple SDL2 rendering test
+    SDL_SetRenderDrawColor(renderer, (Uint8)(0.45f * 255), (Uint8)(0.55f * 255), (Uint8)(0.60f * 255), (Uint8)(255));
+    SDL_RenderClear(renderer);
+    SDL_RenderPresent(renderer);
+    
+    spdlog::info("[Step 5] ImGui functionality test completed successfully");
+    
+    // Wait 2 seconds to observe window
+    SDL_Delay(2000);
 
     // Cleanup ImGui
     ImGui_ImplSDL2_Shutdown();
