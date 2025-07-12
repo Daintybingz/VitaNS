@@ -98,55 +98,50 @@ int main(int argc, char **argv) {
     // Wait 1 second to see green background
     SDL_Delay(1000);
     
-    // Now test ImGui initialization
-    spdlog::info("[Step 4] Before ImGui_ImplSDL2_InitForSDLRenderer");
-    if (!ImGui_ImplSDL2_InitForSDLRenderer(win, renderer)) {
-        spdlog::error("ImGui_ImplSDL2_InitForSDLRenderer failed");
-        ImGui::DestroyContext();
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(win);
-        SDL_Quit();
-        return 1;
-    }
-    spdlog::info("[Step 4] After ImGui_ImplSDL2_InitForSDLRenderer");
+    // Test ImGui core functionality WITHOUT SDL2 backend
+    spdlog::info("[Step 4] Testing ImGui core functionality without SDL2 backend");
     
-    // Test basic ImGui functions without rendering
-    spdlog::info("[Step 5] Testing basic ImGui functions");
-    
-    // Test ImGui frame creation
-    spdlog::info("[Step 5] Before ImGui_ImplSDL2_NewFrame");
-    ImGui_ImplSDL2_NewFrame();
-    spdlog::info("[Step 5] After ImGui_ImplSDL2_NewFrame");
-    
-    spdlog::info("[Step 5] Before ImGui::NewFrame");
+    // Test ImGui frame creation (without backend)
+    spdlog::info("[Step 4] Before ImGui::NewFrame (no backend)");
     ImGui::NewFrame();
-    spdlog::info("[Step 5] After ImGui::NewFrame");
+    spdlog::info("[Step 4] After ImGui::NewFrame (no backend)");
     
-    // Test ImGui UI creation (without rendering)
-    spdlog::info("[Step 5] Before ImGui::Begin");
+    // Test ImGui UI creation (without backend)
+    spdlog::info("[Step 4] Before ImGui::Begin (no backend)");
     ImGui::Begin("VitaNS Test");
-    spdlog::info("[Step 5] After ImGui::Begin");
+    spdlog::info("[Step 4] After ImGui::Begin (no backend)");
     
     ImGui::Text("Hello, VitaNS!");
-    spdlog::info("[Step 5] After ImGui::Text");
+    spdlog::info("[Step 4] After ImGui::Text (no backend)");
     
-    spdlog::info("[Step 5] Before ImGui::End");
+    spdlog::info("[Step 4] Before ImGui::End (no backend)");
     ImGui::End();
-    spdlog::info("[Step 5] After ImGui::End");
+    spdlog::info("[Step 4] After ImGui::End (no backend)");
     
-    // Test ImGui render (this might be where it crashes)
-    spdlog::info("[Step 5] Before ImGui::Render");
+    // Test ImGui render (without backend)
+    spdlog::info("[Step 4] Before ImGui::Render (no backend)");
     ImGui::Render();
-    spdlog::info("[Step 5] After ImGui::Render");
+    spdlog::info("[Step 4] After ImGui::Render (no backend)");
     
-    // Simple SDL2 rendering test
-    spdlog::info("[Step 5] Before SDL rendering");
-    SDL_SetRenderDrawColor(renderer, (Uint8)(0.45f * 255), (Uint8)(0.55f * 255), (Uint8)(0.60f * 255), (Uint8)(255));
+    // Test ImGui draw data access
+    spdlog::info("[Step 4] Before ImGui::GetDrawData");
+    ImDrawData* draw_data = ImGui::GetDrawData();
+    spdlog::info("[Step 4] After ImGui::GetDrawData");
+    
+    if (draw_data) {
+        spdlog::info("[Step 4] Draw data has {} command lists", draw_data->CmdListsCount);
+    } else {
+        spdlog::info("[Step 4] Draw data is null");
+    }
+    
+    // Final SDL2 rendering test
+    spdlog::info("[Step 4] Before final SDL rendering");
+    SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); // Blue background
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
-    spdlog::info("[Step 5] After SDL rendering");
+    spdlog::info("[Step 4] After final SDL rendering");
     
-    spdlog::info("[Step 5] ImGui functionality test completed successfully");
+    spdlog::info("[Step 4] ImGui core functionality test completed successfully");
     
     // Wait 2 seconds to observe window
     SDL_Delay(2000);
