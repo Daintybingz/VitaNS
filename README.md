@@ -1,5 +1,7 @@
 # VitaNS - Nintendo Switch Homebrew Build
 
+![Build Status](https://github.com/Daintybingz/VitaNS/actions/workflows/build.yml/badge.svg)
+
 > **Project Origins & Credits**
 >
 > VitaNS is based on the open-source [Vita3K](https://github.com/Vita3K/Vita3K) PlayStation Vita emulator. This project would not be possible without the incredible work of the Vita3K team and contributors.
