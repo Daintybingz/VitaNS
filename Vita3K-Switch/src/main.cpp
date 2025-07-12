@@ -11,7 +11,7 @@
 #include <SDL2/SDL.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
-#include "firmware/vita_os.cpp"
+#include "firmware/vita_os.h"
 #include <imgui.h>
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
