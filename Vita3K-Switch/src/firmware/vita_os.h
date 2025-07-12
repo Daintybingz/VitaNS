@@ -137,4 +137,7 @@ private:
     std::function<void(uint32_t)> progress_callback;
 };
 
+// Install firmware from a .PUP file
+bool install_firmware_from_pup(const std::string& pup_path);
+
 } // namespace firmware
