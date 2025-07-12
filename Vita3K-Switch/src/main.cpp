@@ -37,6 +37,20 @@ void plutonium_main_menu();
 void imgui_main_menu(SDL_Window* win, SDL_GLContext gl_context);
 
 int main(int argc, char **argv) {
+    // EARLY CRASH DEBUGGING: Write a file as soon as main starts
+    FILE* early_log = fopen("sdmc:/switch/vitans/early_log.txt", "w");
+    if (early_log) {
+        fprintf(early_log, "main() started\n");
+        fclose(early_log);
+    } else {
+        // If this fails, try a more basic path
+        FILE* root_log = fopen("sdmc:/early_log.txt", "w");
+        if (root_log) {
+            fprintf(root_log, "main() started (root)\n");
+            fclose(root_log);
+        }
+    }
+
     // Set up spdlog to log to file on SD card
     auto file_logger = spdlog::basic_logger_mt("file_logger", "sdmc:/switch/vitans/log.txt");
     spdlog::set_default_logger(file_logger);
