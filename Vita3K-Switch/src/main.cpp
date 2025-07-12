@@ -55,15 +55,25 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    // Test only IMGUI_CHECKVERSION() with logging before and after
+        // Test only IMGUI_CHECKVERSION() with logging before and after
     spdlog::info("[Step 3] Before IMGUI_CHECKVERSION");
     IMGUI_CHECKVERSION();
     spdlog::info("[Step 3] After IMGUI_CHECKVERSION");
     
-        // Test ImGui context creation
+    // Test ImGui context creation
     spdlog::info("[Step 3] Before ImGui::CreateContext");
     ImGui::CreateContext();
     spdlog::info("[Step 3] After ImGui::CreateContext");
+    
+    // Test ImGui IO access
+    spdlog::info("[Step 3] Before ImGui::GetIO");
+    ImGuiIO& io = ImGui::GetIO();
+    spdlog::info("[Step 3] After ImGui::GetIO");
+    
+    // Test ImGui style setup
+    spdlog::info("[Step 3] Before ImGui::StyleColorsDark");
+    ImGui::StyleColorsDark();
+    spdlog::info("[Step 3] After ImGui::StyleColorsDark");
     
     // Test SDL2 renderer without ImGui first
     spdlog::info("[Step 4] Testing SDL2 renderer without ImGui");
@@ -72,7 +82,20 @@ int main(int argc, char **argv) {
     SDL_RenderPresent(renderer);
     spdlog::info("[Step 4] SDL2 renderer test completed");
     
-    // Wait 1 second to see red background
+    // Test SDL2 renderer functions individually
+    spdlog::info("[Step 4] Before SDL_SetRenderDrawColor");
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Green background
+    spdlog::info("[Step 4] After SDL_SetRenderDrawColor");
+    
+    spdlog::info("[Step 4] Before SDL_RenderClear");
+    SDL_RenderClear(renderer);
+    spdlog::info("[Step 4] After SDL_RenderClear");
+    
+    spdlog::info("[Step 4] Before SDL_RenderPresent");
+    SDL_RenderPresent(renderer);
+    spdlog::info("[Step 4] After SDL_RenderPresent");
+    
+    // Wait 1 second to see green background
     SDL_Delay(1000);
     
     // Now test ImGui initialization
