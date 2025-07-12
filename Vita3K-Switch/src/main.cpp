@@ -46,10 +46,18 @@ int main(int argc, char **argv) {
     spdlog::info("[Step 3] Before IMGUI_CHECKVERSION");
     IMGUI_CHECKVERSION();
     spdlog::info("[Step 3] After IMGUI_CHECKVERSION");
+    
+    // Test ImGui context creation
+    spdlog::info("[Step 3] Before ImGui::CreateContext");
+    ImGui::CreateContext();
+    spdlog::info("[Step 3] After ImGui::CreateContext");
 
     // Wait 2 seconds to observe window
     SDL_Delay(2000);
 
+    // Cleanup ImGui
+    ImGui::DestroyContext();
+    
     SDL_DestroyWindow(win);
     SDL_Quit();
     return 0;

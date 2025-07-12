@@ -17,6 +17,7 @@ set(CMAKE_TOOLCHAIN_FILE "${DEVKITPRO}/cmake/Switch.cmake" CACHE STRING "toolcha
 
 # Explicitly add Switch SDL2 include and lib paths
 include_directories($ENV{DEVKITPRO}/portlibs/switch/include)
+include_directories($ENV{DEVKITPRO}/libnx/include)
 link_directories($ENV{DEVKITPRO}/portlibs/switch/lib)
 
 # Only include main emulator sources, not tools or test utilities
@@ -85,7 +86,6 @@ file(GLOB IMGUI_SRC
     external/imgui/imgui_draw.cpp
     external/imgui/imgui_tables.cpp
     external/imgui/imgui_widgets.cpp
-    external/imgui/imgui_demo.cpp
     external/imgui/imgui_impl_sdl2.cpp
 )
 target_sources(VitaNS PRIVATE ${IMGUI_SRC})
