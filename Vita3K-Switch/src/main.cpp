@@ -101,45 +101,58 @@ int main(int argc, char **argv) {
     // Test SDL2 functionality without ImGui
     spdlog::info("[Step 4] Testing SDL2 functionality without ImGui");
     
-    // Test SDL2 color cycling
-    spdlog::info("[Step 4] Testing SDL2 color cycling");
+    // Create Vita3K-style UI with SDL2 primitives
+    spdlog::info("[Step 4] Creating Vita3K-style UI");
     
-    for (int i = 0; i < 5; i++) {
-        spdlog::info("[Step 4] Color cycle {} - Red", i);
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-        SDL_RenderClear(renderer);
-        SDL_RenderPresent(renderer);
-        SDL_Delay(500);
+    // Main UI loop
+    bool running = true;
+    SDL_Event event;
+    
+    while (running) {
+        // Handle events
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                running = false;
+            }
+        }
         
-        spdlog::info("[Step 4] Color cycle {} - Green", i);
-        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+        // Clear screen with dark background
+        SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
         SDL_RenderClear(renderer);
-        SDL_RenderPresent(renderer);
-        SDL_Delay(500);
         
-        spdlog::info("[Step 4] Color cycle {} - Blue", i);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-        SDL_RenderClear(renderer);
+        // Draw Vita3K-style header
+        SDL_SetRenderDrawColor(renderer, 0, 120, 215, 255);
+        SDL_Rect header_rect = {0, 0, 1280, 60};
+        SDL_RenderFillRect(renderer, &header_rect);
+        
+        // Draw main content area
+        SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+        SDL_Rect content_rect = {20, 80, 1240, 640};
+        SDL_RenderFillRect(renderer, &content_rect);
+        
+        // Draw some UI elements (simulating Vita3K interface)
+        SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+        SDL_Rect button1 = {40, 100, 200, 40};
+        SDL_RenderFillRect(renderer, &button1);
+        
+        SDL_Rect button2 = {40, 160, 200, 40};
+        SDL_RenderFillRect(renderer, &button2);
+        
+        SDL_Rect button3 = {40, 220, 200, 40};
+        SDL_RenderFillRect(renderer, &button3);
+        
+        // Draw border
+        SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
+        SDL_RenderDrawRect(renderer, &content_rect);
+        
         SDL_RenderPresent(renderer);
-        SDL_Delay(500);
+        SDL_Delay(16); // ~60 FPS
     }
     
-    spdlog::info("[Step 4] SDL2 functionality test completed successfully");
+    spdlog::info("[Step 4] Vita3K-style UI completed");
     
-    // Test ImGui context destruction
-    spdlog::info("[Step 4] Before ImGui::DestroyContext");
-    ImGui::DestroyContext();
-    spdlog::info("[Step 4] After ImGui::DestroyContext");
-    
-    // Final SDL2 test after ImGui destruction
-    spdlog::info("[Step 4] Final SDL2 test after ImGui destruction");
-    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255); // Yellow background
-    SDL_RenderClear(renderer);
-    SDL_RenderPresent(renderer);
-    spdlog::info("[Step 4] Final SDL2 test completed");
-    
-    // Wait 2 seconds to observe window
-    SDL_Delay(2000);
+    // Wait 1 second before cleanup
+    SDL_Delay(1000);
 
     // Skip problematic cleanup and create stable foundation
     spdlog::info("[Step 5] Skipping cleanup - creating stable foundation");
