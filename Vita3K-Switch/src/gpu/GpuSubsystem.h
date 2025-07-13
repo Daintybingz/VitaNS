@@ -8,8 +8,8 @@
 
 class GpuSubsystem {
 public:
-    GpuSubsystem(IGraphicsBackend* backend)
-        : executor(backend) {}
+    GpuSubsystem(IGraphicsBackend* backend, SDL_Renderer* sdlRenderer = nullptr)
+        : executor(backend, sdlRenderer) {}
 
     // Stub: get the current GXM command buffer from emulated memory
     // TODO: Replace with real memory manager/GXM module integration

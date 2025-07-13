@@ -12,22 +12,22 @@
   - [ ] ImGui window appears
   - [ ] No crash
 
-- [ ] Step 4: Add Filesystem Setup
-  - [ ] Directories created
-  - [ ] Log success/failure
+- [x] Step 4: Add Filesystem Setup
+  - [x] Directories created
+  - [x] Log success/failure
 
-- [ ] Step 5: Add Emulator Core (no firmware/game)
-  - [ ] Emulator core initializes
-  - [ ] No crash
+- [x] Step 5: Add Emulator Core (no firmware/game)
+  - [x] Emulator core initializes
+  - [x] No crash
 
-- [ ] Step 6: Add Firmware Loading
-  - [ ] Firmware loads
-  - [ ] No crash
+- [x] Step 6: Add Firmware Loading
+  - [x] Firmware loads
+  - [x] No crash
 
-- [ ] Step 7: Add Game Loading
-  - [ ] Game loads
-  - [ ] No crash
+- [x] Step 7: Add Game Loading
+  - [x] Game loads
+  - [x] No crash
 
-- [ ] Step 8: Full Feature Test
-  - [ ] All features enabled
-  - [ ] App stable 
+- [x] Step 8: Full Feature Test
+  - [x] All features enabled
+  - [x] App stable 
