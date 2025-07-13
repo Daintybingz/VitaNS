@@ -54,6 +54,7 @@ include_directories(
 add_executable(VitaNS ${SOURCES})
 
 target_include_directories(VitaNS PRIVATE ${CMAKE_SOURCE_DIR}/external/nlohmann)
+target_include_directories(VitaNS PRIVATE $ENV{DEVKITPRO}/portlibs/switch/include)
 
 # Link with libnx, SDL2, SDL2_ttf, and OpenGL ES for Switch
 find_package(SDL2 REQUIRED)
