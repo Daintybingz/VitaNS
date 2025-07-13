@@ -22,16 +22,9 @@ link_directories($ENV{DEVKITPRO}/portlibs/switch/lib)
 
 # Only include main emulator sources, not tools or test utilities
 file(GLOB_RECURSE ALL_SOURCES src/*.cpp)
-
-# Exclude tool and test sources
 set(SOURCES ${ALL_SOURCES})
 list(FILTER SOURCES EXCLUDE REGEX ".*/modules/SceGxm/tools/.*\\.cpp$")
 list(FILTER SOURCES EXCLUDE REGEX ".*/tests/.*\\.cpp$")
-
-# Only add display_buffer.cpp for non-Switch platforms
-if(NOT VITANS_PLATFORM_SWITCH)
-    list(APPEND SOURCES src/display/display_buffer.cpp)
-endif()
 
 # Remove OpenGL/EGL-dependent files from SOURCES for Switch
 if(VITANS_PLATFORM_SWITCH)
