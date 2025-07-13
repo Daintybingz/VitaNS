@@ -56,8 +56,35 @@ add_executable(VitaNS ${SOURCES})
 target_include_directories(VitaNS PRIVATE ${CMAKE_SOURCE_DIR}/external/nlohmann)
 target_include_directories(VitaNS PRIVATE $ENV{DEVKITPRO}/portlibs/switch/include)
 
-# Link with libnx, SDL2, SDL2_ttf, and dependencies for Switch (SDL2-only, no OpenGL)
-target_link_libraries(VitaNS nx SDL2 SDL2_ttf freetype png z bz2)
+# Robust platform detection for Switch
+set(VITANS_PLATFORM_SWITCH FALSE)
+if(DEFINED ENV{DEVKITPRO})
+    set(VITANS_PLATFORM_SWITCH TRUE)
+endif()
+
+# Exclude OpenGL-dependent files from Switch build
+if(VITANS_PLATFORM_SWITCH)
+    # Remove OpenGL/EGL files from build for Switch
+    list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/gl/.*\\.cpp$")
+    list(FILTER SOURCES EXCLUDE REGEX ".*/display/display_buffer\\.cpp$")
+    list(FILTER SOURCES EXCLUDE REGEX ".*/shader/.*\\.cpp$")
+    list(FILTER SOURCES EXCLUDE REGEX ".*/modules/SceGxm/.*\\.cpp$")
+endif()
+
+# Link with only SDL2, SDL2_ttf, freetype, png, z, bz2 for Switch
+if(VITANS_PLATFORM_SWITCH)
+    target_link_libraries(VitaNS PRIVATE nx SDL2 SDL2_ttf freetype png z bz2)
+else()
+    # Non-Switch platforms: add OpenGL/EGL files and link OpenGL/EGL if needed
+    file(GLOB GL_RENDERER_SRC
+        src/renderer/gl/*.cpp
+        src/display/display_buffer.cpp
+        src/modules/SceGxm/*.cpp
+        src/shader/*.cpp
+    )
+    target_sources(VitaNS PRIVATE ${GL_RENDERER_SRC})
+    # Example: target_link_libraries(VitaNS PRIVATE GLESv2 EGL)
+endif()
 
 # Set output name to VitaNS.nro
 set_target_properties(VitaNS PROPERTIES OUTPUT_NAME "VitaNS" SUFFIX ".nro")
@@ -83,12 +110,6 @@ add_custom_command(TARGET VitaNS POST_BUILD
 message(STATUS "CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
 message(STATUS "CMAKE_TARGET_SYSTEM_NAME: ${CMAKE_TARGET_SYSTEM_NAME}")
 
-# Robust platform detection for Switch
-set(VITANS_PLATFORM_SWITCH FALSE)
-if(DEFINED ENV{DEVKITPRO})
-    set(VITANS_PLATFORM_SWITCH TRUE)
-endif()
-
 # Add ImGui sources (SDL2 only, not for Switch)
 if(NOT VITANS_PLATFORM_SWITCH)
 file(GLOB IMGUI_SRC
@@ -100,16 +121,6 @@ file(GLOB IMGUI_SRC
 )
 target_sources(VitaNS PRIVATE ${IMGUI_SRC})
 target_include_directories(VitaNS PRIVATE external/imgui)
-endif()
-
-# Exclude OpenGL-dependent files from Switch build
-if(NOT VITANS_PLATFORM_SWITCH)
-    file(GLOB GL_RENDERER_SRC
-        src/renderer/gl/*.cpp
-        src/display/display_buffer.cpp
-        src/modules/SceGxm/*.cpp
-    )
-    target_sources(VitaNS PRIVATE ${GL_RENDERER_SRC})
 endif()
 
 # Add compiler flags to prevent multiple definition errors

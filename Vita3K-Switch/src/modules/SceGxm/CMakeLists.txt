@@ -1,3 +1,5 @@
+# Only add SceGxm if not building for Switch (OpenGL/EGL required)
+if(NOT VITANS_PLATFORM_SWITCH)
 add_library(SceGxm ${CMAKE_SOURCE_DIR}/src/modules/SceGxm/SceGxm.cpp
                      ${CMAKE_SOURCE_DIR}/src/modules/SceGxm/SceGxm_shader.cpp
                      ${CMAKE_SOURCE_DIR}/src/modules/SceGxm/GxmMemoryManager.cpp)
@@ -22,3 +24,4 @@ target_link_libraries(ShaderCacheCleaner PRIVATE SceGxm)
 # Add shader validation tool
 add_executable(ShaderValidator ${CMAKE_SOURCE_DIR}/src/modules/SceGxm/tools/shader_validator.cpp)
 target_link_libraries(ShaderValidator PRIVATE SceGxm)
+endif()
