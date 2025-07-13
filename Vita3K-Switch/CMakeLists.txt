@@ -33,6 +33,14 @@ if(NOT VITANS_PLATFORM_SWITCH)
     list(APPEND SOURCES src/display/display_buffer.cpp)
 endif()
 
+# Remove OpenGL/EGL-dependent files from SOURCES for Switch
+if(VITANS_PLATFORM_SWITCH)
+    list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/gl/.*\\.cpp$")
+    list(FILTER SOURCES EXCLUDE REGEX ".*/display/display_buffer\\.cpp$")
+    list(FILTER SOURCES EXCLUDE REGEX ".*/shader/.*\\.cpp$")
+    list(FILTER SOURCES EXCLUDE REGEX ".*/modules/SceGxm/.*\\.cpp$")
+endif()
+
 # Include directories
 include_directories(
     ${CMAKE_SOURCE_DIR}/external/nlohmann
