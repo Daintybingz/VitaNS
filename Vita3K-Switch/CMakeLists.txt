@@ -34,8 +34,10 @@ list(FILTER SOURCES EXCLUDE REGEX ".*/tests/.*\\.cpp$")
 
 # Remove OpenGL/EGL-dependent files from SOURCES for Switch
 if(VITANS_PLATFORM_SWITCH)
-    # Exclude all gl renderer files except switch_renderer.cpp
-    list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/gl/(?!switch_renderer)\\w+\\.cpp$")
+    # Exclude all gl renderer files
+    list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/gl/.*\\.cpp$")
+    # Re-add switch_renderer.cpp explicitly
+    list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/src/renderer/gl/switch_renderer.cpp")
     list(FILTER SOURCES EXCLUDE REGEX ".*/display/display_buffer\\.cpp$")
     list(FILTER SOURCES EXCLUDE REGEX ".*/shader/.*\\.cpp$")
     list(FILTER SOURCES EXCLUDE REGEX ".*/modules/SceGxm/.*\\.cpp$")
