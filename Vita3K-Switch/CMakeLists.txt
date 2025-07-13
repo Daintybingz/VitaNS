@@ -53,6 +53,7 @@ include_directories(
     src/input
     src/io
     src/modules
+    src/modules/SceGxm
     src/packages
     src/platform
     src/renderer
