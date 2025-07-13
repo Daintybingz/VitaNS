@@ -28,14 +28,18 @@ public:
                     backend->bindTexture();
                     break;
                 }
-                case GxmGpuCommandType::BindShader:
-                    printf("[GxmExecutor] Executing BindShaderCommand\n");
+                case GxmGpuCommandType::BindShader: {
+                    auto* shd = static_cast<GxmBindShaderCommand*>(cmd.get());
+                    printf("[GxmExecutor] Executing BindShader: name=%s\n", shd->shaderName.c_str());
                     backend->createShader();
                     break;
-                case GxmGpuCommandType::SetState:
-                    printf("[GxmExecutor] Executing SetStateCommand\n");
+                }
+                case GxmGpuCommandType::SetState: {
+                    auto* state = static_cast<GxmSetStateCommand*>(cmd.get());
+                    printf("[GxmExecutor] Executing SetState: id=%u, value=%u\n", state->stateId, state->value);
                     // TODO: Update GpuState and backend state
                     break;
+                }
                 default:
                     printf("[GxmExecutor] Unknown command type!\n");
                     break;

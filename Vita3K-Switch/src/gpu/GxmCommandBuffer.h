@@ -50,7 +50,8 @@ struct GxmBindShaderCommand : public GxmGpuCommand {
 
 // Set state command (blend, depth, etc.)
 struct GxmSetStateCommand : public GxmGpuCommand {
-    // Add fields as needed
+    uint32_t stateId = 0;
+    uint32_t value = 0;
     GxmSetStateCommand() { type = GxmGpuCommandType::SetState; }
 };
 

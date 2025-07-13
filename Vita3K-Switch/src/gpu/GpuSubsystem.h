@@ -12,19 +12,23 @@ public:
     // Stub: get the current GXM command buffer from emulated memory
     // TODO: Replace with real memory manager/GXM module integration
     bool getCurrentGxmCommandBuffer(const uint8_t*& data, size_t& size) {
-        // TODO: Integrate with MemoryManager or GXM module to get the real buffer
-        // Example:
-        // return memoryManager->getGxmCommandBuffer(data, size);
-        // Or:
-        // return gxmModule->getCurrentCommandBuffer(data, size);
+        // TODO: Integrate with SceGxm module/context to get the real buffer
+        // Example (pseudo-code):
+        // SceGxm* gxm = ...; // Get from emulator/module manager
+        // if (!gxm || !gxm->currentContext) return false;
+        // data = reinterpret_cast<const uint8_t*>(gxm->currentContext->commandBuffer);
+        // size = gxm->currentContext->commandBufferSize;
+        // return (data && size > 0);
         // For now, use a static dummy buffer with a simple protocol
-        static uint32_t dummyWords[] = {
-            0x01, 0x1,        // Clear, mask=1
-            0x02, 4, 0, 3,    // Draw, primType=4, indexType=0, indexCount=3
-            0x03, 1, 42,      // BindTexture, unit=1, id=42
-            0xFF              // End
+        static uint8_t dummyWords[] = {
+            0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, // Clear, mask=1
+            0x02, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, // Draw, primType=4, indexType=0, indexCount=3
+            0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x2A, 0x00, 0x00, 0x00, // BindTexture, unit=1, id=42
+            0x04, 0x00, 0x00, 0x00, 't','e','s','t','_','s','h','d','r',0x00, // BindShader, name="test_shdr"
+            0x05, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x77, 0x00, 0x00, 0x00, // SetState, id=16, value=119
+            0xFF, 0x00, 0x00, 0x00 // End
         };
-        data = reinterpret_cast<const uint8_t*>(dummyWords);
+        data = dummyWords;
         size = sizeof(dummyWords);
         return true;
     }
@@ -67,6 +71,28 @@ public:
                 texCmd->textureId = id;
                 printf("[GXM Parse] BindTexture: unit=%u, id=%u\n", unit, id);
                 outBuf.add(std::move(texCmd));
+            } else if (cmd == 0x04) { // BindShader
+                // Read null-terminated string
+                std::string name;
+                while (offset < size && data[offset] != 0) {
+                    name.push_back((char)data[offset]);
+                    ++offset;
+                }
+                if (offset < size && data[offset] == 0) ++offset;
+                auto shdCmd = std::make_unique<GxmBindShaderCommand>();
+                shdCmd->shaderName = name;
+                printf("[GXM Parse] BindShader: name=%s\n", name.c_str());
+                outBuf.add(std::move(shdCmd));
+            } else if (cmd == 0x05) { // SetState
+                if (offset + 8 > size) break;
+                uint32_t stateId = *reinterpret_cast<const uint32_t*>(data + offset);
+                uint32_t value = *reinterpret_cast<const uint32_t*>(data + offset + 4);
+                offset += 8;
+                auto stateCmd = std::make_unique<GxmSetStateCommand>();
+                stateCmd->stateId = stateId;
+                stateCmd->value = value;
+                printf("[GXM Parse] SetState: id=%u, value=%u\n", stateId, value);
+                outBuf.add(std::move(stateCmd));
             } else if (cmd == 0xFF) {
                 printf("[GXM Parse] End of buffer\n");
                 break;
