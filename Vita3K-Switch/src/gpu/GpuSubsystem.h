@@ -3,6 +3,8 @@
 #include "GxmExecutor.h"
 #include "../renderer/gl/IGraphicsBackend.h"
 #include <memory>
+#include "../core/emulator/emulator.h"
+#include "../../modules/SceGxm/SceGxm.h"
 
 class GpuSubsystem {
 public:
@@ -12,25 +14,11 @@ public:
     // Stub: get the current GXM command buffer from emulated memory
     // TODO: Replace with real memory manager/GXM module integration
     bool getCurrentGxmCommandBuffer(const uint8_t*& data, size_t& size) {
-        // TODO: Integrate with SceGxm module/context to get the real buffer
-        // Example (pseudo-code):
-        // SceGxm* gxm = ...; // Get from emulator/module manager
-        // if (!gxm || !gxm->currentContext) return false;
-        // data = reinterpret_cast<const uint8_t*>(gxm->currentContext->commandBuffer);
-        // size = gxm->currentContext->commandBufferSize;
-        // return (data && size > 0);
-        // For now, use a static dummy buffer with a simple protocol
-        static uint8_t dummyWords[] = {
-            0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, // Clear, mask=1
-            0x02, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, // Draw, primType=4, indexType=0, indexCount=3
-            0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x2A, 0x00, 0x00, 0x00, // BindTexture, unit=1, id=42
-            0x04, 0x00, 0x00, 0x00, 't','e','s','t','_','s','h','d','r',0x00, // BindShader, name="test_shdr"
-            0x05, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x77, 0x00, 0x00, 0x00, // SetState, id=16, value=119
-            0xFF, 0x00, 0x00, 0x00 // End
-        };
-        data = dummyWords;
-        size = sizeof(dummyWords);
-        return true;
+        SceGxm* gxm = Emulator::getInstance().getSceGxm();
+        if (!gxm || !gxm->currentContext) return false;
+        data = reinterpret_cast<const uint8_t*>(gxm->currentContext->commandBuffer);
+        size = gxm->currentContext->commandBufferSize;
+        return (data && size > 0);
     }
 
     // Parse a GXM command stream (minimal real parser)

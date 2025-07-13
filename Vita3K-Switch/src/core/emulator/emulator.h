@@ -12,6 +12,7 @@ class SwitchCPUBackend;
 class IGraphicsBackend;
 class SwitchInput;
 #include "../../gpu/GpuSubsystem.h"
+#include "../../modules/SceGxm/SceGxm.h"
 
 enum class EmulatorState {
     UNINITIALIZED,
@@ -113,6 +114,7 @@ public:
     SwitchCPUBackend& getCPU();
     ModuleManager& getModuleManager();
     GpuSubsystem* getGpu() { return gpu.get(); }
+    SceGxm* getSceGxm();
 
     // Add missing methods
     void setRenderer(IGraphicsBackend* r);

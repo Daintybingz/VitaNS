@@ -402,6 +402,11 @@ ModuleManager& Emulator::getModuleManager() {
     return *module_manager;
 }
 
+SceGxm* Emulator::getSceGxm() {
+    auto ptr = module_manager->findModule("SceGxm");
+    return ptr ? dynamic_cast<SceGxm*>(ptr.get()) : nullptr;
+}
+
 // int Emulator::executeSystemCall(uint32_t nid, uint32_t threadId, const std::vector<uint32_t>& args) {
     // Execute the system call using the module registry
     // return ModuleRegistry::executeSystemCall(*this, nid, threadId, args); // Function not declared in header, removed.
