@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <imgui.h>
@@ -50,6 +51,15 @@ int main(int argc, char **argv) {
     SDL_Renderer* renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (!renderer) {
         spdlog::error("SDL_CreateRenderer failed: {}", SDL_GetError());
+        SDL_DestroyWindow(win);
+        SDL_Quit();
+        return 1;
+    }
+    
+    // Initialize SDL_ttf for text rendering
+    if (TTF_Init() == -1) {
+        spdlog::error("TTF_Init failed: {}", TTF_GetError());
+        SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(win);
         SDL_Quit();
         return 1;
@@ -130,16 +140,36 @@ int main(int argc, char **argv) {
         SDL_Rect content_rect = {20, 80, 1240, 640};
         SDL_RenderFillRect(renderer, &content_rect);
         
-        // Draw some UI elements (simulating Vita3K interface)
-        SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+        // Draw Vita3K-style buttons with hover effects
         SDL_Rect button1 = {40, 100, 200, 40};
-        SDL_RenderFillRect(renderer, &button1);
-        
         SDL_Rect button2 = {40, 160, 200, 40};
-        SDL_RenderFillRect(renderer, &button2);
-        
         SDL_Rect button3 = {40, 220, 200, 40};
-        SDL_RenderFillRect(renderer, &button3);
+        
+        // Get mouse position for hover effects
+        int mouseX, mouseY;
+        SDL_GetMouseState(&mouseX, &mouseY);
+        
+        // Draw buttons with hover effects
+        SDL_Rect buttons[] = {button1, button2, button3};
+        const char* buttonTexts[] = {"Load Game", "Settings", "Exit"};
+        
+        for (int i = 0; i < 3; i++) {
+            bool isHovered = (mouseX >= buttons[i].x && mouseX <= buttons[i].x + buttons[i].w &&
+                              mouseY >= buttons[i].y && mouseY <= buttons[i].y + buttons[i].h);
+            
+            // Button color based on hover state
+            if (isHovered) {
+                SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255); // Lighter when hovered
+            } else {
+                SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255); // Normal color
+            }
+            
+            SDL_RenderFillRect(renderer, &buttons[i]);
+            
+            // Draw button border
+            SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+            SDL_RenderDrawRect(renderer, &buttons[i]);
+        }
         
         // Draw border
         SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
