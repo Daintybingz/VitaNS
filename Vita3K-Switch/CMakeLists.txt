@@ -104,6 +104,16 @@ target_sources(VitaNS PRIVATE ${IMGUI_SRC})
 target_include_directories(VitaNS PRIVATE external/imgui)
 endif()
 
+# Exclude OpenGL-dependent files from Switch build
+if(NOT VITANS_PLATFORM_SWITCH)
+    file(GLOB GL_RENDERER_SRC
+        src/renderer/gl/*.cpp
+        src/display/display_buffer.cpp
+        src/modules/SceGxm/*.cpp
+    )
+    target_sources(VitaNS PRIVATE ${GL_RENDERER_SRC})
+endif()
+
 # Add compiler flags to prevent multiple definition errors
 target_compile_options(VitaNS PRIVATE -fno-common)
 
