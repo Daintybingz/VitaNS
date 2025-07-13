@@ -22,10 +22,12 @@ public:
                     // TODO: Call backend clear method
                     break;
                 }
-                case GxmGpuCommandType::BindTexture:
-                    printf("[GxmExecutor] Executing BindTextureCommand\n");
+                case GxmGpuCommandType::BindTexture: {
+                    auto* tex = static_cast<GxmBindTextureCommand*>(cmd.get());
+                    printf("[GxmExecutor] Executing BindTexture: unit=%u, id=%u\n", tex->textureUnit, tex->textureId);
                     backend->bindTexture();
                     break;
+                }
                 case GxmGpuCommandType::BindShader:
                     printf("[GxmExecutor] Executing BindShaderCommand\n");
                     backend->createShader();

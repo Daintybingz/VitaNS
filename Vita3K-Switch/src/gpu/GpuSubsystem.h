@@ -12,10 +12,16 @@ public:
     // Stub: get the current GXM command buffer from emulated memory
     // TODO: Replace with real memory manager/GXM module integration
     bool getCurrentGxmCommandBuffer(const uint8_t*& data, size_t& size) {
+        // TODO: Integrate with MemoryManager or GXM module to get the real buffer
+        // Example:
+        // return memoryManager->getGxmCommandBuffer(data, size);
+        // Or:
+        // return gxmModule->getCurrentCommandBuffer(data, size);
         // For now, use a static dummy buffer with a simple protocol
         static uint32_t dummyWords[] = {
             0x01, 0x1,        // Clear, mask=1
             0x02, 4, 0, 3,    // Draw, primType=4, indexType=0, indexCount=3
+            0x03, 1, 42,      // BindTexture, unit=1, id=42
             0xFF              // End
         };
         data = reinterpret_cast<const uint8_t*>(dummyWords);
@@ -51,6 +57,16 @@ public:
                 drawCmd->indexCount = indexCount;
                 printf("[GXM Parse] DrawCall: primType=%u, indexType=%u, indexCount=%u\n", primType, indexType, indexCount);
                 outBuf.add(std::move(drawCmd));
+            } else if (cmd == 0x03) { // BindTexture
+                if (offset + 8 > size) break;
+                uint32_t unit = *reinterpret_cast<const uint32_t*>(data + offset);
+                uint32_t id = *reinterpret_cast<const uint32_t*>(data + offset + 4);
+                offset += 8;
+                auto texCmd = std::make_unique<GxmBindTextureCommand>();
+                texCmd->textureUnit = unit;
+                texCmd->textureId = id;
+                printf("[GXM Parse] BindTexture: unit=%u, id=%u\n", unit, id);
+                outBuf.add(std::move(texCmd));
             } else if (cmd == 0xFF) {
                 printf("[GXM Parse] End of buffer\n");
                 break;
