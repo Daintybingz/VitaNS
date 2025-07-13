@@ -6,6 +6,8 @@
 #include <imgui.h>
 #include "imgui_impl_sdl2.h"
 #endif
+#include <vector>
+#include <string>
 
 int main(int argc, char **argv) {
     // EARLY CRASH DEBUGGING: Write a file as soon as main starts
@@ -118,80 +120,116 @@ int main(int argc, char **argv) {
     // Create Vita3K-style UI with SDL2 primitives
     spdlog::info("[Step 4] Creating Vita3K-style UI");
     
+    // Load font for text rendering
+    TTF_Font* font = TTF_OpenFont("external/imgui/misc/fonts/Roboto-Medium.ttf", 24);
+    if (!font) {
+        spdlog::error("TTF_OpenFont failed: {}", TTF_GetError());
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(win);
+        SDL_Quit();
+        return 1;
+    }
+
+    // UI state
+    int selectedButton = -1;
+    std::string statusMessage = "Welcome to VitaNS!";
+    std::vector<std::string> buttonTexts = {"Load Game", "Settings", "Exit"};
+    const int numButtons = 3;
+
     // Main UI loop
     bool running = true;
     SDL_Event event;
-    
     while (running) {
         // Handle events
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
+            } else if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+                int mx = event.button.x, my = event.button.y;
+                for (int i = 0; i < numButtons; i++) {
+                    SDL_Rect btn = {40, 100 + i * 60, 200, 40};
+                    if (mx >= btn.x && mx <= btn.x + btn.w && my >= btn.y && my <= btn.y + btn.h) {
+                        selectedButton = i;
+                        if (i == 0) statusMessage = "[Stub] Load Game clicked";
+                        else if (i == 1) statusMessage = "[Stub] Settings clicked";
+                        else if (i == 2) running = false;
+                    }
+                }
+            } else if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_DOWN) {
+                    selectedButton = (selectedButton + 1) % numButtons;
+                } else if (event.key.keysym.sym == SDLK_UP) {
+                    selectedButton = (selectedButton - 1 + numButtons) % numButtons;
+                } else if (event.key.keysym.sym == SDLK_RETURN || event.key.keysym.sym == SDLK_SPACE) {
+                    if (selectedButton == 0) statusMessage = "[Stub] Load Game selected";
+                    else if (selectedButton == 1) statusMessage = "[Stub] Settings selected";
+                    else if (selectedButton == 2) running = false;
+                }
             }
         }
-        
+        // Controller support (Joy-Con)
+        const Uint8* keystate = SDL_GetKeyboardState(NULL);
+        if (keystate[SDL_SCANCODE_RIGHT]) selectedButton = (selectedButton + 1) % numButtons;
+        if (keystate[SDL_SCANCODE_LEFT]) selectedButton = (selectedButton - 1 + numButtons) % numButtons;
+
         // Clear screen with dark background
         SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
         SDL_RenderClear(renderer);
-        
         // Draw Vita3K-style header
         SDL_SetRenderDrawColor(renderer, 0, 120, 215, 255);
         SDL_Rect header_rect = {0, 0, 1280, 60};
         SDL_RenderFillRect(renderer, &header_rect);
-        
         // Draw main content area
         SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
         SDL_Rect content_rect = {20, 80, 1240, 640};
         SDL_RenderFillRect(renderer, &content_rect);
-        
-        // Draw Vita3K-style buttons with hover effects
-        SDL_Rect button1 = {40, 100, 200, 40};
-        SDL_Rect button2 = {40, 160, 200, 40};
-        SDL_Rect button3 = {40, 220, 200, 40};
-        
-        // Get mouse position for hover effects
-        int mouseX, mouseY;
-        SDL_GetMouseState(&mouseX, &mouseY);
-        
-        // Draw buttons with hover effects
-        SDL_Rect buttons[] = {button1, button2, button3};
-        const char* buttonTexts[] = {"Load Game", "Settings", "Exit"};
-        
-        for (int i = 0; i < 3; i++) {
-            bool isHovered = (mouseX >= buttons[i].x && mouseX <= buttons[i].x + buttons[i].w &&
-                              mouseY >= buttons[i].y && mouseY <= buttons[i].y + buttons[i].h);
-            
-            // Button color based on hover state
-            if (isHovered) {
-                SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255); // Lighter when hovered
+        // Draw Vita3K-style buttons with hover/selection effects
+        for (int i = 0; i < numButtons; i++) {
+            SDL_Rect btn = {40, 100 + i * 60, 200, 40};
+            int mx, my;
+            SDL_GetMouseState(&mx, &my);
+            bool isHovered = (mx >= btn.x && mx <= btn.x + btn.w && my >= btn.y && my <= btn.y + btn.h);
+            bool isSelected = (selectedButton == i);
+            if (isHovered || isSelected) {
+                SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
             } else {
-                SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255); // Normal color
+                SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
             }
-            
-            SDL_RenderFillRect(renderer, &buttons[i]);
-            
-            // Draw button border
+            SDL_RenderFillRect(renderer, &btn);
             SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
-            SDL_RenderDrawRect(renderer, &buttons[i]);
+            SDL_RenderDrawRect(renderer, &btn);
+            // Render button text
+            SDL_Color textColor = {220, 220, 220, 255};
+            SDL_Surface* textSurf = TTF_RenderUTF8_Blended(font, buttonTexts[i].c_str(), textColor);
+            SDL_Texture* textTex = SDL_CreateTextureFromSurface(renderer, textSurf);
+            int tw = 0, th = 0;
+            SDL_QueryTexture(textTex, NULL, NULL, &tw, &th);
+            SDL_Rect textRect = {btn.x + (btn.w - tw) / 2, btn.y + (btn.h - th) / 2, tw, th};
+            SDL_RenderCopy(renderer, textTex, NULL, &textRect);
+            SDL_DestroyTexture(textTex);
+            SDL_FreeSurface(textSurf);
         }
-        
         // Draw border
         SDL_SetRenderDrawColor(renderer, 80, 80, 80, 255);
         SDL_RenderDrawRect(renderer, &content_rect);
-        
+        // Draw status message at the bottom
+        SDL_Color statusColor = {180, 180, 255, 255};
+        SDL_Surface* statusSurf = TTF_RenderUTF8_Blended(font, statusMessage.c_str(), statusColor);
+        SDL_Texture* statusTex = SDL_CreateTextureFromSurface(renderer, statusSurf);
+        int sw = 0, sh = 0;
+        SDL_QueryTexture(statusTex, NULL, NULL, &sw, &sh);
+        SDL_Rect statusRect = {40, 720 - 40, sw, sh};
+        SDL_RenderCopy(renderer, statusTex, NULL, &statusRect);
+        SDL_DestroyTexture(statusTex);
+        SDL_FreeSurface(statusSurf);
         SDL_RenderPresent(renderer);
         SDL_Delay(16); // ~60 FPS
     }
-    
-    spdlog::info("[Step 4] Vita3K-style UI completed");
-    
-    // Wait 1 second before cleanup
-    SDL_Delay(1000);
-
-    // Skip problematic cleanup and create stable foundation
-    spdlog::info("[Step 5] Skipping cleanup - creating stable foundation");
-    
-    // Just exit without cleanup for now
-    spdlog::info("[Step 5] Application completed successfully (cleanup skipped)");
+    // Cleanup
+    TTF_CloseFont(font);
+    TTF_Quit();
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(win);
+    SDL_Quit();
     return 0;
 }
