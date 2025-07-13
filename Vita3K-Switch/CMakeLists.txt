@@ -82,8 +82,11 @@ add_custom_command(TARGET VitaNS POST_BUILD
     COMMENT "Converting VitaNS.elf to VitaNS.nro using elf2nro"
 )
 
+message(STATUS "CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
+message(STATUS "CMAKE_TARGET_SYSTEM_NAME: ${CMAKE_TARGET_SYSTEM_NAME}")
+
 # Add ImGui sources (SDL2 only)
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "Switch")
+if(NOT (CMAKE_SYSTEM_NAME STREQUAL "Switch" OR CMAKE_TARGET_SYSTEM_NAME STREQUAL "Switch"))
 file(GLOB IMGUI_SRC
     external/imgui/imgui.cpp
     external/imgui/imgui_draw.cpp
