@@ -2,8 +2,10 @@
 #include <SDL2/SDL_ttf.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#ifndef __SWITCH__
 #include <imgui.h>
 #include "imgui_impl_sdl2.h"
+#endif
 
 int main(int argc, char **argv) {
     // EARLY CRASH DEBUGGING: Write a file as soon as main starts
@@ -66,6 +68,7 @@ int main(int argc, char **argv) {
     }
 
         // Test only IMGUI_CHECKVERSION() with logging before and after
+#ifndef __SWITCH__
     spdlog::info("[Step 3] Before IMGUI_CHECKVERSION");
     IMGUI_CHECKVERSION();
     spdlog::info("[Step 3] After IMGUI_CHECKVERSION");
@@ -84,6 +87,7 @@ int main(int argc, char **argv) {
     spdlog::info("[Step 3] Before ImGui::StyleColorsDark");
     ImGui::StyleColorsDark();
     spdlog::info("[Step 3] After ImGui::StyleColorsDark");
+#endif
     
     // Test SDL2 renderer without ImGui first
     spdlog::info("[Step 4] Testing SDL2 renderer without ImGui");
