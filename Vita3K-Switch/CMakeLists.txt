@@ -1,3 +1,9 @@
+# Robust platform detection for Switch
+set(VITANS_PLATFORM_SWITCH FALSE)
+if(DEFINED ENV{DEVKITPRO})
+    set(VITANS_PLATFORM_SWITCH TRUE)
+endif()
+
 cmake_minimum_required(VERSION 3.10)
 project(VitaNS VERSION 0.1.0)
 
@@ -61,12 +67,6 @@ add_executable(VitaNS ${SOURCES})
 
 target_include_directories(VitaNS PRIVATE ${CMAKE_SOURCE_DIR}/external/nlohmann)
 target_include_directories(VitaNS PRIVATE $ENV{DEVKITPRO}/portlibs/switch/include)
-
-# Robust platform detection for Switch
-set(VITANS_PLATFORM_SWITCH FALSE)
-if(DEFINED ENV{DEVKITPRO})
-    set(VITANS_PLATFORM_SWITCH TRUE)
-endif()
 
 # Exclude OpenGL-dependent files from Switch build
 if(VITANS_PLATFORM_SWITCH)
