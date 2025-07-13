@@ -11,7 +11,7 @@ class SwitchCPUBackend;
 #include "../../modules/module.h"
 class IGraphicsBackend;
 class SwitchInput;
-#include "../../gpu/GpuSubsystem.h"
+class GpuSubsystem;
 #include "../../modules/SceGxm/SceGxm.h"
 
 enum class EmulatorState {
