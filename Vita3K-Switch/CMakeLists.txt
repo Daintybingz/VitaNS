@@ -56,10 +56,8 @@ add_executable(VitaNS ${SOURCES})
 target_include_directories(VitaNS PRIVATE ${CMAKE_SOURCE_DIR}/external/nlohmann)
 target_include_directories(VitaNS PRIVATE $ENV{DEVKITPRO}/portlibs/switch/include)
 
-# Link with libnx, SDL2, SDL2_ttf, and OpenGL ES for Switch
-find_package(SDL2 REQUIRED)
-find_package(SDL2_ttf REQUIRED)
-target_link_libraries(VitaNS nx SDL2 SDL2_ttf freetype GLESv2 EGL png z bz2)
+# Link with libnx, SDL2, SDL2_ttf, and dependencies for Switch (SDL2-only, no OpenGL)
+target_link_libraries(VitaNS nx SDL2 SDL2_ttf freetype png z bz2)
 
 # Set output name to VitaNS.nro
 set_target_properties(VitaNS PROPERTIES OUTPUT_NAME "VitaNS" SUFFIX ".nro")
