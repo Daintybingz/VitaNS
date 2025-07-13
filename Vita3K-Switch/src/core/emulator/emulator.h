@@ -11,6 +11,7 @@ class SwitchCPUBackend;
 #include "../../modules/module.h"
 class IGraphicsBackend;
 class SwitchInput;
+#include "../../gpu/GpuSubsystem.h"
 
 enum class EmulatorState {
     UNINITIALIZED,
@@ -111,6 +112,7 @@ public:
     MemoryManager& getMemoryManager();
     SwitchCPUBackend& getCPU();
     ModuleManager& getModuleManager();
+    GpuSubsystem* getGpu() { return gpu.get(); }
 
     // Add missing methods
     void setRenderer(IGraphicsBackend* r);
@@ -131,6 +133,7 @@ private:
     std::unique_ptr<ModuleManager> module_manager;
     std::unique_ptr<IGraphicsBackend> renderer;
     std::unique_ptr<SwitchInput> input_system;
+    std::unique_ptr<GpuSubsystem> gpu;
 
     std::mutex mutex;
 };

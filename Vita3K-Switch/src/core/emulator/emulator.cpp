@@ -71,6 +71,8 @@ bool Emulator::initialize(const EmulatorConfig& cfg) {
         renderer = std::make_unique<RendererGLES2>();
         renderer->initialize("VitaNS", 1280, 720);
     }
+    // Initialize GPU subsystem
+    gpu = std::make_unique<GpuSubsystem>(renderer.get());
 
     // Initialize core modules
     module_manager->registerModule(std::make_shared<SceDisplay>());
@@ -413,9 +415,9 @@ void Emulator::renderFrame() {
     if (state != EmulatorState::RUNNING) {
         return;
     }
-    
+    if (gpu) gpu->beginFrame();
     if (renderer) {
-    renderer->beginFrame();
+        renderer->beginFrame();
     }
     
         // Use the SceDisplay module to render the game frame
@@ -427,9 +429,10 @@ void Emulator::renderFrame() {
     }
     
     if (renderer) {
-    renderer->endFrame();
-    renderer->swapBuffers();
-}
+        renderer->endFrame();
+        renderer->swapBuffers();
+    }
+    if (gpu) gpu->endFrame();
 }
 
 bool Emulator::saveState(const std::string& filename) {
