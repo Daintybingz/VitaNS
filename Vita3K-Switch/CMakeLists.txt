@@ -85,8 +85,14 @@ add_custom_command(TARGET VitaNS POST_BUILD
 message(STATUS "CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
 message(STATUS "CMAKE_TARGET_SYSTEM_NAME: ${CMAKE_TARGET_SYSTEM_NAME}")
 
-# Add ImGui sources (SDL2 only)
-if(NOT (CMAKE_SYSTEM_NAME STREQUAL "Switch" OR CMAKE_TARGET_SYSTEM_NAME STREQUAL "Switch"))
+# Robust platform detection for Switch
+set(VITANS_PLATFORM_SWITCH FALSE)
+if(DEFINED ENV{DEVKITPRO})
+    set(VITANS_PLATFORM_SWITCH TRUE)
+endif()
+
+# Add ImGui sources (SDL2 only, not for Switch)
+if(NOT VITANS_PLATFORM_SWITCH)
 file(GLOB IMGUI_SRC
     external/imgui/imgui.cpp
     external/imgui/imgui_draw.cpp
