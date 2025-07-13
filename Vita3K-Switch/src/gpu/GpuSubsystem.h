@@ -9,19 +9,28 @@ public:
     GpuSubsystem(IGraphicsBackend* backend)
         : executor(backend) {}
 
-    void beginFrame() {
-        // Create a new command buffer for this frame
-        currentBuffer = std::make_unique<GxmCommandBuffer>();
-        // Fill with test commands (stub)
+    // Parse a GXM command stream (stub for now)
+    void parseGxmCommandStream(const uint8_t* data, size_t size, GxmCommandBuffer& outBuf) {
+        // TODO: Replace this stub with real parsing of GXM command streams from emulated game memory
+        // For now, just add a clear and draw command as a placeholder
         auto clearCmd = std::make_unique<GxmClearCommand>();
         clearCmd->clearMask = 0x1; // GL_COLOR_BUFFER_BIT
-        currentBuffer->add(std::move(clearCmd));
+        outBuf.add(std::move(clearCmd));
         auto drawCmd = std::make_unique<GxmDrawCall>();
         drawCmd->primType = 4; // GL_TRIANGLES
         drawCmd->indexType = 0;
         drawCmd->indexData = nullptr;
         drawCmd->indexCount = 3;
-        currentBuffer->add(std::move(drawCmd));
+        outBuf.add(std::move(drawCmd));
+    }
+
+    void beginFrame() {
+        // Create a new command buffer for this frame
+        currentBuffer = std::make_unique<GxmCommandBuffer>();
+        // TODO: Get real GXM command stream from emulated game memory
+        const uint8_t* dummyData = nullptr;
+        size_t dummySize = 0;
+        parseGxmCommandStream(dummyData, dummySize, *currentBuffer);
     }
 
     void endFrame() {
