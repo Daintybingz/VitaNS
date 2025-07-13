@@ -83,6 +83,7 @@ add_custom_command(TARGET VitaNS POST_BUILD
 )
 
 # Add ImGui sources (SDL2 only)
+if(NOT __SWITCH__)
 file(GLOB IMGUI_SRC
     external/imgui/imgui.cpp
     external/imgui/imgui_draw.cpp
@@ -92,6 +93,7 @@ file(GLOB IMGUI_SRC
 )
 target_sources(VitaNS PRIVATE ${IMGUI_SRC})
 target_include_directories(VitaNS PRIVATE external/imgui)
+endif()
 
 # Add compiler flags to prevent multiple definition errors
 target_compile_options(VitaNS PRIVATE -fno-common)
