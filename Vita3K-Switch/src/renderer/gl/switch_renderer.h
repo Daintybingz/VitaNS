@@ -5,18 +5,7 @@
 #include <string>
 #include <vector>
 #include "IGraphicsBackend.h"
-
-struct GraphicsCapabilities {
-    std::string glVersion;
-    std::string glRenderer;
-    std::string glVendor;
-    std::string glExtensions;
-    bool has_ES3 = false;
-    bool has_MRT = false;
-    bool has_UBO = false;
-    bool has_instancing = false;
-    // Add more as needed
-};
+#include "GraphicsCapabilities.h"
 
 // Switch-specific OpenGL ES renderer stub
 class SwitchRenderer : public IGraphicsBackend {

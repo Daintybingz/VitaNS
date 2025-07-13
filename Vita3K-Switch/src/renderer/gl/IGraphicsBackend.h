@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "switch_renderer.h" // For GraphicsCapabilities
+#include "GraphicsCapabilities.h"
 
 class IGraphicsBackend {
 public:
