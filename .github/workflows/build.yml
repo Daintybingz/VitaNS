@@ -35,7 +35,7 @@ jobs:
       - name: Install Switch portlibs
         run: |
           dkp-pacman -Syu --noconfirm
-          dkp-pacman -S --noconfirm switch-egl switch-gles2 switch-harfbuzz switch-sdl2 switch-sdl2_ttf switch-sdl2_image switch-mesa switch-glm
+          dkp-pacman -S --noconfirm switch-harfbuzz switch-sdl2 switch-sdl2_ttf switch-sdl2_image switch-mesa switch-glm
 
       - name: Build
         run: |
