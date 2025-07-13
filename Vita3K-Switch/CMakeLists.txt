@@ -38,7 +38,7 @@ if(VITANS_PLATFORM_SWITCH)
     list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/gl/.*\\.cpp$")
     # Re-add switch_renderer.cpp explicitly
     list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/src/renderer/gl/switch_renderer.cpp")
-    list(FILTER SOURCES EXCLUDE REGEX ".*/display/display_buffer\\.cpp$")
+    # Do NOT exclude display_buffer.cpp!
     list(FILTER SOURCES EXCLUDE REGEX ".*/shader/.*\\.cpp$")
     list(FILTER SOURCES EXCLUDE REGEX ".*/modules/SceGxm/.*\\.cpp$")
 endif()
