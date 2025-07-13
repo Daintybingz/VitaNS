@@ -28,6 +28,10 @@ jobs:
           echo "Vita3K-Switch directory:"
           ls -la Vita3K-Switch/ || echo "Vita3K-Switch directory not found"
 
+      - name: Clean build directory
+        run: |
+          rm -rf Vita3K-Switch/build
+
       - name: Build
         run: |
           echo "Building VitaNS"
