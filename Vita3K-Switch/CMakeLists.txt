@@ -83,7 +83,7 @@ add_custom_command(TARGET VitaNS POST_BUILD
 )
 
 # Add ImGui sources (SDL2 only)
-if(NOT __SWITCH__)
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Switch")
 file(GLOB IMGUI_SRC
     external/imgui/imgui.cpp
     external/imgui/imgui_draw.cpp
