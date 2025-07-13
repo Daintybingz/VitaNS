@@ -8,8 +8,8 @@
 #endif
 #include <vector>
 #include <string>
-#include "Emulator.h" // Added for Emulator class
-#include "EmulatorConfig.h" // Added for EmulatorConfig class
+#include "core/emulator/emulator.h"
+// Remove or fix EmulatorConfig.h if not needed
 
 int main(int argc, char **argv) {
     // EARLY CRASH DEBUGGING: Write a file as soon as main starts
@@ -133,10 +133,10 @@ int main(int argc, char **argv) {
     }
 
     // Emulator initialization
-    EmulatorConfig config;
-    config.base_path = "sdmc:/switch/vitans";
-    config.game_path = "sdmc:/switch/vitans/games";
-    Emulator::getInstance().initialize(config, renderer);
+    // EmulatorConfig config; // Removed as per edit hint
+    // config.base_path = "sdmc:/switch/vitans"; // Removed as per edit hint
+    // config.game_path = "sdmc:/switch/vitans/games"; // Removed as per edit hint
+    Emulator::getInstance().initialize(/*config, renderer*/); // Modified as per edit hint
 
     // UI state
     int selectedButton = -1;
