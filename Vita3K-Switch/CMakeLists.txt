@@ -59,7 +59,7 @@ target_include_directories(VitaNS PRIVATE $ENV{DEVKITPRO}/portlibs/switch/includ
 # Link with libnx, SDL2, SDL2_ttf, and OpenGL ES for Switch
 find_package(SDL2 REQUIRED)
 find_package(SDL2_ttf REQUIRED)
-target_link_libraries(VitaNS nx SDL2 SDL2_ttf GLESv2)
+target_link_libraries(VitaNS nx SDL2 SDL2_ttf freetype)
 
 # Set output name to VitaNS.nro
 set_target_properties(VitaNS PROPERTIES OUTPUT_NAME "VitaNS" SUFFIX ".nro")
