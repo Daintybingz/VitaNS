@@ -34,7 +34,8 @@ list(FILTER SOURCES EXCLUDE REGEX ".*/tests/.*\\.cpp$")
 
 # Remove OpenGL/EGL-dependent files from SOURCES for Switch
 if(VITANS_PLATFORM_SWITCH)
-    list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/gl/.*\\.cpp$")
+    # Exclude all gl renderer files except switch_renderer.cpp
+    list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/gl/(?!switch_renderer)\\w+\\.cpp$")
     list(FILTER SOURCES EXCLUDE REGEX ".*/display/display_buffer\\.cpp$")
     list(FILTER SOURCES EXCLUDE REGEX ".*/shader/.*\\.cpp$")
     list(FILTER SOURCES EXCLUDE REGEX ".*/modules/SceGxm/.*\\.cpp$")
@@ -80,7 +81,7 @@ endif()
 
 # Link with only SDL2, SDL2_ttf, freetype, png, z, bz2 for Switch
 if(VITANS_PLATFORM_SWITCH)
-    target_link_libraries(VitaNS PRIVATE nx SDL2 SDL2_ttf freetype png z bz2)
+    target_link_libraries(VitaNS PRIVATE nx SDL2 SDL2_ttf freetype png z bz2 EGL GLESv2 harfbuzz)
 else()
     # Non-Switch platforms: add OpenGL/EGL files and link OpenGL/EGL if needed
     file(GLOB GL_RENDERER_SRC
@@ -127,7 +128,7 @@ file(GLOB IMGUI_SRC
     external/imgui/imgui_impl_sdl2.cpp
 )
 target_sources(VitaNS PRIVATE ${IMGUI_SRC})
-target_include_directories(VitaNS PRIVATE external/imgui)
+target_include_directories(VitaNS PRIVATE external/imgui) 
 endif()
 
 # Add compiler flags to prevent multiple definition errors
