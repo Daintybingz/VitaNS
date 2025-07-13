@@ -6,6 +6,7 @@
 
 // Forward declarations
 class SwitchRenderer;
+class IGraphicsBackend;
 
 class SceDisplay : public Module {
 public:
@@ -14,7 +15,7 @@ public:
     void registerFunctions() override;
     
     // Initialize the display module with a renderer
-    bool initialize(SwitchRenderer* renderer);
+    bool initialize(IGraphicsBackend* renderer);
     
     // Finalize the display module
     void finalize();

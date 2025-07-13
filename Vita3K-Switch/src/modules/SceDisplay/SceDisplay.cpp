@@ -45,7 +45,7 @@ void SceDisplay::registerFunctions() {
 }
 
 
-bool SceDisplay::initialize(SwitchRenderer* renderer) {
+bool SceDisplay::initialize(IGraphicsBackend* renderer) {
     printf("[SceDisplay] Initializing display module\n");
     
     if (!displayBuffer) {
@@ -54,7 +54,7 @@ bool SceDisplay::initialize(SwitchRenderer* renderer) {
     }
     
     // Initialize the display buffer
-    if (!displayBuffer->initialize(renderer)) {
+    if (!displayBuffer->initialize(dynamic_cast<SwitchRenderer*>(renderer))) {
         printf("[SceDisplay] Failed to initialize display buffer\n");
         return false;
     }

@@ -27,6 +27,7 @@ public:
     ~DisplayBuffer();
 
     // Initialize the display buffer
+    // TODO: Generalize to IGraphicsBackend* when non-Switch backends are implemented
     bool initialize(SwitchRenderer* renderer);
     
     // Finalize the display buffer

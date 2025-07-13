@@ -129,5 +129,18 @@ void SwitchRenderer::logCapabilities(const std::string& logPath) {
     log.close();
 }
 
+void SwitchRenderer::createShader() {
+    printf("[SwitchRenderer] createShader() stub called\n");
+}
+void SwitchRenderer::bindTexture() {
+    printf("[SwitchRenderer] bindTexture() stub called\n");
+}
+void SwitchRenderer::setFramebuffer() {
+    printf("[SwitchRenderer] setFramebuffer() stub called\n");
+}
+void SwitchRenderer::draw() {
+    printf("[SwitchRenderer] draw() stub called\n");
+}
+
 int SwitchRenderer::getWidth() const { return width; }
 int SwitchRenderer::getHeight() const { return height; }

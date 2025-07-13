@@ -4,6 +4,7 @@
 #include <SDL2/SDL_opengles2.h>
 #include <string>
 #include <vector>
+#include "IGraphicsBackend.h"
 
 struct GraphicsCapabilities {
     std::string glVersion;
@@ -18,28 +19,28 @@ struct GraphicsCapabilities {
 };
 
 // Switch-specific OpenGL ES renderer stub
-class SwitchRenderer {
+class SwitchRenderer : public IGraphicsBackend {
 public:
     SwitchRenderer();
-    ~SwitchRenderer();
+    ~SwitchRenderer() override;
 
-    // Initialize the renderer (window, context, etc.)
-    bool initialize(const std::string& windowTitle, int width, int height);
-    void finalize();
-
-    // Frame management
-    void beginFrame();
-    void endFrame();
-
-    // Buffer swap
-    void swapBuffers();
+    // IGraphicsBackend interface
+    bool initialize(const std::string& windowTitle, int width, int height) override;
+    void finalize() override;
+    void beginFrame() override;
+    void endFrame() override;
+    void swapBuffers() override;
+    void createShader() override; // stub
+    void bindTexture() override; // stub
+    void setFramebuffer() override; // stub
+    void draw() override; // stub
+    const GraphicsCapabilities& getCapabilities() const override { return capabilities; }
 
     // Window info
     int getWidth() const;
     int getHeight() const;
 
     // Capabilities
-    const GraphicsCapabilities& getCapabilities() const { return capabilities; }
     void probeCapabilities();
     void logCapabilities(const std::string& logPath = "sdmc:/switch/vitans/gpu_caps.txt");
 

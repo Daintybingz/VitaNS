@@ -1,5 +1,7 @@
 #include "emulator.h"
-#include "../../renderer/gl/switch_renderer.h"
+#include "../../renderer/gl/RendererGLES2.h"
+#include "../../renderer/gl/RendererGLES3.h"
+#include "../../renderer/gl/IGraphicsBackend.h"
 #include "../module/module_registry.h"
 #include <cstdio>
 #include <filesystem>
@@ -58,6 +60,18 @@ bool Emulator::initialize(const EmulatorConfig& cfg) {
     
     module_manager = std::make_unique<ModuleManager>();
 
+    // --- Backend selection ---
+    // Try GLES3, fallback to GLES2
+    std::unique_ptr<RendererGLES3> gles3 = std::make_unique<RendererGLES3>();
+    if (gles3->initialize("VitaNS", 1280, 720) && gles3->getCapabilities().has_ES3) {
+        printf("[Emulator] Using RendererGLES3 backend\n");
+        renderer = std::move(gles3);
+    } else {
+        printf("[Emulator] Using RendererGLES2 backend\n");
+        renderer = std::make_unique<RendererGLES2>();
+        renderer->initialize("VitaNS", 1280, 720);
+    }
+
     // Initialize core modules
     module_manager->registerModule(std::make_shared<SceDisplay>());
     module_manager->registerModule(std::make_shared<SceAudio>());
@@ -68,7 +82,7 @@ bool Emulator::initialize(const EmulatorConfig& cfg) {
 
     auto displayModule = static_cast<SceDisplay*>(module_manager->findModule("SceDisplay").get());
     if (displayModule) {
-        displayModule->initialize(renderer.get());
+        displayModule->initialize(dynamic_cast<SwitchRenderer*>(renderer.get()));
         printf("[Emulator] Display module initialized successfully\n");
     } else {
         printf("[Emulator] Warning: SceDisplay module not found\n");
@@ -391,7 +405,7 @@ ModuleManager& Emulator::getModuleManager() {
     // return ModuleRegistry::executeSystemCall(*this, nid, threadId, args); // Function not declared in header, removed.
 // }
 
-void Emulator::setRenderer(SwitchRenderer* r) {
+void Emulator::setRenderer(IGraphicsBackend* r) {
     renderer.reset(r);
 }
 

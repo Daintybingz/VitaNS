@@ -9,7 +9,7 @@
 class MemoryManager;
 class SwitchCPUBackend;
 #include "../../modules/module.h"
-class SwitchRenderer;
+class IGraphicsBackend;
 class SwitchInput;
 
 enum class EmulatorState {
@@ -113,7 +113,7 @@ public:
     ModuleManager& getModuleManager();
 
     // Add missing methods
-    void setRenderer(SwitchRenderer* r);
+    void setRenderer(IGraphicsBackend* r);
     EmulatorState getState() const;
     bool installFirmware(const std::string& path);
     bool installGame(const std::string& path);
@@ -129,7 +129,7 @@ private:
     std::unique_ptr<MemoryManager> memory_manager;
     std::unique_ptr<SwitchCPUBackend> cpu;
     std::unique_ptr<ModuleManager> module_manager;
-    std::unique_ptr<SwitchRenderer> renderer;
+    std::unique_ptr<IGraphicsBackend> renderer;
     std::unique_ptr<SwitchInput> input_system;
 
     std::mutex mutex;
