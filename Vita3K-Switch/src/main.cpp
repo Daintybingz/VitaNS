@@ -8,6 +8,8 @@
 #endif
 #include <vector>
 #include <string>
+#include "Emulator.h" // Added for Emulator class
+#include "EmulatorConfig.h" // Added for EmulatorConfig class
 
 int main(int argc, char **argv) {
     // EARLY CRASH DEBUGGING: Write a file as soon as main starts
@@ -130,6 +132,12 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    // Emulator initialization
+    EmulatorConfig config;
+    config.base_path = "sdmc:/switch/vitans";
+    config.game_path = "sdmc:/switch/vitans/games";
+    Emulator::getInstance().initialize(config, renderer);
+
     // UI state
     int selectedButton = -1;
     std::string statusMessage = "Welcome to VitaNS!";
@@ -222,6 +230,10 @@ int main(int argc, char **argv) {
         SDL_RenderCopy(renderer, statusTex, NULL, &statusRect);
         SDL_DestroyTexture(statusTex);
         SDL_FreeSurface(statusSurf);
+
+        // --- Emulator frame rendering ---
+        Emulator::getInstance().renderFrame();
+
         SDL_RenderPresent(renderer);
         SDL_Delay(16); // ~60 FPS
     }
