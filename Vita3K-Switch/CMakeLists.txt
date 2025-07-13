@@ -28,6 +28,11 @@ set(SOURCES ${ALL_SOURCES})
 list(FILTER SOURCES EXCLUDE REGEX ".*/modules/SceGxm/tools/.*\\.cpp$")
 list(FILTER SOURCES EXCLUDE REGEX ".*/tests/.*\\.cpp$")
 
+# Only add display_buffer.cpp for non-Switch platforms
+if(NOT VITANS_PLATFORM_SWITCH)
+    list(APPEND SOURCES src/display/display_buffer.cpp)
+endif()
+
 # Include directories
 include_directories(
     ${CMAKE_SOURCE_DIR}/external/nlohmann
