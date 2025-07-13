@@ -55,7 +55,7 @@ public:
     Emulator();
     ~Emulator();
 
-    bool initialize(const EmulatorConfig& cfg);
+    bool initialize(const EmulatorConfig& cfg, SDL_Renderer* sdlRenderer);
     bool initializeFileSystem();
     bool loadGame(const std::string& path);
     bool loadVpk(const std::string& path);

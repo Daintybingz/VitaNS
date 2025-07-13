@@ -41,7 +41,7 @@ Emulator::~Emulator() {
     // finalize(); // Removed, not implemented
 }
 
-bool Emulator::initialize(const EmulatorConfig& cfg) {
+bool Emulator::initialize(const EmulatorConfig& cfg, SDL_Renderer* sdlRenderer) {
     if (state != EmulatorState::UNINITIALIZED) {
         return true; // Already initialized
     }
@@ -73,7 +73,7 @@ bool Emulator::initialize(const EmulatorConfig& cfg) {
         renderer->initialize("VitaNS", 1280, 720);
     }
     // Initialize GPU subsystem
-    gpu = std::make_unique<GpuSubsystem>(renderer.get());
+    gpu = std::make_unique<GpuSubsystem>(renderer.get(), sdlRenderer);
 
     // Initialize core modules
     module_manager->registerModule(std::make_shared<SceDisplay>());

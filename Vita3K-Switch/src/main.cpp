@@ -133,10 +133,10 @@ int main(int argc, char **argv) {
     }
 
     // Emulator initialization
-    // EmulatorConfig config; // Removed as per edit hint
-    // config.base_path = "sdmc:/switch/vitans"; // Removed as per edit hint
-    // config.game_path = "sdmc:/switch/vitans/games"; // Removed as per edit hint
-    Emulator::getInstance().initialize(/*config, renderer*/); // Modified as per edit hint
+    EmulatorConfig config;
+    config.base_path = "sdmc:/switch/vitans";
+    config.game_path = "sdmc:/switch/vitans/games";
+    Emulator::getInstance().initialize(config, renderer);
 
     // UI state
     int selectedButton = -1;
