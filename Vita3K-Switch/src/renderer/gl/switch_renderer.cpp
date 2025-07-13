@@ -1,5 +1,6 @@
 #include "switch_renderer.h"
 #include <cstdio>
+#include <fstream>
 
 SwitchRenderer::SwitchRenderer()
     : window(nullptr), glContext(nullptr), width(0), height(0), initialized(false) {}
@@ -57,6 +58,10 @@ bool SwitchRenderer::initialize(const std::string& windowTitle, int w, int h) {
 
     initialized = true;
     printf("[SwitchRenderer] Initialized OpenGL ES renderer (%dx%d)\n", width, height);
+
+    // Probe and log capabilities
+    probeCapabilities();
+    logCapabilities();
     return true;
 }
 
@@ -86,6 +91,42 @@ void SwitchRenderer::swapBuffers() {
     if (window && initialized) {
         SDL_GL_SwapWindow(window);
     }
+}
+
+void SwitchRenderer::probeCapabilities() {
+    // Must have a valid context
+    if (!glContext) return;
+    capabilities.glVersion = (const char*)glGetString(GL_VERSION);
+    capabilities.glRenderer = (const char*)glGetString(GL_RENDERER);
+    capabilities.glVendor = (const char*)glGetString(GL_VENDOR);
+    capabilities.glExtensions = (const char*)glGetString(GL_EXTENSIONS);
+
+    // Check for ES 3.0+ support
+    std::string version = capabilities.glVersion;
+    if (version.find("OpenGL ES 3") != std::string::npos) {
+        capabilities.has_ES3 = true;
+    }
+
+    // Check for common features
+    std::string exts = capabilities.glExtensions;
+    capabilities.has_MRT = (exts.find("GL_EXT_draw_buffers") != std::string::npos) || (exts.find("GL_NV_draw_buffers") != std::string::npos);
+    capabilities.has_UBO = (exts.find("GL_EXT_uniform_buffer_object") != std::string::npos) || (exts.find("GL_OES_uniform_buffer_object") != std::string::npos);
+    capabilities.has_instancing = (exts.find("GL_EXT_draw_instanced") != std::string::npos) || (exts.find("GL_NV_draw_instanced") != std::string::npos);
+    // Add more as needed
+}
+
+void SwitchRenderer::logCapabilities(const std::string& logPath) {
+    std::ofstream log(logPath);
+    if (!log.is_open()) return;
+    log << "GL_VERSION: " << capabilities.glVersion << "\n";
+    log << "GL_RENDERER: " << capabilities.glRenderer << "\n";
+    log << "GL_VENDOR: " << capabilities.glVendor << "\n";
+    log << "GL_EXTENSIONS: " << capabilities.glExtensions << "\n";
+    log << "has_ES3: " << capabilities.has_ES3 << "\n";
+    log << "has_MRT: " << capabilities.has_MRT << "\n";
+    log << "has_UBO: " << capabilities.has_UBO << "\n";
+    log << "has_instancing: " << capabilities.has_instancing << "\n";
+    log.close();
 }
 
 int SwitchRenderer::getWidth() const { return width; }
