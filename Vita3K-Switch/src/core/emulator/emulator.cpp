@@ -22,6 +22,7 @@
 #include "../../firmware/modules/input/sceTouch.h"
 #include "../../io/vpk.h"
 #include "../../filesystem/vita_filesystem.h"
+#include "../../gpu/GpuSubsystem.h"
 
 namespace fs = std::filesystem;
 
