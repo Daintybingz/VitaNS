@@ -500,16 +500,16 @@ bool VitaOS::load_system_modules() {
     return true;
 }
 
-    // Install firmware from a .PUP file on the SD card
-    bool install_firmware_from_pup(const std::string& pup_path) {
-        std::string firmware_root = "sdmc:/switch/vitans/firmware";
-        spdlog::info("Installing firmware from PUP: {} to {}", pup_path, firmware_root);
-        if (!extract_pup_firmware(pup_path, firmware_root)) {
-            spdlog::error("Failed to extract PUP firmware.");
-            return false;
-        }
-        spdlog::info("Firmware installation from PUP complete.");
-        return true;
+// Install firmware from a .PUP file on the SD card
+bool install_firmware_from_pup(const std::string& pup_path) {
+    std::string firmware_root = "sdmc:/switch/vitans/firmware";
+    spdlog::info("Installing firmware from PUP: {} to {}", pup_path, firmware_root);
+    if (!extract_pup_firmware(pup_path, firmware_root)) {
+        spdlog::error("Failed to extract PUP firmware.");
+        return false;
     }
+    spdlog::info("Firmware installation from PUP complete.");
+    return true;
+}
 
 } // namespace firmware

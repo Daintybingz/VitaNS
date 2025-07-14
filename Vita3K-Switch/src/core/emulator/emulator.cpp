@@ -423,7 +423,7 @@ void Emulator::renderFrame() {
     }
     if (gpu) gpu->beginFrame();
     if (renderer) {
-        renderer->beginFrame();
+    renderer->beginFrame();
     }
     
         // Use the SceDisplay module to render the game frame
@@ -435,9 +435,9 @@ void Emulator::renderFrame() {
     }
     
     if (renderer) {
-        renderer->endFrame();
-        renderer->swapBuffers();
-    }
+    renderer->endFrame();
+    renderer->swapBuffers();
+}
     if (gpu) gpu->endFrame();
 }
 

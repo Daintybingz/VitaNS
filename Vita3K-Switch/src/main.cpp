@@ -27,8 +27,8 @@ int main(int argc, char **argv) {
 
     // Step 2: Add Logging (before any ImGui code)
     try {
-        auto file_logger = spdlog::basic_logger_mt("file_logger", "sdmc:/switch/vitans/log.txt");
-        spdlog::set_default_logger(file_logger);
+    auto file_logger = spdlog::basic_logger_mt("file_logger", "sdmc:/switch/vitans/log.txt");
+    spdlog::set_default_logger(file_logger);
         spdlog::set_level(spdlog::level::debug);
         spdlog::info("[Step 2] Logging initialized and working! (before ImGui)");
     } catch (const spdlog::spdlog_ex& ex) {
@@ -172,7 +172,7 @@ int main(int argc, char **argv) {
                     if (selectedButton == 0) statusMessage = "[Stub] Load Game selected";
                     else if (selectedButton == 1) statusMessage = "[Stub] Settings selected";
                     else if (selectedButton == 2) running = false;
-                }
+        }
             }
         }
         // Controller support (Joy-Con)
