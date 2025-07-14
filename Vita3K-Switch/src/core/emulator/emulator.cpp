@@ -23,6 +23,8 @@
 #include "../../io/vpk.h"
 #include "../../filesystem/vita_filesystem.h"
 #include "../../gpu/GpuSubsystem.h"
+#include "../../renderer/Renderer.h"
+#include "../../renderer/RendererStub.cpp"
 
 namespace fs = std::filesystem;
 
@@ -62,16 +64,19 @@ bool Emulator::initialize(const EmulatorConfig& cfg, SDL_Renderer* sdlRenderer) 
     module_manager = std::make_unique<ModuleManager>();
 
     // --- Backend selection ---
-    // Try GLES3, fallback to GLES2
-    std::unique_ptr<RendererGLES3> gles3 = std::make_unique<RendererGLES3>();
-    if (gles3->initialize("VitaNS", 1280, 720) && gles3->getCapabilities().has_ES3) {
-        printf("[Emulator] Using RendererGLES3 backend\n");
-        renderer = std::move(gles3);
-    } else {
-        printf("[Emulator] Using RendererGLES2 backend\n");
-        renderer = std::make_unique<RendererGLES2>();
-        renderer->initialize("VitaNS", 1280, 720);
-    }
+    // PHASE 1: Use RendererStub for now
+    renderer = std::make_unique<RendererStub>();
+    renderer->init();
+    // (Old code for GLES3/GLES2 selection is commented out)
+    // std::unique_ptr<RendererGLES3> gles3 = std::make_unique<RendererGLES3>();
+    // if (gles3->initialize("VitaNS", 1280, 720) && gles3->getCapabilities().has_ES3) {
+    //     printf("[Emulator] Using RendererGLES3 backend\n");
+    //     renderer = std::move(gles3);
+    // } else {
+    //     printf("[Emulator] Using RendererGLES2 backend\n");
+    //     renderer = std::make_unique<RendererGLES2>();
+    //     renderer->initialize("VitaNS", 1280, 720);
+    // }
     // Initialize GPU subsystem
     gpu = std::make_unique<GpuSubsystem>(renderer.get(), sdlRenderer);
 

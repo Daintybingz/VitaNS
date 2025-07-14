@@ -9,6 +9,7 @@
 class MemoryManager;
 class SwitchCPUBackend;
 #include "../../modules/module.h"
+class Renderer; // <-- Add this line
 class IGraphicsBackend;
 class SwitchInput;
 class GpuSubsystem;
@@ -133,7 +134,7 @@ private:
     std::unique_ptr<MemoryManager> memory_manager;
     std::unique_ptr<SwitchCPUBackend> cpu;
     std::unique_ptr<ModuleManager> module_manager;
-    std::unique_ptr<IGraphicsBackend> renderer;
+    std::unique_ptr<Renderer> renderer; // <-- Add this line
     std::unique_ptr<SwitchInput> input_system;
     std::unique_ptr<GpuSubsystem> gpu;
 
