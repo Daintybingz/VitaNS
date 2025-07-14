@@ -114,11 +114,11 @@ public:
     MemoryManager& getMemoryManager();
     SwitchCPUBackend& getCPU();
     ModuleManager& getModuleManager();
-    GpuSubsystem* getGpu() { return gpu.get(); }
+    // GpuSubsystem* getGpu() { return gpu.get(); } // PHASE 1: Commented out
     SceGxm* getSceGxm();
 
     // Add missing methods
-    void setRenderer(IGraphicsBackend* r);
+    // void setRenderer(IGraphicsBackend* r); // PHASE 1: Commented out
     EmulatorState getState() const;
     bool installFirmware(const std::string& path);
     bool installGame(const std::string& path);
@@ -136,7 +136,7 @@ private:
     std::unique_ptr<ModuleManager> module_manager;
     std::unique_ptr<Renderer> renderer; // <-- Add this line
     std::unique_ptr<SwitchInput> input_system;
-    std::unique_ptr<GpuSubsystem> gpu;
+    // std::unique_ptr<GpuSubsystem> gpu; // PHASE 1: Commented out
 
     std::mutex mutex;
 };

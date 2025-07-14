@@ -78,7 +78,7 @@ bool Emulator::initialize(const EmulatorConfig& cfg, SDL_Renderer* sdlRenderer) 
     //     renderer->initialize("VitaNS", 1280, 720);
     // }
     // Initialize GPU subsystem
-    gpu = std::make_unique<GpuSubsystem>(renderer.get(), sdlRenderer);
+    // gpu = std::make_unique<GpuSubsystem>(renderer.get(), sdlRenderer); // PHASE 1: Commented out
 
     // Initialize core modules
     module_manager->registerModule(std::make_shared<SceDisplay>());
@@ -426,24 +426,20 @@ void Emulator::renderFrame() {
     if (state != EmulatorState::RUNNING) {
         return;
     }
-    if (gpu) gpu->beginFrame();
+    // PHASE 1: Only use Renderer abstraction
     if (renderer) {
-    renderer->beginFrame();
+        renderer->draw_frame();
+        renderer->present();
     }
-    
-        // Use the SceDisplay module to render the game frame
-    if (module_manager) {
-        auto displayModule = static_cast<SceDisplay*>(module_manager->findModule("SceDisplay").get());
-        if (displayModule) {
-            // The actual rendering is done by the display module, which is called by the CPU emulation
-        }
-    }
-    
-    if (renderer) {
-    renderer->endFrame();
-    renderer->swapBuffers();
-}
-    if (gpu) gpu->endFrame();
+    // (Old GpuSubsystem and SceDisplay logic commented out for now)
+    // if (gpu) gpu->beginFrame();
+    // if (module_manager) {
+    //     auto displayModule = static_cast<SceDisplay*>(module_manager->findModule("SceDisplay").get());
+    //     if (displayModule) {
+    //         // The actual rendering is done by the display module, which is called by the CPU emulation
+    //     }
+    // }
+    // if (gpu) gpu->endFrame();
 }
 
 bool Emulator::saveState(const std::string& filename) {
