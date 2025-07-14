@@ -418,10 +418,6 @@ SceGxm* Emulator::getSceGxm() {
     // return ModuleRegistry::executeSystemCall(*this, nid, threadId, args); // Function not declared in header, removed.
 // }
 
-void Emulator::setRenderer(IGraphicsBackend* r) {
-    renderer.reset(r);
-}
-
 void Emulator::renderFrame() {
     if (state != EmulatorState::RUNNING) {
         return;
