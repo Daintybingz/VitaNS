@@ -22,7 +22,7 @@
 #include "../../firmware/modules/input/sceTouch.h"
 #include "../../io/vpk.h"
 #include "../../filesystem/vita_filesystem.h"
-#include "../../gpu/GpuSubsystem.h"
+#include "../gpu/GpuSubsystem.h"
 #include "../../renderer/Renderer.h"
 #include "../../renderer/RendererStub.cpp"
 #include <vector>
