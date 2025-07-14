@@ -32,9 +32,10 @@ jobs:
         run: |
           rm -rf Vita3K-Switch/build
 
-      - name: Install Switch portlibs
+      - name: Force reinstall all portlibs
         run: |
           dkp-pacman -Syu --noconfirm
+          dkp-pacman -Rns --noconfirm switch-mesa
           dkp-pacman -S --noconfirm switch-harfbuzz switch-sdl2 switch-sdl2_ttf switch-sdl2_image switch-mesa switch-glm
 
       - name: Build
