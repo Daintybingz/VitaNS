@@ -83,7 +83,7 @@ endif()
 
 # Link with only SDL2, SDL2_ttf, freetype, png, z, bz2 for Switch
 if(VITANS_PLATFORM_SWITCH)
-    target_link_libraries(VitaNS PRIVATE nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz glapi)
+    target_link_libraries(VitaNS PRIVATE nx SDL2 SDL2_ttf freetype png z bz2 EGL GLESv2 harfbuzz glapi)
 else()
     # Non-Switch platforms: add OpenGL/EGL files and link OpenGL/EGL if needed
     file(GLOB GL_RENDERER_SRC
