@@ -114,113 +114,181 @@ set_target_properties(VitaNS PROPERTIES
 install(TARGETS VitaNS RUNTIME DESTINATION .)
 
 # Testing Configuration
-if(NOT VITANS_PLATFORM_SWITCH)
-    # Only build tests on non-Switch platforms for now
-    # (Switch testing requires special setup)
-    
-    # Find GTest
-    find_package(GTest REQUIRED)
+# Enable testing for both Switch and non-Switch platforms
+# Find GTest (available in devkitPro for Switch)
+find_package(GTest QUIET)
+if(NOT GTest_FOUND)
+    # Try to find GTest in devkitPro paths for Switch
+    if(VITANS_PLATFORM_SWITCH)
+        find_path(GTEST_INCLUDE_DIR gtest/gtest.h
+            PATHS $ENV{DEVKITPRO}/portlibs/switch/include
+            NO_DEFAULT_PATH
+        )
+        find_library(GTEST_LIBRARY gtest
+            PATHS $ENV{DEVKITPRO}/portlibs/switch/lib
+            NO_DEFAULT_PATH
+        )
+        find_library(GTEST_MAIN_LIBRARY gtest_main
+            PATHS $ENV{DEVKITPRO}/portlibs/switch/lib
+            NO_DEFAULT_PATH
+        )
+        if(GTEST_INCLUDE_DIR AND GTEST_LIBRARY AND GTEST_MAIN_LIBRARY)
+            set(GTest_FOUND TRUE)
+            set(GTEST_INCLUDE_DIRS ${GTEST_INCLUDE_DIR})
+            set(GTEST_LIBRARIES ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY})
+        endif()
+    endif()
+endif()
+
+if(GTest_FOUND)
+    message(STATUS "GTest found - enabling testing framework")
     
     # Test source files
     file(GLOB TEST_SOURCES tests/*.cpp)
     
-    # Create test executable
-    add_executable(VitaNSTests ${TEST_SOURCES})
-    
-    # Link test executable with main library and GTest
-    target_link_libraries(VitaNSTests PRIVATE 
-        VitaNS 
-        GTest::GTest 
-        GTest::Main
-        SDL2 
-        SDL2_ttf
-    )
-    
-    # Include directories for tests
-    target_include_directories(VitaNSTests PRIVATE
-        ${CMAKE_SOURCE_DIR}/src
-        ${CMAKE_SOURCE_DIR}/external/nlohmann
-    )
-    
-    # Add tests to CTest
-    add_test(NAME RendererTests COMMAND VitaNSTests --gtest_filter=RendererTest*)
-    add_test(NAME IntegrationTests COMMAND VitaNSTests --gtest_filter=EmulatorIntegrationTest*)
-    add_test(NAME PerformanceTests COMMAND VitaNSTests --gtest_filter=PerformanceTest*)
-    
-    # Set test properties
-    set_tests_properties(RendererTests PROPERTIES
-        TIMEOUT 300
-        ENVIRONMENT "SDL_VIDEODRIVER=dummy"
-    )
-    set_tests_properties(IntegrationTests PROPERTIES
-        TIMEOUT 600
-        ENVIRONMENT "SDL_VIDEODRIVER=dummy"
-    )
-    set_tests_properties(PerformanceTests PROPERTIES
-        TIMEOUT 1200
-        ENVIRONMENT "SDL_VIDEODRIVER=dummy"
-    )
-    
-    # Custom test targets
-    add_custom_target(test-renderer
-        COMMAND ${CMAKE_COMMAND} --build . --target VitaNSTests
-        COMMAND ./VitaNSTests --gtest_filter=RendererTest*
-        DEPENDS VitaNSTests
-        COMMENT "Running renderer unit tests"
-    )
-    
-    add_custom_target(test-integration
-        COMMAND ${CMAKE_COMMAND} --build . --target VitaNSTests
-        COMMAND ./VitaNSTests --gtest_filter=EmulatorIntegrationTest*
-        DEPENDS VitaNSTests
-        COMMENT "Running integration tests"
-    )
-    
-    add_custom_target(test-performance
-        COMMAND ${CMAKE_COMMAND} --build . --target VitaNSTests
-        COMMAND ./VitaNSTests --gtest_filter=PerformanceTest*
-        DEPENDS VitaNSTests
-        COMMENT "Running performance tests"
-    )
-    
-    add_custom_target(test-all
-        COMMAND ${CMAKE_COMMAND} --build . --target VitaNSTests
-        COMMAND ./VitaNSTests
-        DEPENDS VitaNSTests
-        COMMENT "Running all tests"
-    )
-    
-    # Coverage configuration (if available)
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        find_package(gcov)
-        if(gcov_FOUND)
-            target_compile_options(VitaNSTests PRIVATE --coverage)
-            target_link_libraries(VitaNSTests PRIVATE gcov)
-            
-            add_custom_target(coverage
-                COMMAND ${CMAKE_COMMAND} --build . --target VitaNSTests
-                COMMAND ./VitaNSTests
-                COMMAND gcovr --root . --html --html-details --output coverage.html
-                DEPENDS VitaNSTests
-                COMMENT "Generating coverage report"
+    if(TEST_SOURCES)
+        # Create test executable
+        add_executable(VitaNSTests ${TEST_SOURCES})
+        
+        # Include directories for tests
+        target_include_directories(VitaNSTests PRIVATE
+            ${CMAKE_SOURCE_DIR}/src
+            ${CMAKE_SOURCE_DIR}/external/nlohmann
+            ${CMAKE_SOURCE_DIR}/external/spdlog
+        )
+        
+        # Link test executable with dependencies
+        if(VITANS_PLATFORM_SWITCH)
+            # Switch-specific test linking
+            target_link_libraries(VitaNSTests PRIVATE 
+                nx 
+                SDL2 
+                SDL2_ttf 
+                freetype 
+                png 
+                z 
+                bz2 
+                EGL 
+                GLESv2 
+                harfbuzz 
+                glapi
+                ${GTEST_LIBRARIES}
+            )
+            target_include_directories(VitaNSTests PRIVATE $ENV{DEVKITPRO}/portlibs/switch/include)
+        else()
+            # Non-Switch test linking
+            target_link_libraries(VitaNSTests PRIVATE 
+                SDL2 
+                SDL2_ttf
+                GTest::GTest 
+                GTest::Main
             )
         endif()
+        
+        # Add tests to CTest
+        add_test(NAME RendererTests COMMAND VitaNSTests --gtest_filter=RendererTest*)
+        add_test(NAME IntegrationTests COMMAND VitaNSTests --gtest_filter=EmulatorIntegrationTest*)
+        add_test(NAME PerformanceTests COMMAND VitaNSTests --gtest_filter=PerformanceTest*)
+        add_test(NAME CompatibilityTests COMMAND VitaNSTests --gtest_filter=CompatibilityTest*)
+        
+        # Set test properties with platform-specific timeouts
+        if(VITANS_PLATFORM_SWITCH)
+            # Switch tests may take longer due to hardware emulation
+            set_tests_properties(RendererTests PROPERTIES TIMEOUT 600)
+            set_tests_properties(IntegrationTests PROPERTIES TIMEOUT 1200)
+            set_tests_properties(PerformanceTests PROPERTIES TIMEOUT 1800)
+            set_tests_properties(CompatibilityTests PROPERTIES TIMEOUT 900)
+        else()
+            # Non-Switch tests with standard timeouts
+            set_tests_properties(RendererTests PROPERTIES 
+                TIMEOUT 300
+                ENVIRONMENT "SDL_VIDEODRIVER=dummy"
+            )
+            set_tests_properties(IntegrationTests PROPERTIES 
+                TIMEOUT 600
+                ENVIRONMENT "SDL_VIDEODRIVER=dummy"
+            )
+            set_tests_properties(PerformanceTests PROPERTIES 
+                TIMEOUT 1200
+                ENVIRONMENT "SDL_VIDEODRIVER=dummy"
+            )
+            set_tests_properties(CompatibilityTests PROPERTIES 
+                TIMEOUT 900
+                ENVIRONMENT "SDL_VIDEODRIVER=dummy"
+            )
+        endif()
+        
+        # Custom test targets
+        add_custom_target(test-renderer
+            COMMAND ${CMAKE_COMMAND} --build . --target VitaNSTests
+            COMMAND ./VitaNSTests --gtest_filter=RendererTest*
+            DEPENDS VitaNSTests
+            COMMENT "Running renderer unit tests"
+        )
+        
+        add_custom_target(test-integration
+            COMMAND ${CMAKE_COMMAND} --build . --target VitaNSTests
+            COMMAND ./VitaNSTests --gtest_filter=EmulatorIntegrationTest*
+            DEPENDS VitaNSTests
+            COMMENT "Running integration tests"
+        )
+        
+        add_custom_target(test-performance
+            COMMAND ${CMAKE_COMMAND} --build . --target VitaNSTests
+            COMMAND ./VitaNSTests --gtest_filter=PerformanceTest*
+            DEPENDS VitaNSTests
+            COMMENT "Running performance tests"
+        )
+        
+        add_custom_target(test-compatibility
+            COMMAND ${CMAKE_COMMAND} --build . --target VitaNSTests
+            COMMAND ./VitaNSTests --gtest_filter=CompatibilityTest*
+            DEPENDS VitaNSTests
+            COMMENT "Running compatibility tests"
+        )
+        
+        add_custom_target(test-all
+            COMMAND ${CMAKE_COMMAND} --build . --target VitaNSTests
+            COMMAND ./VitaNSTests
+            DEPENDS VitaNSTests
+            COMMENT "Running all tests"
+        )
+        
+        # Coverage configuration (non-Switch only)
+        if(NOT VITANS_PLATFORM_SWITCH AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+            find_package(gcov)
+            if(gcov_FOUND)
+                target_compile_options(VitaNSTests PRIVATE --coverage)
+                target_link_libraries(VitaNSTests PRIVATE gcov)
+                
+                add_custom_target(coverage
+                    COMMAND ${CMAKE_COMMAND} --build . --target VitaNSTests
+                    COMMAND ./VitaNSTests
+                    COMMAND gcovr --root . --html --html-details --output coverage.html
+                    DEPENDS VitaNSTests
+                    COMMENT "Generating coverage report"
+                )
+            endif()
+        endif()
+        
+    else()
+        message(STATUS "No test sources found in tests/ directory")
     endif()
     
 else()
-    # Switch-specific testing setup
-    message(STATUS "Testing framework not configured for Switch platform")
-    message(STATUS "Use manual testing on Switch hardware")
+    message(STATUS "GTest not found - skipping testing framework")
     
-    # Add manual test instructions
-    add_custom_target(test-switch
-        COMMAND echo "Manual Switch Testing Instructions:"
-        COMMAND echo "1. Build VitaNS.nro"
-        COMMAND echo "2. Copy to Switch SD card"
-        COMMAND echo "3. Test on Switch hardware"
-        COMMAND echo "4. Check logs in sdmc:/switch/vitans/"
-        COMMENT "Switch testing requires manual verification"
-    )
+    if(VITANS_PLATFORM_SWITCH)
+        # Add manual test instructions for Switch
+        add_custom_target(test-switch
+            COMMAND echo "Manual Switch Testing Instructions:"
+            COMMAND echo "1. Build VitaNS.nro"
+            COMMAND echo "2. Copy to Switch SD card"
+            COMMAND echo "3. Test on Switch hardware"
+            COMMAND echo "4. Check logs in sdmc:/switch/vitans/"
+            COMMENT "Switch testing requires manual verification"
+        )
+    endif()
 endif()
 
 # Documentation targets
