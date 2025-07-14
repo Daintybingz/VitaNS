@@ -136,7 +136,6 @@ private:
     std::unique_ptr<ModuleManager> module_manager;
     std::unique_ptr<Renderer> renderer; // <-- Add this line
     std::unique_ptr<SwitchInput> input_system;
-    // std::unique_ptr<GpuSubsystem> gpu; // PHASE 1: Commented out
-
+    std::unique_ptr<GpuSubsystem> gpu_subsystem; // <-- Add this line
     std::mutex mutex;
 };

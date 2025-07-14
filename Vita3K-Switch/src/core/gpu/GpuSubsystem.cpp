@@ -1,5 +1,6 @@
+#include "GpuSubsystem.h"
 #include "../../renderer/Renderer.h"
-#include "../../renderer/RendererGLES2.h"
+#include "../../modules/SceGxm/GxmExecutor.h"
 
 GpuSubsystem::GpuSubsystem(Renderer* renderer) : renderer(renderer) {
     // Initialize GXM command parsing
