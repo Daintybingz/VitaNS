@@ -6,6 +6,8 @@
 #include <chrono>
 #include <ctime>
 #include <sstream>
+#include "../../core/emulator/emulator.h"
+#include <tuple>
 
 // Moved from header: validateShaderFormat definition
 bool validateShaderFormat(const void* data, uint32_t size) {
@@ -1072,4 +1074,93 @@ void SceGxm::finalize() {
     
     initialized = false;
     printf("[SceGxm] GXM module finalized\n");
+}
+
+// Helper to emit a buffer upload command to the GXM command buffer
+void SceGxm::emitUploadVertexBuffer(const void* data, size_t size) {
+    // Get the current GXM command buffer (stub: real impl should get from GpuSubsystem)
+    auto* gpu = Emulator::getInstance().gpu_subsystem;
+    if (!gpu) return;
+    auto cmd = std::make_unique<GxmUploadVertexBufferCommand>();
+    cmd->data = malloc(size); memcpy((void*)cmd->data, data, size); cmd->size = size;
+    gpu->currentBuffer->add(std::move(cmd));
+}
+void SceGxm::emitUploadIndexBuffer(const void* data, size_t size, uint32_t indexType) {
+    auto* gpu = Emulator::getInstance().gpu_subsystem;
+    if (!gpu) return;
+    auto cmd = std::make_unique<GxmUploadIndexBufferCommand>();
+    cmd->data = malloc(size); memcpy((void*)cmd->data, data, size); cmd->size = size; cmd->indexType = indexType;
+    gpu->currentBuffer->add(std::move(cmd));
+}
+void SceGxm::emitUploadShader(const std::string& name, const std::string& vertSrc, const std::string& fragSrc) {
+    auto* gpu = Emulator::getInstance().gpu_subsystem;
+    if (!gpu) return;
+    auto cmd = std::make_unique<GxmUploadShaderCommand>();
+    cmd->name = name; cmd->vertSrc = vertSrc; cmd->fragSrc = fragSrc;
+    gpu->currentBuffer->add(std::move(cmd));
+}
+
+// In sceGxmDraw, extract vertex/index data from emulated memory and emit upload commands
+int SceGxm::sceGxmDraw(SceGxmContext* context, SceGxmPrimitiveType primType, int vertexCount, const void* vertexData, uint32_t vertexSize, const void* indexData, uint32_t indexCount, uint32_t indexType) {
+    printf("[SceGxm] sceGxmDraw called: primType=%d, vertexCount=%d, indexCount=%d\n", primType, vertexCount, indexCount);
+    if (!context) return vita::SCE_GXM_ERROR_INVALID_POINTER;
+    // --- Automated attribute/uniform/sampler extraction (stub: use dummy data) ---
+    // Example: position (vec3, offset 0), texcoord (vec2, offset 12), stride 20
+    std::vector<std::tuple<int, int, GLenum, size_t>> layout = { {0, 3, GL_FLOAT, 0}, {1, 2, GL_FLOAT, 12} };
+    emitSetupVertexAttributes(layout, 20);
+    // Example: set uniform 'uColor' to (1,1,1,1)
+    emitSetUniform("uColor", {1.0f, 1.0f, 1.0f, 1.0f});
+    // Example: set sampler 'uTexture' to unit 0
+    emitSetSampler("uTexture", 0);
+    // --- End automated extraction stub ---
+    // Extract vertex data from emulated memory
+    if (vertexData && vertexCount > 0 && vertexSize > 0) {
+        emitUploadVertexBuffer(vertexData, vertexCount * vertexSize);
+    }
+    // Extract index data if present
+    if (indexData && indexCount > 0) {
+        size_t indexSize = (indexType == 0) ? sizeof(uint16_t) : sizeof(uint32_t);
+        emitUploadIndexBuffer(indexData, indexCount * indexSize, indexType);
+    }
+    // TODO: Emit draw command (already handled by GpuSubsystem)
+    return 0;
+}
+// In sceGxmShaderPatcherRegisterProgram, translate shader and emit upload command
+int SceGxm::sceGxmShaderPatcherRegisterProgram(SceGxmShaderPatcher* shaderPatcher, const SceGxmProgram* programHeader, uint32_t* programId) {
+    printf("[SceGxm] sceGxmShaderPatcherRegisterProgram called\n");
+    if (!shaderPatcher || !programHeader || !programId) return vita::SCE_GXM_ERROR_INVALID_POINTER;
+    // Translate shader
+    std::string vertSrc, fragSrc;
+    if (programHeader->type == 0) vertSrc = translateShader(programHeader, programHeader->programSize, true);
+    else fragSrc = translateShader(programHeader, programHeader->programSize, false);
+    // Use programId as name for now
+    std::string name = std::to_string(*programId);
+    emitUploadShader(name, vertSrc, fragSrc);
+    *programId = 1; // Dummy
+    return 0;
+}
+
+void SceGxm::emitSetupVertexAttributes(const std::vector<std::tuple<int, int, GLenum, size_t>>& layout, size_t stride) {
+    auto* gpu = Emulator::getInstance().gpu_subsystem;
+    if (!gpu) return;
+    auto cmd = std::make_unique<GxmSetupVertexAttributesCommand>();
+    cmd->layout = layout;
+    cmd->stride = stride;
+    gpu->currentBuffer->add(std::move(cmd));
+}
+void SceGxm::emitSetUniform(const std::string& name, const std::vector<float>& values) {
+    auto* gpu = Emulator::getInstance().gpu_subsystem;
+    if (!gpu) return;
+    auto cmd = std::make_unique<GxmSetUniformCommand>();
+    cmd->name = name;
+    cmd->values = values;
+    gpu->currentBuffer->add(std::move(cmd));
+}
+void SceGxm::emitSetSampler(const std::string& name, int unit) {
+    auto* gpu = Emulator::getInstance().gpu_subsystem;
+    if (!gpu) return;
+    auto cmd = std::make_unique<GxmSetSamplerCommand>();
+    cmd->name = name;
+    cmd->unit = unit;
+    gpu->currentBuffer->add(std::move(cmd));
 }

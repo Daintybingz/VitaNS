@@ -11,6 +11,12 @@ enum class GxmGpuCommandType {
     BindTexture,
     BindShader,
     SetState,
+    UploadVertexBuffer,
+    UploadIndexBuffer,
+    UploadShader,
+    SetupVertexAttributes,
+    SetUniform,
+    SetSampler,
     Unknown
 };
 
@@ -53,6 +59,46 @@ struct GxmSetStateCommand : public GxmGpuCommand {
     uint32_t stateId = 0;
     uint32_t value = 0;
     GxmSetStateCommand() { type = GxmGpuCommandType::SetState; }
+};
+
+// Upload vertex buffer command
+struct GxmUploadVertexBufferCommand : public GxmGpuCommand {
+    const void* data;
+    size_t size;
+    GxmUploadVertexBufferCommand() { type = GxmGpuCommandType::UploadVertexBuffer; }
+};
+// Upload index buffer command
+struct GxmUploadIndexBufferCommand : public GxmGpuCommand {
+    const void* data;
+    size_t size;
+    uint32_t indexType;
+    GxmUploadIndexBufferCommand() { type = GxmGpuCommandType::UploadIndexBuffer; }
+};
+// Upload shader command
+struct GxmUploadShaderCommand : public GxmGpuCommand {
+    std::string name;
+    std::string vertSrc;
+    std::string fragSrc;
+    GxmUploadShaderCommand() { type = GxmGpuCommandType::UploadShader; }
+};
+
+// Setup vertex attributes command
+struct GxmSetupVertexAttributesCommand : public GxmGpuCommand {
+    std::vector<std::tuple<int, int, GLenum, size_t>> layout;
+    size_t stride;
+    GxmSetupVertexAttributesCommand() { type = GxmGpuCommandType::SetupVertexAttributes; }
+};
+// Set uniform command
+struct GxmSetUniformCommand : public GxmGpuCommand {
+    std::string name;
+    std::vector<float> values;
+    GxmSetUniformCommand() { type = GxmGpuCommandType::SetUniform; }
+};
+// Set sampler command
+struct GxmSetSamplerCommand : public GxmGpuCommand {
+    std::string name;
+    int unit;
+    GxmSetSamplerCommand() { type = GxmGpuCommandType::SetSampler; }
 };
 
 // The command buffer itself

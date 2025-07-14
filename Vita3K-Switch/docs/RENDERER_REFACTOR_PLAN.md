@@ -35,11 +35,48 @@
 ---
 
 ### **Phase 3: GXM State Reconstruction**
-**Goal:** Parse GXM command buffers into high-level GPU state and draw calls.
-- [ ] Parse GXM command buffers into high-level state (vertex/index buffers, shaders, textures, blend modes, etc.).
-- [ ] Issue draw calls via the Renderer interface, not direct GL calls.
+**Goal:** Parse GXM command buffers into high-level GPU state and draw calls, enabling accurate and portable rendering.
 
-**Deliverable:** Games render correctly using reconstructed state, not low-level command replay.
+#### Steps:
+1. **Understand GXM Command Buffers**
+   - Review PS Vita GXM documentation and existing code (e.g., GpuSubsystem, GxmCommandBuffer, GxmExecutor).
+   - Identify how command buffers are written to emulated memory and how they are structured.
+
+2. **Parse Command Buffers Each Frame**
+   - Implement or refine a parser that reads the GXM command buffer from emulated memory each frame.
+   - Extract commands such as draw calls, state changes, shader bindings, texture bindings, etc.
+   - Store parsed commands in a high-level structure (e.g., a list of draw calls with associated state).
+
+3. **Reconstruct High-Level GPU State**
+   - For each frame, build a representation of the current GPU state:
+     - Vertex/index buffers
+     - Shaders (vertex/fragment)
+     - Textures and samplers
+     - Blend, depth, and stencil state
+     - Viewport and scissor
+   - Track state changes and resource bindings as they occur in the command stream.
+
+4. **Drive the Renderer from Reconstructed State**
+   - Instead of uploading a raw framebuffer, issue draw calls to the Renderer backend using the reconstructed state.
+   - Dynamically generate GLSL shaders as needed to match the emulated state (see PPSSPP for reference).
+   - Bind textures, set uniforms, and configure GL state before each draw call.
+
+5. **Fallback and Validation**
+   - If state reconstruction is incomplete, continue to support the framebuffer upload path as a fallback.
+   - Compare output with known-good renderers (e.g., PPSSPP, Vita3K PC) for validation.
+
+6. **Iterate and Expand**
+   - Gradually support more GXM features and commands.
+   - Add support for additional pixel formats, blending modes, and advanced state as needed.
+
+#### Deliverable:
+- Emulator renders frames by replaying high-level draw calls reconstructed from GXM command buffers, not just by uploading a framebuffer.
+- Modular code structure allows easy extension and debugging of GPU emulation.
+
+#### References:
+- [PPSSPP GPU Implementation](https://github.com/hrydgard/ppsspp/tree/master/GPU)
+- [Vita3K GXM/GPU code](https://github.com/Vita3K/Vita3K/tree/master/vita3k/gxm)
+- [Vita GXM documentation (wiki)](https://wiki.henkaku.xyz/vita/GXM)
 
 ---
 
