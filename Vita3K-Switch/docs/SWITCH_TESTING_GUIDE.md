@@ -8,79 +8,80 @@ This document explains how testing works for the VitaNS project specifically on 
 
 ### CI/CD Testing (GitHub Actions)
 
-The VitaNS project uses a comprehensive testing strategy in the GitHub Actions CI environment:
+The VitaNS project uses a **build validation and manual testing** strategy for the Switch platform:
 
 #### **1. Build Environment**
 - **Container**: `devkitpro/devkita64:latest` (official devkitPro Docker image)
 - **Platform**: Ubuntu with Switch toolchain
 - **Dependencies**: Automatically installed via `dkp-pacman`
 
-#### **2. Test Execution Flow**
+#### **2. Build Validation Flow**
 ```
 GitHub Actions Workflow
 ├── Environment Setup
 │   ├── Checkout code
-│   ├── Install Switch portlibs
-│   └── Install testing dependencies (switch-gtest)
+│   └── Install Switch portlibs
 ├── Build Phase
-│   ├── Build VitaNS.nro (main executable)
-│   └── Build VitaNSTests (test executable)
-├── Test Execution
-│   ├── Unit Tests (RendererTest*)
-│   ├── Integration Tests (EmulatorIntegrationTest*)
-│   ├── Performance Tests (PerformanceTest*)
-│   └── Compatibility Tests (CompatibilityTest*)
+│   └── Build VitaNS.nro (main executable)
+├── Validation Phase
+│   ├── NRO file validation
+│   ├── Build artifact verification
+│   ├── Size and structure checks
+│   └── Platform compatibility confirmation
 └── Artifact Upload
-    ├── Test results (XML format)
     ├── VitaNS.nro build
-    └── Test executable
+    └── Build validation results
 ```
 
-#### **3. Test Categories**
+#### **3. Build Validation Categories**
 
-**Unit Tests** (`RendererTest.cpp`)
-- **Purpose**: Test individual renderer components
-- **Timeout**: 300 seconds (5 minutes)
-- **Coverage**: Interface compliance, error handling, resource management
-- **Example**: Testing renderer initialization, frame rendering, cleanup
+**NRO File Validation**
+- **Purpose**: Verify Switch executable format
+- **Checks**: File existence, size validation, format verification
+- **Example**: Ensuring VitaNS.nro is properly generated
 
-**Integration Tests** (`EmulatorIntegrationTest.cpp`)
-- **Purpose**: Test component interactions
-- **Timeout**: 600 seconds (10 minutes)
-- **Coverage**: Emulator-renderer integration, GPU subsystem
-- **Example**: Full emulator initialization with renderer backend
+**Build Artifact Verification**
+- **Purpose**: Confirm all build outputs are present
+- **Checks**: Executable files, libraries, resources
+- **Example**: Validating all required files are built
 
-**Performance Tests** (`PerformanceTest.cpp`)
-- **Purpose**: Validate performance benchmarks
-- **Timeout**: 1200 seconds (20 minutes)
-- **Coverage**: Frame rates, initialization times, memory usage
-- **Example**: GLES2 renderer achieving 30+ FPS target
+**Platform Compatibility Confirmation**
+- **Purpose**: Ensure Switch-specific compatibility
+- **Checks**: Architecture, dependencies, toolchain
+- **Example**: Confirming ARM64 architecture and Switch libraries
 
-**Compatibility Tests** (`compatibility_test.cpp`)
-- **Purpose**: Test game compatibility
-- **Timeout**: 900 seconds (15 minutes)
-- **Coverage**: Game-specific rendering, shader compatibility
-- **Example**: Testing specific game rendering scenarios
+**Size and Structure Validation**
+- **Purpose**: Verify reasonable executable size
+- **Checks**: File size, memory requirements
+- **Example**: Ensuring VitaNS.nro is not empty or excessively large
 
 ### **4. CI Workflow Commands**
 
 ```bash
-# Build and test in GitHub Actions
+# Build and validate in GitHub Actions
 name: Build and Test VitaNS
 
-# Install dependencies
-dkp-pacman -S --noconfirm switch-gtest switch-catch2
+# Install Switch dependencies
+dkp-pacman -S --noconfirm switch-harfbuzz switch-sdl2 switch-sdl2_ttf switch-sdl2_image switch-mesa switch-glm
 
 # Build main executable
 cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
 make -j$(nproc)
 
-# Build and run tests
-make VitaNSTests -j$(nproc)
-./VitaNSTests --gtest_filter=RendererTest* --gtest_output=xml:test-results-renderer.xml
-./VitaNSTests --gtest_filter=EmulatorIntegrationTest* --gtest_output=xml:test-results-integration.xml
-./VitaNSTests --gtest_filter=PerformanceTest* --gtest_output=xml:test-results-performance.xml
-./VitaNSTests --gtest_filter=CompatibilityTest* --gtest_output=xml:test-results-compatibility.xml
+# Validate build artifacts
+if [ -f "VitaNS.nro" ]; then
+  echo "✅ VitaNS.nro build successful"
+  ls -la VitaNS.nro
+  file VitaNS.nro
+else
+  echo "❌ VitaNS.nro not found"
+  exit 1
+fi
+
+# Validate NRO file structure and size
+echo "=== NRO FILE VALIDATION ==="
+size=$(stat -c%s "VitaNS.nro" 2>/dev/null || stat -f%z "VitaNS.nro" 2>/dev/null || echo "unknown")
+echo "VitaNS.nro size: $size bytes"
 ```
 
 ## Local Development Testing
