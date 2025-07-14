@@ -51,6 +51,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/external/nlohmann
     src
     src/core
+    src/core/gpu
     src/audio
     src/display
     src/filesystem
