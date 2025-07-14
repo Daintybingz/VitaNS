@@ -27,6 +27,7 @@
 #include "../../renderer/RendererStub.cpp"
 #include <vector>
 #include "../display/display_buffer.h"
+#include "../../renderer/RendererFactory.h"
 
 namespace fs = std::filesystem;
 
@@ -65,26 +66,23 @@ bool Emulator::initialize(const EmulatorConfig& cfg, SDL_Renderer* sdlRenderer) 
     
     module_manager = std::make_unique<ModuleManager>();
 
-    // --- Backend selection ---
-    // PHASE 2: Use RendererGLES2 for now
-    renderer = std::make_unique<RendererGLES2>();
-    renderer->init();
-    // (RendererStub and old GL selection code commented out)
-    // renderer = std::make_unique<RendererStub>();
-    // renderer->init();
-    // std::unique_ptr<RendererGLES3> gles3 = std::make_unique<RendererGLES3>();
-    // if (gles3->initialize("VitaNS", 1280, 720) && gles3->getCapabilities().has_ES3) {
-    //     printf("[Emulator] Using RendererGLES3 backend\n");
-    //     renderer = std::move(gles3);
-    // } else {
-    //     printf("[Emulator] Using RendererGLES2 backend\n");
-    //     renderer = std::make_unique<RendererGLES2>();
-    //     renderer->initialize("VitaNS", 1280, 720);
-    // }
-    // Initialize GPU subsystem
-    // gpu = std::make_unique<GpuSubsystem>(renderer.get(), sdlRenderer); // PHASE 1: Commented out
-    // Integrate GpuSubsystem with RendererGLES2
-    gpu_subsystem = std::make_unique<GpuSubsystem>(dynamic_cast<RendererGLES2*>(renderer.get()));
+    // --- PHASE 4: Automatic renderer selection ---
+    printf("[Emulator] Detecting renderer capabilities...\n");
+    renderer = RendererFactory::createBestRenderer();
+    if (!renderer) {
+        printf("[Emulator] Failed to create renderer\n");
+        return false;
+    }
+    
+    if (!renderer->init()) {
+        printf("[Emulator] Failed to initialize renderer\n");
+        return false;
+    }
+    
+    printf("[Emulator] Renderer initialized successfully\n");
+    
+    // Initialize GPU subsystem with the selected renderer
+    gpu_subsystem = std::make_unique<GpuSubsystem>(renderer.get());
 
     // Initialize core modules
     module_manager->registerModule(std::make_shared<SceDisplay>());
@@ -96,7 +94,7 @@ bool Emulator::initialize(const EmulatorConfig& cfg, SDL_Renderer* sdlRenderer) 
 
     auto displayModule = static_cast<SceDisplay*>(module_manager->findModule("SceDisplay").get());
     if (displayModule) {
-        displayModule->initialize(dynamic_cast<SwitchRenderer*>(renderer.get()));
+        displayModule->initialize(renderer.get());
         printf("[Emulator] Display module initialized successfully\n");
     } else {
         printf("[Emulator] Warning: SceDisplay module not found\n");
@@ -449,25 +447,32 @@ void Emulator::renderFrame() {
         gpu_subsystem->beginFrame();
         gpu_subsystem->endFrame();
     }
+    
+    // Handle framebuffer upload for both GLES2 and Software renderers
     auto* gles2 = dynamic_cast<RendererGLES2*>(renderer.get());
-    if (gles2) {
-        // Get DisplayBuffer from SceDisplay module
-        auto displayModule = static_cast<SceDisplay*>(module_manager->findModule("SceDisplay").get());
-        if (displayModule) {
-            DisplayBuffer* displayBuffer = displayModule->getDisplayBuffer();
-            if (displayBuffer) {
-                uint32_t fb_addr = 0, fb_width = 0, fb_height = 0, fb_stride = 0, fb_format = 0;
-                if (displayBuffer->getFrameBuffer(&fb_addr, &fb_width, &fb_height, &fb_stride, &fb_format)) {
-                    // Only handle RGBA8888 for now
-                    if (fb_format == VITA_DISPLAY_PIXEL_FORMAT_A8B8G8R8 && fb_addr && fb_width && fb_height) {
-                        std::vector<uint8_t> pixels(fb_width * fb_height * 4);
-                        memory_manager->read_memory(fb_addr, pixels.data(), fb_width * fb_height * 4);
+    auto* software = dynamic_cast<RendererSoftware*>(renderer.get());
+    
+    auto displayModule = static_cast<SceDisplay*>(module_manager->findModule("SceDisplay").get());
+    if (displayModule) {
+        DisplayBuffer* displayBuffer = displayModule->getDisplayBuffer();
+        if (displayBuffer) {
+            uint32_t fb_addr = 0, fb_width = 0, fb_height = 0, fb_stride = 0, fb_format = 0;
+            if (displayBuffer->getFrameBuffer(&fb_addr, &fb_width, &fb_height, &fb_stride, &fb_format)) {
+                // Only handle RGBA8888 for now
+                if (fb_format == VITA_DISPLAY_PIXEL_FORMAT_A8B8G8R8 && fb_addr && fb_width && fb_height) {
+                    std::vector<uint8_t> pixels(fb_width * fb_height * 4);
+                    memory_manager->read_memory(fb_addr, pixels.data(), fb_width * fb_height * 4);
+                    
+                    if (gles2) {
                         gles2->upload_framebuffer(pixels.data(), fb_width, fb_height);
+                    } else if (software) {
+                        software->upload_framebuffer(pixels.data(), fb_width, fb_height);
                     }
                 }
             }
         }
     }
+    
     renderer->draw_frame();
     renderer->present();
 }

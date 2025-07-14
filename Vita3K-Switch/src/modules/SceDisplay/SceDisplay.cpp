@@ -2,6 +2,7 @@
 #include "../module_registry.h"
 #include "../../renderer/gl/switch_renderer.h"
 #include <cstdio>
+#include "../../../renderer/Renderer.h"
 
 // Initialize static members
 std::unique_ptr<DisplayBuffer> SceDisplay::displayBuffer = nullptr;
@@ -45,22 +46,10 @@ void SceDisplay::registerFunctions() {
 }
 
 
-bool SceDisplay::initialize(IGraphicsBackend* renderer) {
-    printf("[SceDisplay] Initializing display module\n");
-    
-    if (!displayBuffer) {
-        printf("[SceDisplay] Error: Display buffer is null\n");
-        return false;
-    }
-    
-    // Initialize the display buffer
-    if (!displayBuffer->initialize(dynamic_cast<SwitchRenderer*>(renderer))) {
-        printf("[SceDisplay] Failed to initialize display buffer\n");
-        return false;
-    }
-    
-    printf("[SceDisplay] Display module initialized successfully\n");
-    return true;
+void SceDisplay::initialize(Renderer* renderer) {
+    this->renderer = renderer;
+    displayBuffer = std::make_unique<DisplayBuffer>();
+    printf("[SceDisplay] Initialized with renderer\n");
 }
 
 void SceDisplay::finalize() {

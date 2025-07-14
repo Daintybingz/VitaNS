@@ -1,6 +1,7 @@
 #pragma once
 #include "../module.h"
 #include "../../display/display_buffer.h"
+#include "../../renderer/Renderer.h"
 #include <cstdint>
 #include <memory>
 
@@ -11,11 +12,11 @@ class IGraphicsBackend;
 class SceDisplay : public Module {
 public:
     SceDisplay();
-    virtual ~SceDisplay();
+    ~SceDisplay() override;
     void registerFunctions() override;
     
     // Initialize the display module with a renderer
-    bool initialize(IGraphicsBackend* renderer);
+    void initialize(Renderer* renderer);
     
     // Finalize the display module
     void finalize();
@@ -31,8 +32,14 @@ public:
     // Get the display buffer
     static DisplayBuffer* getDisplayBuffer();
 
+    // Module interface
+    const char* getName() const override { return "SceDisplay"; }
+    bool load() override;
+    void unload() override;
+
 private:
-    static std::unique_ptr<DisplayBuffer> displayBuffer;
+    std::unique_ptr<DisplayBuffer> displayBuffer;
+    Renderer* renderer = nullptr;
     static uint32_t currentFrameBuf;
     static uint32_t currentSync;
 };
