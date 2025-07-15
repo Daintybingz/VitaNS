@@ -46,6 +46,22 @@ void SceDisplay::registerFunctions() {
 }
 
 
+bool SceDisplay::initialize(Emulator& emulator) {
+    // Get the renderer from the emulator
+    this->renderer = emulator.getRenderer();
+    displayBuffer = std::make_unique<DisplayBuffer>();
+    printf("[SceDisplay] Initialized with renderer\n");
+    return true;
+}
+
+void SceDisplay::finalize(Emulator& emulator) {
+    printf("[SceDisplay] Finalizing display module\n");
+    
+    if (displayBuffer) {
+        displayBuffer->finalize();
+    }
+}
+
 void SceDisplay::initialize(Renderer* renderer) {
     this->renderer = renderer;
     displayBuffer = std::make_unique<DisplayBuffer>();

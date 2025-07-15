@@ -114,6 +114,7 @@ public:
     MemoryManager& getMemoryManager();
     SwitchCPUBackend& getCPU();
     ModuleManager& getModuleManager();
+    Renderer* getRenderer() { return renderer.get(); }
     // GpuSubsystem* getGpu() { return gpu.get(); } // PHASE 1: Commented out
     SceGxm* getSceGxm();
 
