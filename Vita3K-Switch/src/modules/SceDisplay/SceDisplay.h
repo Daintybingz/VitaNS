@@ -33,7 +33,7 @@ public:
     static DisplayBuffer* getDisplayBuffer();
 
     // Module interface
-    const std::string& getName() const override { static const std::string name = "SceDisplay"; return name; }
+    const std::string& getName() const { static const std::string name = "SceDisplay"; return name; }
     bool initialize(Emulator& emulator) override;
     void finalize(Emulator& emulator) override;
 
