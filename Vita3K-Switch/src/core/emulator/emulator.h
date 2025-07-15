@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <mutex>
+#include <SDL2/SDL.h>
 
 // Forward declarations
 class MemoryManager;
