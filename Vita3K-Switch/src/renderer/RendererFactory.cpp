@@ -118,7 +118,15 @@ std::unique_ptr<Renderer> RendererFactory::createRenderer(RendererType type) {
 }
 
 std::unique_ptr<Renderer> RendererFactory::createBestRenderer() {
+#if defined(VITANS_RENDERER_SOFTWARE)
+    std::cout << "[RendererFactory] Forced software renderer by build option.\n";
+    return std::make_unique<RendererSoftware>();
+#elif defined(VITANS_RENDERER_GLES2)
+    std::cout << "[RendererFactory] Forced GLES2 renderer by build option.\n";
+    return std::make_unique<RendererGLES2>();
+#else
     auto caps = detectCapabilities();
     auto type = selectBestRenderer(caps);
     return createRenderer(type);
+#endif
 } 
