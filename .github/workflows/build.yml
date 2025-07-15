@@ -113,7 +113,7 @@ jobs:
         with:
           name: VitaNS-Switch
           path: Vita3K-Switch/build/VitaNS.nro
-          retention-days: 30
+          retention-days: 30 
 
       - name: Build Summary
         if: always()
