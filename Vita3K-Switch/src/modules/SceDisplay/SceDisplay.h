@@ -6,7 +6,11 @@
 #include "../../renderer/Renderer.h"
 #include <cstdint>
 #include <memory>
-
+#ifdef VITANS_RENDERER_SOFTWARE
+#warning "VITANS_RENDERER_SOFTWARE is defined"
+#else
+#warning "VITANS_RENDERER_SOFTWARE is NOT defined"
+#endif
 // Forward declarations
 class SwitchRenderer;
 class IGraphicsBackend;
