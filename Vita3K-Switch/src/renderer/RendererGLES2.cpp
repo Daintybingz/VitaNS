@@ -271,12 +271,14 @@ void RendererGLES2::setupVertexAttributesDynamic(const std::vector<std::tuple<in
 }
 
 void RendererGLES2::setUniform(const std::string& name, float value) {
-    GLuint prog = glGetInteger(GL_CURRENT_PROGRAM);
+    GLint prog = 0;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
     GLint loc = glGetUniformLocation(prog, name.c_str());
     if (loc >= 0) glUniform1f(loc, value);
 }
 void RendererGLES2::setUniformVec(const std::string& name, const float* values, int count) {
-    GLuint prog = glGetInteger(GL_CURRENT_PROGRAM);
+    GLint prog = 0;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
     GLint loc = glGetUniformLocation(prog, name.c_str());
     if (loc >= 0) {
         if (count == 2) glUniform2fv(loc, 1, values);
@@ -285,7 +287,8 @@ void RendererGLES2::setUniformVec(const std::string& name, const float* values, 
     }
 }
 void RendererGLES2::setSampler(const std::string& name, int unit) {
-    GLuint prog = glGetInteger(GL_CURRENT_PROGRAM);
+    GLint prog = 0;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
     GLint loc = glGetUniformLocation(prog, name.c_str());
     if (loc >= 0) glUniform1i(loc, unit);
 }
