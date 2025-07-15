@@ -36,7 +36,9 @@ public:
     static int sceDisplayGetFrameBuf(uint32_t* frameBuf, uint32_t* sync);
     
     // Get the display buffer
+#ifndef VITANS_RENDERER_SOFTWARE
     static DisplayBuffer* getDisplayBuffer();
+#endif
 
     // Module interface
     const std::string& getName() const { static const std::string name = "SceDisplay"; return name; }
@@ -46,9 +48,6 @@ public:
 private:
 #ifndef VITANS_RENDERER_SOFTWARE
     static std::unique_ptr<DisplayBuffer> displayBuffer;
-    static DisplayBuffer* getDisplayBuffer();
-#else
-    static void* getDisplayBuffer() { return nullptr; }
 #endif
     Renderer* renderer = nullptr;
     static uint32_t currentFrameBuf;
