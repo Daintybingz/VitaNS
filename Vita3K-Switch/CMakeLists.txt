@@ -73,6 +73,11 @@ include_directories(
 # Add executable (ELF)
 add_executable(VitaNS ${SOURCES})
 
+# Always define VITANS_RENDERER_SOFTWARE for software-only builds
+if(VITANS_SOFTWARE_RENDERER_ONLY OR VITANS_RENDERER_BACKEND STREQUAL "software")
+    target_compile_definitions(VitaNS PRIVATE VITANS_RENDERER_SOFTWARE=1)
+endif()
+
 # Forcefully remove GL/EGL/OpenGL files from target in software-only builds
 if(VITANS_SOFTWARE_RENDERER_ONLY OR VITANS_RENDERER_BACKEND STREQUAL "software")
     set(GL_FILES
@@ -112,7 +117,6 @@ if(VITANS_PLATFORM_SWITCH)
     if(VITANS_SOFTWARE_RENDERER_ONLY OR VITANS_RENDERER_BACKEND STREQUAL "software")
         message(STATUS "Building with SDL2/software renderer only (no EGL/GLES2)")
         target_link_libraries(VitaNS PRIVATE nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz)
-        target_compile_definitions(VitaNS PRIVATE VITANS_RENDERER_SOFTWARE=1)
         if(VITANS_SOFTWARE_RENDERER_ONLY OR VITANS_RENDERER_BACKEND STREQUAL "software")
             # Exclude all GLES2/EGL/OpenGL files
             list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/RendererGLES2.*")
