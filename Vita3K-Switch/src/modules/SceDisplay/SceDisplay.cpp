@@ -3,6 +3,7 @@
 #include "../../renderer/gl/switch_renderer.h"
 #include <cstdio>
 #include "../../renderer/Renderer.h"
+#include "../../core/emulator/emulator.h"
 
 // Initialize static members
 std::unique_ptr<DisplayBuffer> SceDisplay::displayBuffer = nullptr;

@@ -38,7 +38,7 @@ public:
     void finalize(Emulator& emulator) override;
 
 private:
-    std::unique_ptr<DisplayBuffer> displayBuffer;
+    static std::unique_ptr<DisplayBuffer> displayBuffer;
     Renderer* renderer = nullptr;
     static uint32_t currentFrameBuf;
     static uint32_t currentSync;
