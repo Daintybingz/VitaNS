@@ -42,16 +42,13 @@ public:
 private:
 #ifndef VITANS_RENDERER_SOFTWARE
     static std::unique_ptr<DisplayBuffer> displayBuffer;
-#endif
-    Renderer* renderer = nullptr;
-    static uint32_t currentFrameBuf;
-    static uint32_t currentSync;
-
-#ifndef VITANS_RENDERER_SOFTWARE
 public:
     static DisplayBuffer* getDisplayBuffer();
 #else
 public:
     static void* getDisplayBuffer() { return nullptr; }
 #endif
+    Renderer* renderer = nullptr;
+    static uint32_t currentFrameBuf;
+    static uint32_t currentSync;
 };
