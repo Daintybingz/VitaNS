@@ -2,7 +2,7 @@
 #include "../module_registry.h"
 #include "../../renderer/gl/switch_renderer.h"
 #include <cstdio>
-#include "../../../renderer/Renderer.h"
+#include "../../renderer/Renderer.h"
 
 // Initialize static members
 std::unique_ptr<DisplayBuffer> SceDisplay::displayBuffer = nullptr;
