@@ -73,6 +73,23 @@ include_directories(
 # Add executable (ELF)
 add_executable(VitaNS ${SOURCES})
 
+# Forcefully remove GL/EGL/OpenGL files from target in software-only builds
+if(VITANS_SOFTWARE_RENDERER_ONLY OR VITANS_RENDERER_BACKEND STREQUAL "software")
+    set(GL_FILES
+        src/renderer/RendererGLES2.cpp
+        src/renderer/RendererGLES2.h
+        src/renderer/gl/switch_renderer.cpp
+        src/renderer/gl/switch_renderer.h
+        src/display/display_buffer.cpp
+        src/display/display_buffer.h
+    )
+    foreach(GLFILE ${GL_FILES})
+        get_filename_component(GLFILE_ABS "${CMAKE_SOURCE_DIR}/${GLFILE}" ABSOLUTE)
+        list(REMOVE_ITEM SOURCES "${GLFILE_ABS}")
+    endforeach()
+    set_source_files_properties(${GL_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
+endif()
+
 target_include_directories(VitaNS PRIVATE ${CMAKE_SOURCE_DIR}/external/nlohmann)
 target_include_directories(VitaNS PRIVATE $ENV{DEVKITPRO}/portlibs/switch/include)
 
