@@ -117,7 +117,9 @@ public:
     ModuleManager& getModuleManager();
     Renderer* getRenderer() { return renderer.get(); }
     // GpuSubsystem* getGpu() { return gpu.get(); } // PHASE 1: Commented out
+#ifndef VITANS_PLATFORM_SWITCH
     SceGxm* getSceGxm();
+#endif
 
     // Add missing methods
     // void setRenderer(IGraphicsBackend* r); // PHASE 1: Commented out
