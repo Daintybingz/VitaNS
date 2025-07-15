@@ -12,4 +12,6 @@ void GpuSubsystem::executeGxmCommand(const GxmCommand& cmd) {
     if (gxmExecutor) {
         gxmExecutor->executeCommand(cmd);
     }
-} 
+}
+
+GpuSubsystem::~GpuSubsystem() = default; 
