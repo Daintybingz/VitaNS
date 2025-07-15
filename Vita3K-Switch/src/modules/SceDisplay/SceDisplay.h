@@ -9,7 +9,7 @@
 class SwitchRenderer;
 class IGraphicsBackend;
 
-class SceDisplay : public Module {
+class SceDisplay : public ::Module {
 public:
     SceDisplay();
     ~SceDisplay() override;
