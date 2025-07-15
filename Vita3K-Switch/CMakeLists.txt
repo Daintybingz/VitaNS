@@ -37,6 +37,7 @@ list(FILTER SOURCES EXCLUDE REGEX ".*/tests/.*\\.cpp$")
 
 # Remove OpenGL/EGL-dependent files from SOURCES for Switch
 if(VITANS_PLATFORM_SWITCH)
+    add_definitions(-DVITANS_PLATFORM_SWITCH=1)
     # Exclude all gl renderer files
     list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/gl/.*\\.cpp$")
     # Re-add switch_renderer.cpp explicitly
