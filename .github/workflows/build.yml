@@ -43,7 +43,7 @@ jobs:
           cd Vita3K-Switch
           mkdir -p build
           cd build
-          cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake -DVITANS_SOFTWARE_RENDERER_ONLY=ON
           make -j$(nproc)
 
       - name: Build Validation and Basic Testing
