@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 
+#ifndef VITANS_RENDERER_SOFTWARE
 bool RendererFactory::testOpenGLContext() {
     SDL_Window* testWindow = nullptr;
     SDL_GLContext testContext = nullptr;
@@ -34,6 +35,7 @@ bool RendererFactory::testOpenGLContext() {
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
     return true;
 }
+#endif
 
 void RendererFactory::logCapabilities(const RendererCapabilities& caps) {
     std::ofstream log("sdmc:/switch/vitans/renderer_caps.txt");
@@ -52,7 +54,7 @@ void RendererFactory::logCapabilities(const RendererCapabilities& caps) {
 
 RendererCapabilities RendererFactory::detectCapabilities() {
     RendererCapabilities caps;
-    
+#ifndef VITANS_RENDERER_SOFTWARE
     // Test if we can create an OpenGL context
     caps.hasOpenGL = testOpenGLContext();
     
@@ -90,7 +92,7 @@ RendererCapabilities RendererFactory::detectCapabilities() {
         }
         SDL_QuitSubSystem(SDL_INIT_VIDEO);
     }
-    
+#endif
     logCapabilities(caps);
     return caps;
 }
