@@ -1,5 +1,5 @@
 #include "emulator.h"
-#include "../../renderer/gl/RendererGLES2.h"
+#include "../../renderer/RendererGLES2.h"
 #include "../../renderer/gl/RendererGLES3.h"
 #include "../../renderer/gl/IGraphicsBackend.h"
 #include "../module/module_registry.h"
