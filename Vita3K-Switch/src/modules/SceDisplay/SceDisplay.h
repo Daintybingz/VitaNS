@@ -1,6 +1,8 @@
 #pragma once
 #include "../module.h"
+#ifndef VITANS_RENDERER_SOFTWARE
 #include "../../display/display_buffer.h"
+#endif
 #include "../../renderer/Renderer.h"
 #include <cstdint>
 #include <memory>
@@ -38,8 +40,18 @@ public:
     void finalize(Emulator& emulator) override;
 
 private:
+#ifndef VITANS_RENDERER_SOFTWARE
     static std::unique_ptr<DisplayBuffer> displayBuffer;
+#endif
     Renderer* renderer = nullptr;
     static uint32_t currentFrameBuf;
     static uint32_t currentSync;
+
+#ifndef VITANS_RENDERER_SOFTWARE
+public:
+    static DisplayBuffer* getDisplayBuffer();
+#else
+public:
+    static void* getDisplayBuffer() { return nullptr; }
+#endif
 };

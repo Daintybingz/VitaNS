@@ -6,21 +6,26 @@
 #include "../../core/emulator/emulator.h"
 
 // Initialize static members
+#ifndef VITANS_RENDERER_SOFTWARE
 std::unique_ptr<DisplayBuffer> SceDisplay::displayBuffer = nullptr;
 uint32_t SceDisplay::currentFrameBuf = 0;
 uint32_t SceDisplay::currentSync = 0;
+#endif
 
 SceDisplay::SceDisplay() : Module("SceDisplay") {
+#ifndef VITANS_RENDERER_SOFTWARE
     // Create the display buffer if it doesn't exist
     if (!displayBuffer) {
         displayBuffer = std::make_unique<DisplayBuffer>();
     }
+#endif
 }
 
 SceDisplay::~SceDisplay() {
     finalize();
 }
 
+#ifndef VITANS_RENDERER_SOFTWARE
 void SceDisplay::registerFunctions() {
     // Register syscalls using lambdas with the correct signature
     registerFunction("sceDisplaySetFrameBuf", 0x289D82FE,
@@ -124,3 +129,14 @@ int SceDisplay::sceDisplayGetFrameBuf(uint32_t* frameBuf, uint32_t* sync) {
     
     return 0;
 }
+#else
+void SceDisplay::registerFunctions() {}
+bool SceDisplay::initialize(Emulator&) { return true; }
+void SceDisplay::finalize(Emulator&) {}
+void SceDisplay::initialize(Renderer*) {}
+void SceDisplay::finalize() {}
+void SceDisplay::render() {}
+int SceDisplay::sceDisplaySetFrameBuf(uint32_t, uint32_t) { return 0; }
+int SceDisplay::sceDisplayWaitVblankStart() { return 0; }
+int SceDisplay::sceDisplayGetFrameBuf(uint32_t*, uint32_t*) { return 0; }
+#endif

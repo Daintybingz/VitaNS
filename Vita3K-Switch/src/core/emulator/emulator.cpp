@@ -28,6 +28,7 @@
 #include <vector>
 #include "../display/display_buffer.h"
 #include "../../renderer/RendererFactory.h"
+#include "../renderer/RendererSoftware.h"
 
 namespace fs = std::filesystem;
 
@@ -442,37 +443,35 @@ void Emulator::renderFrame() {
     if (state != EmulatorState::RUNNING) {
         return;
     }
-    // Parse and execute GXM commands for this frame
+#ifndef VITANS_RENDERER_SOFTWARE
     if (gpu_subsystem) {
         gpu_subsystem->beginFrame();
         gpu_subsystem->endFrame();
     }
-    
-    // Handle framebuffer upload for both GLES2 and Software renderers
     auto* gles2 = dynamic_cast<RendererGLES2*>(renderer.get());
-    auto* software = dynamic_cast<RendererSoftware*>(renderer.get());
-    
     auto displayModule = static_cast<SceDisplay*>(module_manager->findModule("SceDisplay").get());
     if (displayModule) {
         DisplayBuffer* displayBuffer = displayModule->getDisplayBuffer();
         if (displayBuffer) {
             uint32_t fb_addr = 0, fb_width = 0, fb_height = 0, fb_stride = 0, fb_format = 0;
             if (displayBuffer->getFrameBuffer(&fb_addr, &fb_width, &fb_height, &fb_stride, &fb_format)) {
-                // Only handle RGBA8888 for now
                 if (fb_format == VITA_DISPLAY_PIXEL_FORMAT_A8B8G8R8 && fb_addr && fb_width && fb_height) {
                     std::vector<uint8_t> pixels(fb_width * fb_height * 4);
                     memory_manager->read_memory(fb_addr, pixels.data(), fb_width * fb_height * 4);
-                    
                     if (gles2) {
                         gles2->upload_framebuffer(pixels.data(), fb_width, fb_height);
-                    } else if (software) {
-                        software->upload_framebuffer(pixels.data(), fb_width, fb_height);
                     }
                 }
             }
         }
     }
-    
+#else
+    // Software renderer path
+    auto* software = dynamic_cast<RendererSoftware*>(renderer.get());
+    if (software) {
+        // Implement software framebuffer upload if needed
+    }
+#endif
     renderer->draw_frame();
     renderer->present();
 }
@@ -556,3 +555,4 @@ bool Emulator::runGame() {
     run();
     return true;
 }
+
