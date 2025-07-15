@@ -85,9 +85,22 @@ if(VITANS_PLATFORM_SWITCH)
     list(FILTER SOURCES EXCLUDE REGEX ".*/modules/SceGxm/.*\\.cpp$")
 endif()
 
+# Add renderer backend selection options
+option(VITANS_SOFTWARE_RENDERER_ONLY "Build with only the SDL2/software renderer (no EGL/GLES2)" OFF)
+set(VITANS_RENDERER_BACKEND "gles2" CACHE STRING "Renderer backend: gles2 or software")
+set_property(CACHE VITANS_RENDERER_BACKEND PROPERTY STRINGS gles2 software)
+
 # Link with only SDL2, SDL2_ttf, freetype, png, z, bz2 for Switch
 if(VITANS_PLATFORM_SWITCH)
-    target_link_libraries(VitaNS PRIVATE nx SDL2 SDL2_ttf freetype png z bz2 EGL GLESv2 harfbuzz glapi)
+    if(VITANS_SOFTWARE_RENDERER_ONLY OR VITANS_RENDERER_BACKEND STREQUAL "software")
+        message(STATUS "Building with SDL2/software renderer only (no EGL/GLES2)")
+        target_link_libraries(VitaNS PRIVATE nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz)
+        target_compile_definitions(VitaNS PRIVATE VITANS_RENDERER_SOFTWARE=1)
+    else()
+        message(STATUS "Building with GLES2 backend (EGL/GLES2/SDL2)")
+        target_link_libraries(VitaNS PRIVATE nx SDL2 SDL2_ttf freetype png z bz2 EGL GLESv2 harfbuzz glapi)
+        target_compile_definitions(VitaNS PRIVATE VITANS_RENDERER_GLES2=1)
+    endif()
 else()
     # Non-Switch platforms: add OpenGL/EGL files and link OpenGL/EGL if needed
     file(GLOB GL_RENDERER_SRC
