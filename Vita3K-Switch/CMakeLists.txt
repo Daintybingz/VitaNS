@@ -48,6 +48,18 @@ if(VITANS_PLATFORM_SWITCH)
     list(FILTER SOURCES EXCLUDE REGEX ".*/modules/SceGxm/SceGxm.cpp$")
     list(FILTER SOURCES EXCLUDE REGEX ".*/modules/SceGxm/SceGxm_shader.cpp$")
     list(FILTER SOURCES EXCLUDE REGEX ".*/modules/SceGxm/GxmMemoryManager.cpp$")
+    # Software renderer only: do not link EGL/GLESv2, exclude all GL files
+    if(VITANS_SOFTWARE_RENDERER_ONLY OR VITANS_RENDERER_BACKEND STREQUAL "software")
+        message(STATUS "Building with SDL2/software renderer only (no EGL/GLES2)")
+        target_link_libraries(VitaNS PRIVATE nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz)
+        list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/RendererGLES2.*")
+        list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/gl/.*")
+        list(FILTER SOURCES EXCLUDE REGEX ".*/display/display_buffer.*")
+    else()
+        message(STATUS "Building with GLES2 backend (EGL/GLES2/SDL2)")
+        target_link_libraries(VitaNS PRIVATE nx SDL2 SDL2_ttf freetype png z bz2 EGL GLESv2 harfbuzz glapi)
+        target_compile_definitions(VitaNS PRIVATE VITANS_RENDERER_GLES2=1)
+    endif()
 endif()
 
 # Include directories
