@@ -43,7 +43,10 @@ if(VITANS_PLATFORM_SWITCH)
     list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/src/renderer/gl/switch_renderer.cpp")
     # Do NOT exclude display_buffer.cpp!
     list(FILTER SOURCES EXCLUDE REGEX ".*/shader/.*\\.cpp$")
-    list(FILTER SOURCES EXCLUDE REGEX ".*/modules/SceGxm/.*\\.cpp$")
+    # Exclude only the SceGxm files that are OpenGL/EGL-dependent, but keep GxmExecutor.cpp
+    list(FILTER SOURCES EXCLUDE REGEX ".*/modules/SceGxm/SceGxm.cpp$")
+    list(FILTER SOURCES EXCLUDE REGEX ".*/modules/SceGxm/SceGxm_shader.cpp$")
+    list(FILTER SOURCES EXCLUDE REGEX ".*/modules/SceGxm/GxmMemoryManager.cpp$")
 endif()
 
 # Include directories
