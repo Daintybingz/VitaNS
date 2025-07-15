@@ -413,10 +413,12 @@ ModuleManager& Emulator::getModuleManager() {
     return *module_manager;
 }
 
+#ifndef VITANS_PLATFORM_SWITCH
 SceGxm* Emulator::getSceGxm() {
     auto ptr = module_manager->findModule("SceGxm");
     return ptr ? dynamic_cast<SceGxm*>(ptr.get()) : nullptr;
 }
+#endif
 
 // int Emulator::executeSystemCall(uint32_t nid, uint32_t threadId, const std::vector<uint32_t>& args) {
     // Execute the system call using the module registry
