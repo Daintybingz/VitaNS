@@ -144,15 +144,19 @@ endif()
 
 # --- Switch-specific workaround for static Mesa/EGL ---
 if(DEFINED VITANS_PLATFORM_SWITCH OR $ENV{PLATFORM} STREQUAL "switch")
-    # Always link EGL, GLESv2, glapi, and drm_nouveau if available
+    # Always link EGL, GLESv2, glapi, and both drm_nouveau and drm_nouveaud if available
     find_library(GLAPI_LIBRARY glapi PATHS /opt/devkitpro/portlibs/switch/lib)
     find_library(DRM_NOUVEAU_LIBRARY drm_nouveau PATHS /opt/devkitpro/portlibs/switch/lib)
+    find_library(DRM_NOUVEAUD_LIBRARY drm_nouveaud PATHS /opt/devkitpro/portlibs/switch/lib)
     target_link_libraries(vita3k PRIVATE EGL GLESv2)
     if(GLAPI_LIBRARY)
         target_link_libraries(vita3k PRIVATE ${GLAPI_LIBRARY})
     endif()
     if(DRM_NOUVEAU_LIBRARY)
         target_link_libraries(vita3k PRIVATE ${DRM_NOUVEAU_LIBRARY})
+    endif()
+    if(DRM_NOUVEAUD_LIBRARY)
+        target_link_libraries(vita3k PRIVATE ${DRM_NOUVEAUD_LIBRARY})
     endif()
 endif()
 
