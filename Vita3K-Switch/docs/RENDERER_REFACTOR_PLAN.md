@@ -1,3 +1,8 @@
+> **Note (2024):**
+> Due to limitations in the current devkitPro portlibs for Nintendo Switch (Mesa/EGL packaging), the software renderer fallback (Phase 4) is **not supported on Switch** at this time.
+> VitaNS uses the GLES2 backend only for Switch, following the proven approach of PPSSPP and RetroArch.
+> If/when portlibs are fixed, software renderer support may be revisited.
+
 # Renderer Refactor Plan: High-Level, GLES2-Friendly, Backend-Agnostic Design
 
 ## Motivation
