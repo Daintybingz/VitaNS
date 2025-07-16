@@ -80,9 +80,9 @@ add_executable(VitaNS ${SOURCES})
 # Now link libraries and set compile definitions after the target exists
 if(VITANS_PLATFORM_SWITCH)
     if(VITANS_SOFTWARE_RENDERER_ONLY OR VITANS_RENDERER_BACKEND STREQUAL "software")
-        message(STATUS "Building with SDL2/software renderer only (EGL linked for SDL2 compatibility)")
-        # SDL2 for Switch requires EGL symbols even for software renderer
-        target_link_libraries(VitaNS PRIVATE nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz EGL)
+        message(STATUS "Building with SDL2/software renderer only (EGL and glapi linked for SDL2/Mesa compatibility)")
+        # SDL2 for Switch requires EGL and Mesa's glapi symbols even for software renderer
+        target_link_libraries(VitaNS PRIVATE nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz EGL glapi)
         list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/RendererGLES2.*")
         list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/gl/.*")
         list(FILTER SOURCES EXCLUDE REGEX ".*/display/display_buffer.*")
