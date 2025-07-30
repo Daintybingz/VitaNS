@@ -1,0 +1,5 @@
+[33m139890c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m Add all custom Mesa static libraries and headers for Switch GLES2/EGL backend
+[33m64821a6[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m Add fallback to system libraries when custom Mesa has missing dependencies
+[33mfd2615e[m Add system GLESv2 library for OpenGL ES 2.0 API functions
+[33ma3165b6[m Fix duplicate linking - remove devkitPro EGL/GLES2 from main linking section
+[33m13a0dae[m Handle missing custom Mesa headers gracefully - use system headers as fallback
