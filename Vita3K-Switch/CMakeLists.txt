@@ -128,10 +128,17 @@ set(CUSTOM_MESA_DIR "${CMAKE_SOURCE_DIR}/external/custom-mesa")
 set(CUSTOM_MESA_LIB_DIR "${CUSTOM_MESA_DIR}/lib")
 set(CUSTOM_MESA_INCLUDE_DIR "${CUSTOM_MESA_DIR}/include")
 
-# Include custom Mesa headers
-include_directories(${CUSTOM_MESA_INCLUDE_DIR})
+# Check if custom Mesa libraries exist
+set(CUSTOM_MESA_AVAILABLE FALSE)
+if(EXISTS "${CUSTOM_MESA_LIB_DIR}/libEGL.a")
+    set(CUSTOM_MESA_AVAILABLE TRUE)
+    message(STATUS "Custom Mesa libraries found at ${CUSTOM_MESA_LIB_DIR}")
+    include_directories(${CUSTOM_MESA_INCLUDE_DIR})
+else()
+    message(STATUS "Custom Mesa libraries not found, using devkitPro libraries")
+endif()
 
-# Link with custom Mesa libraries for Switch
+# Link with libraries for Switch
 if(VITANS_PLATFORM_SWITCH)
     if(VITANS_SOFTWARE_RENDERER_ONLY OR VITANS_RENDERER_BACKEND STREQUAL "software")
         message(STATUS "Building with SDL2/software renderer only (no EGL/GLES2)")
@@ -143,13 +150,18 @@ if(VITANS_PLATFORM_SWITCH)
             list(FILTER SOURCES EXCLUDE REGEX ".*/display/display_buffer.*")
         endif()
     else()
-        message(STATUS "Building with custom Mesa/EGL libraries (GLES2 backend)")
-        target_link_libraries(VitaNS PRIVATE 
-            nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz
-            ${CUSTOM_MESA_LIB_DIR}/libEGL.a
-            ${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a
-            ${CUSTOM_MESA_LIB_DIR}/libblake3.a
-        )
+        if(CUSTOM_MESA_AVAILABLE)
+            message(STATUS "Building with custom Mesa/EGL libraries (GLES2 backend)")
+            target_link_libraries(VitaNS PRIVATE 
+                nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz
+                ${CUSTOM_MESA_LIB_DIR}/libEGL.a
+                ${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a
+                ${CUSTOM_MESA_LIB_DIR}/libblake3.a
+            )
+        else()
+            message(STATUS "Building with devkitPro EGL/GLES2 libraries (GLES2 backend)")
+            target_link_libraries(VitaNS PRIVATE nx SDL2 SDL2_ttf freetype png z bz2 EGL GLESv2 harfbuzz glapi)
+        endif()
         target_compile_definitions(VitaNS PRIVATE VITANS_RENDERER_GLES2=1)
     endif()
 else()

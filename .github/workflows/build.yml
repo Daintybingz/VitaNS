@@ -37,25 +37,28 @@ jobs:
           dkp-pacman -Syu --noconfirm
           dkp-pacman -S --noconfirm switch-harfbuzz switch-sdl2 switch-sdl2_ttf switch-sdl2_image switch-glm
 
-      - name: Build custom Mesa libraries
+      - name: Setup custom Mesa libraries
         run: |
-          echo "Building custom Mesa libraries for Switch"
-          cd Mesa
-          chmod +x build_switch.sh
-          ./build_switch.sh
-          echo "Custom Mesa build completed"
-
-      - name: Copy custom Mesa libraries to VitaNS
-        run: |
-          echo "Copying custom Mesa libraries to VitaNS project"
-          mkdir -p Vita3K-Switch/external/custom-mesa/lib
-          mkdir -p Vita3K-Switch/external/custom-mesa/include
-          cp Mesa/switch-mesa-out/libEGL.a Vita3K-Switch/external/custom-mesa/lib/
-          cp Mesa/build-switch/src/gallium/drivers/softpipe/libsoftpipe.a Vita3K-Switch/external/custom-mesa/lib/
-          cp Mesa/build-switch/src/util/blake3/libblake3.a Vita3K-Switch/external/custom-mesa/lib/
-          cp -r Mesa/include/EGL Vita3K-Switch/external/custom-mesa/include/
-          cp -r Mesa/include/GLES2 Vita3K-Switch/external/custom-mesa/include/
-          echo "Custom Mesa libraries copied successfully"
+          echo "Setting up custom Mesa libraries from repository"
+          echo "Current directory: $PWD"
+          echo "Directory contents:"
+          ls -la
+          
+          # Check if pre-built libraries exist
+          if [ -f "Mesa/switch-mesa-out/libEGL.a" ]; then
+            echo "✅ Pre-built Mesa libraries found"
+            mkdir -p Vita3K-Switch/external/custom-mesa/lib
+            mkdir -p Vita3K-Switch/external/custom-mesa/include
+            cp Mesa/switch-mesa-out/libEGL.a Vita3K-Switch/external/custom-mesa/lib/
+            cp Mesa/build-switch/src/gallium/drivers/softpipe/libsoftpipe.a Vita3K-Switch/external/custom-mesa/lib/
+            cp Mesa/build-switch/src/util/blake3/libblake3.a Vita3K-Switch/external/custom-mesa/lib/
+            cp -r Mesa/include/EGL Vita3K-Switch/external/custom-mesa/include/
+            cp -r Mesa/include/GLES2 Vita3K-Switch/external/custom-mesa/include/
+            echo "✅ Custom Mesa libraries copied successfully"
+          else
+            echo "❌ Pre-built Mesa libraries not found, falling back to devkitPro libraries"
+            echo "This will use the original devkitPro EGL/GLES2 libraries"
+          fi
 
       - name: Build VitaNS
         run: |
