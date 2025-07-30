@@ -1,0 +1,22 @@
+[binaries]
+c = 'aarch64-none-elf-gcc'
+cpp = 'aarch64-none-elf-g++'
+ar = 'aarch64-none-elf-ar'
+strip = 'aarch64-none-elf-strip'
+pkgconfig = 'aarch64-none-elf-pkg-config'
+
+[built-in options]
+c_args = ['-D__SWITCH__', '-DSWITCH', '-D__aarch64__', '-D__ARM_64BIT_STATE=1']
+cpp_args = ['-D__SWITCH__', '-DSWITCH', '-D__aarch64__', '-D__ARM_64BIT_STATE=1']
+c_link_args = []
+cpp_link_args = []
+# Force regular static archives instead of thin archives
+ar_args = ['--plugin', 'liblto_plugin.so', '--no-thin']
+
+[host_machine]
+system = 'none'
+cpu_family = 'aarch64'
+cpu = 'aarch64'
+endian = 'little'
+
+
