@@ -78,11 +78,7 @@ include_directories(
 add_executable(VitaNS ${SOURCES})
 
 # Now link libraries and set compile definitions after the target exists
-if(VITANS_PLATFORM_SWITCH)
-    message(STATUS "Building with GLES2 backend only (standard for Switch emulators like PPSSPP/RetroArch)")
-    target_link_libraries(VitaNS PRIVATE nx SDL2 SDL2_ttf freetype png z bz2 EGL GLESv2 harfbuzz glapi)
-    target_compile_definitions(VitaNS PRIVATE VITANS_RENDERER_GLES2=1)
-endif()
+# (Linking will be handled in the conditional sections below)
 
 # Always define VITANS_RENDERER_SOFTWARE for software-only builds
 if(VITANS_SOFTWARE_RENDERER_ONLY OR VITANS_RENDERER_BACKEND STREQUAL "software")
@@ -159,12 +155,20 @@ if(VITANS_PLATFORM_SWITCH)
         endif()
     else()
         message(STATUS "Building with custom Mesa/EGL libraries (GLES2 backend)")
+        
+        # Explicitly link custom Mesa libraries and exclude devkitPro EGL/GLES2
         target_link_libraries(VitaNS PRIVATE 
             nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz
             ${CUSTOM_MESA_LIB_DIR}/libEGL.a
             ${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a
             ${CUSTOM_MESA_LIB_DIR}/libblake3.a
         )
+        
+        # Add link directories to ensure custom libraries are found first
+        target_link_directories(VitaNS PRIVATE ${CUSTOM_MESA_LIB_DIR})
+        
+        # Exclude devkitPro EGL/GLES2 libraries by not linking them
+        message(STATUS "Using custom Mesa libraries: ${CUSTOM_MESA_LIB_DIR}")
         target_compile_definitions(VitaNS PRIVATE VITANS_RENDERER_GLES2=1)
     endif()
 else()
