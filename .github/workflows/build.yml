@@ -46,7 +46,15 @@ jobs:
           if [ -f "Vita3K-Switch/external/custom-mesa/lib/libEGL.a" ]; then
             echo "✅ Custom Mesa libraries found in VitaNS project"
             ls -la Vita3K-Switch/external/custom-mesa/lib/
-            ls -la Vita3K-Switch/external/custom-mesa/include/
+            
+            # Check if headers exist, if not use system headers
+            if [ -d "Vita3K-Switch/external/custom-mesa/include/EGL" ]; then
+              echo "✅ Custom Mesa headers found"
+              ls -la Vita3K-Switch/external/custom-mesa/include/
+            else
+              echo "⚠️  Custom Mesa headers not found, will use system headers"
+              echo "System EGL/GLES2 headers should be available in devkitPro"
+            fi
           else
             echo "❌ Custom Mesa libraries not found in VitaNS project"
             echo "This should not happen - libraries should be committed to repository"

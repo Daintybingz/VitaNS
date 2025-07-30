@@ -133,7 +133,15 @@ set(CUSTOM_MESA_AVAILABLE FALSE)
 if(EXISTS "${CUSTOM_MESA_LIB_DIR}/libEGL.a")
     set(CUSTOM_MESA_AVAILABLE TRUE)
     message(STATUS "Custom Mesa libraries found at ${CUSTOM_MESA_LIB_DIR}")
-    include_directories(${CUSTOM_MESA_INCLUDE_DIR})
+    
+    # Check if custom headers exist, otherwise use system headers
+    if(EXISTS "${CUSTOM_MESA_INCLUDE_DIR}/EGL")
+        message(STATUS "Custom Mesa headers found at ${CUSTOM_MESA_INCLUDE_DIR}")
+        include_directories(${CUSTOM_MESA_INCLUDE_DIR})
+    else()
+        message(STATUS "Custom Mesa headers not found, using system headers")
+        # System headers should be available via devkitPro
+    endif()
 else()
     message(FATAL_ERROR "Custom Mesa libraries not found at ${CUSTOM_MESA_LIB_DIR}. These are required for the Switch build.")
 endif()
