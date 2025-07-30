@@ -151,9 +151,9 @@ if(VITANS_PLATFORM_SWITCH)
         message(STATUS "Building with SDL2/software renderer only (no EGL/GLES2)")
         target_link_libraries(VitaNS PRIVATE nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz)
         # Exclude all GLES2/EGL/OpenGL files for software renderer
-        list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/RendererGLES2.*")
-        list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/gl/.*")
-        list(FILTER SOURCES EXCLUDE REGEX ".*/display/display_buffer.*")
+            list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/RendererGLES2.*")
+            list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/gl/.*")
+            list(FILTER SOURCES EXCLUDE REGEX ".*/display/display_buffer.*")
     else()
         message(STATUS "Building with all custom Mesa libraries (GLES2 backend)")
         # Ensure GLES2 renderer files are included
