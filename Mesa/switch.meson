@@ -11,7 +11,7 @@ cpp_args = ['-D__SWITCH__', '-DSWITCH', '-D__aarch64__', '-D__ARM_64BIT_STATE=1'
 c_link_args = []
 cpp_link_args = []
 # Force regular static archives instead of thin archives
-ar_args = ['--plugin', 'liblto_plugin.so', '--no-thin']
+ar_args = ['-crs']
 
 [host_machine]
 system = 'none'
