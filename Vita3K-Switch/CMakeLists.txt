@@ -124,22 +124,25 @@ set(CUSTOM_MESA_DIR "${CMAKE_SOURCE_DIR}/external/custom-mesa")
 set(CUSTOM_MESA_LIB_DIR "${CUSTOM_MESA_DIR}/lib")
 set(CUSTOM_MESA_INCLUDE_DIR "${CUSTOM_MESA_DIR}/include")
 
+# Gather all Mesa static libraries in the custom-mesa lib directory
+file(GLOB CUSTOM_MESA_LIBS
+    "${CUSTOM_MESA_LIB_DIR}/*.a"
+)
+
+# Sort libraries to ensure correct link order
+list(SORT CUSTOM_MESA_LIBS)
+
 # Check if custom Mesa libraries exist
-set(CUSTOM_MESA_AVAILABLE FALSE)
-if(EXISTS "${CUSTOM_MESA_LIB_DIR}/libEGL.a")
-    set(CUSTOM_MESA_AVAILABLE TRUE)
-    message(STATUS "Custom Mesa libraries found at ${CUSTOM_MESA_LIB_DIR}")
-    
-    # Check if custom headers exist, otherwise use system headers
+if(CUSTOM_MESA_LIBS)
+    message(STATUS "Custom Mesa libraries found: ${CUSTOM_MESA_LIBS}")
     if(EXISTS "${CUSTOM_MESA_INCLUDE_DIR}/EGL")
         message(STATUS "Custom Mesa headers found at ${CUSTOM_MESA_INCLUDE_DIR}")
         include_directories(${CUSTOM_MESA_INCLUDE_DIR})
     else()
         message(STATUS "Custom Mesa headers not found, using system headers")
-        # System headers should be available via devkitPro
     endif()
 else()
-    message(STATUS "Custom Mesa libraries not found, using system libraries")
+    message(FATAL_ERROR "No custom Mesa libraries found in ${CUSTOM_MESA_LIB_DIR}.")
 endif()
 
 # Link with libraries for Switch
@@ -154,34 +157,12 @@ if(VITANS_PLATFORM_SWITCH)
             list(FILTER SOURCES EXCLUDE REGEX ".*/display/display_buffer.*")
         endif()
     else()
-        if(CUSTOM_MESA_AVAILABLE)
-            message(STATUS "Building with custom Mesa/EGL libraries (GLES2 backend)")
-            
-            # Link custom Mesa EGL library and system GLESv2 for API functions
-            target_link_libraries(VitaNS PRIVATE 
-                nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz
-                ${CUSTOM_MESA_LIB_DIR}/libEGL.a
-                ${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a
-                ${CUSTOM_MESA_LIB_DIR}/libblake3.a
-                GLESv2  # System GLESv2 for OpenGL ES 2.0 API functions
-            )
-            
-            # Add link directories to ensure custom libraries are found first
-            target_link_directories(VitaNS PRIVATE ${CUSTOM_MESA_LIB_DIR})
-            
-            # Use custom EGL but system GLESv2 for API functions
-            message(STATUS "Using custom Mesa EGL + system GLESv2: ${CUSTOM_MESA_LIB_DIR}")
-        else()
-            message(STATUS "Building with system EGL/GLES2 libraries (GLES2 backend)")
-            
-            # Use system libraries as fallback
-            target_link_libraries(VitaNS PRIVATE 
-                nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz
-                EGL GLESv2 glapi
-            )
-            
-            message(STATUS "Using system EGL/GLES2 libraries")
-        endif()
+        message(STATUS "Building with all custom Mesa libraries (GLES2 backend)")
+        target_link_libraries(VitaNS PRIVATE
+            nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz
+            ${CUSTOM_MESA_LIBS}
+        )
+        target_link_directories(VitaNS PRIVATE ${CUSTOM_MESA_LIB_DIR})
         target_compile_definitions(VitaNS PRIVATE VITANS_RENDERER_GLES2=1)
     endif()
 else()
