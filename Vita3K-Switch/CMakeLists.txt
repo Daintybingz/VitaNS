@@ -156,19 +156,20 @@ if(VITANS_PLATFORM_SWITCH)
     else()
         message(STATUS "Building with custom Mesa/EGL libraries (GLES2 backend)")
         
-        # Explicitly link custom Mesa libraries and exclude devkitPro EGL/GLES2
+        # Link custom Mesa EGL library and system GLESv2 for API functions
         target_link_libraries(VitaNS PRIVATE 
             nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz
             ${CUSTOM_MESA_LIB_DIR}/libEGL.a
             ${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a
             ${CUSTOM_MESA_LIB_DIR}/libblake3.a
+            GLESv2  # System GLESv2 for OpenGL ES 2.0 API functions
         )
         
         # Add link directories to ensure custom libraries are found first
         target_link_directories(VitaNS PRIVATE ${CUSTOM_MESA_LIB_DIR})
         
-        # Exclude devkitPro EGL/GLES2 libraries by not linking them
-        message(STATUS "Using custom Mesa libraries: ${CUSTOM_MESA_LIB_DIR}")
+        # Use custom EGL but system GLESv2 for API functions
+        message(STATUS "Using custom Mesa EGL + system GLESv2: ${CUSTOM_MESA_LIB_DIR}")
         target_compile_definitions(VitaNS PRIVATE VITANS_RENDERER_GLES2=1)
     endif()
 else()
