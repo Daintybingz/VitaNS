@@ -37,56 +37,41 @@ jobs:
           dkp-pacman -Syu --noconfirm
           dkp-pacman -S --noconfirm switch-harfbuzz switch-sdl2 switch-sdl2_ttf switch-sdl2_image switch-glm
 
-      - name: Rebuild Mesa with correct configuration
+      - name: Use existing custom Mesa libraries
         run: |
-          echo "Rebuilding Mesa with regular static archives (not thin archives)"
-          cd Mesa
+          echo "Using existing custom Mesa libraries for Switch"
+          echo "These libraries were built specifically for Nintendo Switch without desktop dependencies"
           
-          # Clean previous build
-          rm -rf build-switch
-          
-          # Configure with options to create regular static archives
-          echo "Configuring Mesa build..."
-          meson setup build-switch --cross-file switch.meson --wipe -Dshared-glapi=false -Dstatic-libglapi=true -Ddefault-library=static
-          
-          # Build
-          echo "Building Mesa..."
-          ninja -C build-switch
-          
-          # Copy libraries to VitaNS
-          echo "Copying libraries to VitaNS..."
-          OUTPUT_DIR="../Vita3K-Switch/external/custom-mesa/lib"
-          
-          # Ensure output directory exists
-          mkdir -p "$OUTPUT_DIR"
-          
-          # Copy all .a files
-          find build-switch -name '*.a' -exec cp {} "$OUTPUT_DIR" \;
-          
-          echo "Mesa rebuild completed successfully!"
-          ls -la "$OUTPUT_DIR"
+          # Check if custom Mesa libraries exist
+          if [ -f "Vita3K-Switch/external/custom-mesa/lib/libEGL.a" ]; then
+            echo "✅ Custom Mesa libraries found"
+            ls -la Vita3K-Switch/external/custom-mesa/lib/
+          else
+            echo "❌ Custom Mesa libraries not found"
+            echo "These should be committed to the repository"
+            exit 1
+          fi
 
       - name: Verify custom Mesa libraries
         run: |
-          echo "Verifying custom Mesa libraries are available"
+          echo "Verifying custom Mesa libraries for Switch"
           echo "Current directory: $PWD"
           
-          # Check if custom Mesa libraries exist in VitaNS
+          # Check if custom Mesa libraries exist
           if [ -f "Vita3K-Switch/external/custom-mesa/lib/libEGL.a" ]; then
-            echo "✅ Custom Mesa libraries found in VitaNS project"
+            echo "✅ Custom Mesa libraries found"
             ls -la Vita3K-Switch/external/custom-mesa/lib/
             
-            # Check if headers exist, if not use system headers
+            # Check if headers exist
             if [ -d "Vita3K-Switch/external/custom-mesa/include/EGL" ]; then
               echo "✅ Custom Mesa headers found"
               ls -la Vita3K-Switch/external/custom-mesa/include/
             else
-              echo "⚠️  Custom Mesa headers not found, will use system headers"
-              echo "System EGL/GLES2 headers should be available in devkitPro"
+              echo "⚠️  Custom Mesa headers not found, using system headers"
             fi
           else
-            echo "❌ Custom Mesa libraries not found in VitaNS project"
-            echo "This should not happen - libraries should be committed to repository"
+            echo "❌ Custom Mesa libraries not found"
+            echo "These are required for Switch compatibility"
             exit 1
           fi
 
