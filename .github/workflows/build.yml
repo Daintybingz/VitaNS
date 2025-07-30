@@ -48,7 +48,7 @@ jobs:
           # Install newer version of Meson (Mesa requires >= 1.1.0)
           echo "Installing newer Meson version..."
           pip3 install --upgrade pip
-          pip3 install --user meson==1.2.0
+          pip3 install --user --break-system-packages meson==1.2.0
           
           # Add user bin to PATH and verify Meson version
           export PATH="$HOME/.local/bin:$PATH"
