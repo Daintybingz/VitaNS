@@ -37,6 +37,35 @@ jobs:
           dkp-pacman -Syu --noconfirm
           dkp-pacman -S --noconfirm switch-harfbuzz switch-sdl2 switch-sdl2_ttf switch-sdl2_image switch-glm
 
+      - name: Rebuild Mesa with correct configuration
+        run: |
+          echo "Rebuilding Mesa with regular static archives (not thin archives)"
+          cd Mesa
+          
+          # Clean previous build
+          rm -rf build-switch
+          
+          # Configure with options to create regular static archives
+          echo "Configuring Mesa build..."
+          meson setup build-switch --cross-file switch.meson --wipe -Dshared-glapi=false -Dstatic-libglapi=true -Ddefault-library=static
+          
+          # Build
+          echo "Building Mesa..."
+          ninja -C build-switch
+          
+          # Copy libraries to VitaNS
+          echo "Copying libraries to VitaNS..."
+          OUTPUT_DIR="../Vita3K-Switch/external/custom-mesa/lib"
+          
+          # Ensure output directory exists
+          mkdir -p "$OUTPUT_DIR"
+          
+          # Copy all .a files
+          find build-switch -name '*.a' -exec cp {} "$OUTPUT_DIR" \;
+          
+          echo "Mesa rebuild completed successfully!"
+          ls -la "$OUTPUT_DIR"
+
       - name: Verify custom Mesa libraries
         run: |
           echo "Verifying custom Mesa libraries are available"
