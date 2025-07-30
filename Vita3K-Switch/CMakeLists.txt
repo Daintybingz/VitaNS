@@ -38,11 +38,11 @@ list(FILTER SOURCES EXCLUDE REGEX ".*/tests/.*\\.cpp$")
 # Remove OpenGL/EGL-dependent files from SOURCES for Switch
 if(VITANS_PLATFORM_SWITCH)
     add_definitions(-DVITANS_PLATFORM_SWITCH=1)
-    # Exclude all gl renderer files
+    # Exclude all gl renderer files (but keep RendererGLES2.cpp for GLES2 backend)
     list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/gl/.*\\.cpp$")
     # Re-add switch_renderer.cpp explicitly
     list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/src/renderer/gl/switch_renderer.cpp")
-    # Do NOT exclude display_buffer.cpp!
+    # Do NOT exclude display_buffer.cpp for GLES2 backend!
     list(FILTER SOURCES EXCLUDE REGEX ".*/shader/.*\\.cpp$")
     # Exclude only the SceGxm files that are OpenGL/EGL-dependent, but keep GxmExecutor.cpp
     list(FILTER SOURCES EXCLUDE REGEX ".*/modules/SceGxm/SceGxm.cpp$")
@@ -105,11 +105,11 @@ endif()
 target_include_directories(VitaNS PRIVATE ${CMAKE_SOURCE_DIR}/external/nlohmann)
 target_include_directories(VitaNS PRIVATE $ENV{DEVKITPRO}/portlibs/switch/include)
 
-# Exclude OpenGL-dependent files from Switch build
+# Exclude OpenGL-dependent files from Switch build (but keep GLES2 files for GLES2 backend)
 if(VITANS_PLATFORM_SWITCH)
-    # Remove OpenGL/EGL files from build for Switch
+    # Remove OpenGL/EGL files from build for Switch (but not GLES2 files)
     list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/gl/.*\\.cpp$")
-    list(FILTER SOURCES EXCLUDE REGEX ".*/display/display_buffer\\.cpp$")
+    # Note: display_buffer.cpp will be conditionally included based on renderer backend
     list(FILTER SOURCES EXCLUDE REGEX ".*/shader/.*\\.cpp$")
     list(FILTER SOURCES EXCLUDE REGEX ".*/modules/SceGxm/.*\\.cpp$")
 endif()
@@ -150,17 +150,26 @@ if(VITANS_PLATFORM_SWITCH)
     if(VITANS_SOFTWARE_RENDERER_ONLY OR VITANS_RENDERER_BACKEND STREQUAL "software")
         message(STATUS "Building with SDL2/software renderer only (no EGL/GLES2)")
         target_link_libraries(VitaNS PRIVATE nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz)
-        if(VITANS_SOFTWARE_RENDERER_ONLY OR VITANS_RENDERER_BACKEND STREQUAL "software")
-            # Exclude all GLES2/EGL/OpenGL files
-            list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/RendererGLES2.*")
-            list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/gl/.*")
-            list(FILTER SOURCES EXCLUDE REGEX ".*/display/display_buffer.*")
-        endif()
+        # Exclude all GLES2/EGL/OpenGL files for software renderer
+        list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/RendererGLES2.*")
+        list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/gl/.*")
+        list(FILTER SOURCES EXCLUDE REGEX ".*/display/display_buffer.*")
     else()
         message(STATUS "Building with all custom Mesa libraries (GLES2 backend)")
+        # Ensure GLES2 renderer files are included
+        list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/src/renderer/RendererGLES2.cpp")
+        list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/src/display/display_buffer.cpp")
+        
+        # Link libraries in correct order for Mesa
         target_link_libraries(VitaNS PRIVATE
             nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz
-            ${CUSTOM_MESA_LIBS}
+            ${CUSTOM_MESA_LIB_DIR}/libGLESv2.a
+            ${CUSTOM_MESA_LIB_DIR}/libglapi_static.a
+            ${CUSTOM_MESA_LIB_DIR}/libmesa_util.a
+            ${CUSTOM_MESA_LIB_DIR}/libmesa.a
+            ${CUSTOM_MESA_LIB_DIR}/libEGL.a
+            ${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a
+            ${CUSTOM_MESA_LIB_DIR}/libblake3.a
         )
         target_link_directories(VitaNS PRIVATE ${CUSTOM_MESA_LIB_DIR})
         target_compile_definitions(VitaNS PRIVATE VITANS_RENDERER_GLES2=1)
