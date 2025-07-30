@@ -161,6 +161,7 @@ if(VITANS_PLATFORM_SWITCH)
         list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/src/display/display_buffer.cpp")
         
         # Link libraries in correct order for Mesa
+        # Use custom Mesa libraries (these were built specifically for Switch)
         target_link_libraries(VitaNS PRIVATE
             nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz
             ${CUSTOM_MESA_LIB_DIR}/libGLESv2.a
@@ -171,6 +172,7 @@ if(VITANS_PLATFORM_SWITCH)
             ${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a
             ${CUSTOM_MESA_LIB_DIR}/libblake3.a
         )
+        message(STATUS "Using custom Mesa libraries built specifically for Switch")
         target_link_directories(VitaNS PRIVATE ${CUSTOM_MESA_LIB_DIR})
         target_compile_definitions(VitaNS PRIVATE VITANS_RENDERER_GLES2=1)
     endif()
