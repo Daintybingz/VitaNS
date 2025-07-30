@@ -42,8 +42,16 @@ jobs:
         run: |
           echo "Installing build tools for Mesa rebuild"
           apt-get update
-          apt-get install -y meson ninja-build pkg-config python3-pip
+          apt-get install -y ninja-build pkg-config python3-pip
           apt-get install -y flex bison libdrm-dev libx11-dev libxext-dev libxdamage-dev libxfixes-dev libxxf86vm-dev libxrandr-dev libxcb1-dev libxcb-dri2-0-dev libxcb-dri3-dev libxcb-present-dev libxcb-sync-dev libxshmfence-dev
+          
+          # Install newer version of Meson (Mesa requires >= 1.1.0)
+          echo "Installing newer Meson version..."
+          pip3 install --upgrade pip
+          pip3 install meson==1.2.0
+          
+          # Verify Meson version
+          meson --version
 
       - name: Rebuild Mesa with regular static archives
         run: |
