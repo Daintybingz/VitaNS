@@ -27,6 +27,9 @@ Makefile
 *.a
 *.lib
 
+# Exception: Custom Mesa libraries for Switch
+!Vita3K-Switch/external/custom-mesa/lib/*.a
+
 # Executables
 *.exe
 *.out
