@@ -39,11 +39,11 @@ jobs:
 
       - name: Build VitaNS
         run: |
-          echo "Building VitaNS"
+          echo "Building VitaNS with custom Mesa/EGL libraries"
           cd Vita3K-Switch
           mkdir -p build
           cd build
-          cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake -DVITANS_SOFTWARE_RENDERER_ONLY=ON
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake -DVITANS_RENDERER_BACKEND=gles2
           make -j$(nproc)
 
       - name: Build Validation and Basic Testing

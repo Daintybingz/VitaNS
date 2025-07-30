@@ -123,7 +123,15 @@ option(VITANS_SOFTWARE_RENDERER_ONLY "Build with only the SDL2/software renderer
 set(VITANS_RENDERER_BACKEND "gles2" CACHE STRING "Renderer backend: gles2 or software")
 set_property(CACHE VITANS_RENDERER_BACKEND PROPERTY STRINGS gles2 software)
 
-# Link with only SDL2, SDL2_ttf, freetype, png, z, bz2 for Switch
+# Add custom Mesa library path
+set(CUSTOM_MESA_DIR "${CMAKE_SOURCE_DIR}/external/custom-mesa")
+set(CUSTOM_MESA_LIB_DIR "${CUSTOM_MESA_DIR}/lib")
+set(CUSTOM_MESA_INCLUDE_DIR "${CUSTOM_MESA_DIR}/include")
+
+# Include custom Mesa headers
+include_directories(${CUSTOM_MESA_INCLUDE_DIR})
+
+# Link with custom Mesa libraries for Switch
 if(VITANS_PLATFORM_SWITCH)
     if(VITANS_SOFTWARE_RENDERER_ONLY OR VITANS_RENDERER_BACKEND STREQUAL "software")
         message(STATUS "Building with SDL2/software renderer only (no EGL/GLES2)")
@@ -135,8 +143,13 @@ if(VITANS_PLATFORM_SWITCH)
             list(FILTER SOURCES EXCLUDE REGEX ".*/display/display_buffer.*")
         endif()
     else()
-        message(STATUS "Building with GLES2 backend (EGL/GLES2/SDL2)")
-        target_link_libraries(VitaNS PRIVATE nx SDL2 SDL2_ttf freetype png z bz2 EGL GLESv2 harfbuzz glapi)
+        message(STATUS "Building with custom Mesa/EGL libraries (GLES2 backend)")
+        target_link_libraries(VitaNS PRIVATE 
+            nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz
+            ${CUSTOM_MESA_LIB_DIR}/libEGL.a
+            ${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a
+            ${CUSTOM_MESA_LIB_DIR}/libblake3.a
+        )
         target_compile_definitions(VitaNS PRIVATE VITANS_RENDERER_GLES2=1)
     endif()
 else()
