@@ -37,10 +37,36 @@ jobs:
           dkp-pacman -Syu --noconfirm
           dkp-pacman -S --noconfirm switch-harfbuzz switch-sdl2 switch-sdl2_ttf switch-sdl2_image switch-glm
 
+      - name: Build custom Mesa libraries
+        run: |
+          echo "Building custom Mesa libraries for Switch"
+          cd Mesa
+          chmod +x build_switch.sh
+          ./build_switch.sh
+          echo "Custom Mesa build completed"
+
+      - name: Copy custom Mesa libraries to VitaNS
+        run: |
+          echo "Copying custom Mesa libraries to VitaNS project"
+          mkdir -p Vita3K-Switch/external/custom-mesa/lib
+          mkdir -p Vita3K-Switch/external/custom-mesa/include
+          cp Mesa/switch-mesa-out/libEGL.a Vita3K-Switch/external/custom-mesa/lib/
+          cp Mesa/build-switch/src/gallium/drivers/softpipe/libsoftpipe.a Vita3K-Switch/external/custom-mesa/lib/
+          cp Mesa/build-switch/src/util/blake3/libblake3.a Vita3K-Switch/external/custom-mesa/lib/
+          cp -r Mesa/include/EGL Vita3K-Switch/external/custom-mesa/include/
+          cp -r Mesa/include/GLES2 Vita3K-Switch/external/custom-mesa/include/
+          echo "Custom Mesa libraries copied successfully"
+
       - name: Build VitaNS
         run: |
           echo "Building VitaNS with custom Mesa/EGL libraries"
           cd Vita3K-Switch
+          
+          # Debug: Check if custom Mesa libraries exist
+          echo "=== Checking custom Mesa libraries ==="
+          ls -la external/custom-mesa/lib/ || echo "Custom Mesa lib directory not found"
+          ls -la external/custom-mesa/include/ || echo "Custom Mesa include directory not found"
+          
           mkdir -p build
           cd build
           cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake -DVITANS_RENDERER_BACKEND=gles2
