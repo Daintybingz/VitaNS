@@ -37,30 +37,23 @@ jobs:
           dkp-pacman -Syu --noconfirm
           dkp-pacman -S --noconfirm switch-harfbuzz switch-sdl2 switch-sdl2_ttf switch-sdl2_image switch-glm
 
-      - name: Setup custom Mesa libraries
+      - name: Verify custom Mesa libraries
         run: |
-          echo "Setting up custom Mesa libraries from repository"
+          echo "Verifying custom Mesa libraries are available"
           echo "Current directory: $PWD"
-          echo "Directory contents:"
-          ls -la
           
-          # Check if pre-built libraries exist
-          if [ -f "Mesa/switch-mesa-out/libEGL.a" ]; then
-            echo "✅ Pre-built Mesa libraries found"
-            mkdir -p Vita3K-Switch/external/custom-mesa/lib
-            mkdir -p Vita3K-Switch/external/custom-mesa/include
-            cp Mesa/switch-mesa-out/libEGL.a Vita3K-Switch/external/custom-mesa/lib/
-            cp Mesa/build-switch/src/gallium/drivers/softpipe/libsoftpipe.a Vita3K-Switch/external/custom-mesa/lib/
-            cp Mesa/build-switch/src/util/blake3/libblake3.a Vita3K-Switch/external/custom-mesa/lib/
-            cp -r Mesa/include/EGL Vita3K-Switch/external/custom-mesa/include/
-            cp -r Mesa/include/GLES2 Vita3K-Switch/external/custom-mesa/include/
-            echo "✅ Custom Mesa libraries copied successfully"
+          # Check if custom Mesa libraries exist in VitaNS
+          if [ -f "Vita3K-Switch/external/custom-mesa/lib/libEGL.a" ]; then
+            echo "✅ Custom Mesa libraries found in VitaNS project"
+            ls -la Vita3K-Switch/external/custom-mesa/lib/
+            ls -la Vita3K-Switch/external/custom-mesa/include/
           else
-            echo "❌ Pre-built Mesa libraries not found, falling back to devkitPro libraries"
-            echo "This will use the original devkitPro EGL/GLES2 libraries"
+            echo "❌ Custom Mesa libraries not found in VitaNS project"
+            echo "This should not happen - libraries should be committed to repository"
+            exit 1
           fi
 
-      - name: Build VitaNS
+      - name: Build VitaNS with custom Mesa
         run: |
           echo "Building VitaNS with custom Mesa/EGL libraries"
           cd Vita3K-Switch

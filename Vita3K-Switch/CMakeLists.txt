@@ -135,7 +135,7 @@ if(EXISTS "${CUSTOM_MESA_LIB_DIR}/libEGL.a")
     message(STATUS "Custom Mesa libraries found at ${CUSTOM_MESA_LIB_DIR}")
     include_directories(${CUSTOM_MESA_INCLUDE_DIR})
 else()
-    message(STATUS "Custom Mesa libraries not found, using devkitPro libraries")
+    message(FATAL_ERROR "Custom Mesa libraries not found at ${CUSTOM_MESA_LIB_DIR}. These are required for the Switch build.")
 endif()
 
 # Link with libraries for Switch
@@ -150,18 +150,13 @@ if(VITANS_PLATFORM_SWITCH)
             list(FILTER SOURCES EXCLUDE REGEX ".*/display/display_buffer.*")
         endif()
     else()
-        if(CUSTOM_MESA_AVAILABLE)
-            message(STATUS "Building with custom Mesa/EGL libraries (GLES2 backend)")
-            target_link_libraries(VitaNS PRIVATE 
-                nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz
-                ${CUSTOM_MESA_LIB_DIR}/libEGL.a
-                ${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a
-                ${CUSTOM_MESA_LIB_DIR}/libblake3.a
-            )
-        else()
-            message(STATUS "Building with devkitPro EGL/GLES2 libraries (GLES2 backend)")
-            target_link_libraries(VitaNS PRIVATE nx SDL2 SDL2_ttf freetype png z bz2 EGL GLESv2 harfbuzz glapi)
-        endif()
+        message(STATUS "Building with custom Mesa/EGL libraries (GLES2 backend)")
+        target_link_libraries(VitaNS PRIVATE 
+            nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz
+            ${CUSTOM_MESA_LIB_DIR}/libEGL.a
+            ${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a
+            ${CUSTOM_MESA_LIB_DIR}/libblake3.a
+        )
         target_compile_definitions(VitaNS PRIVATE VITANS_RENDERER_GLES2=1)
     endif()
 else()
