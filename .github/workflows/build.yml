@@ -48,9 +48,10 @@ jobs:
           # Install newer version of Meson (Mesa requires >= 1.1.0)
           echo "Installing newer Meson version..."
           pip3 install --upgrade pip
-          pip3 install meson==1.2.0
+          pip3 install --user meson==1.2.0
           
-          # Verify Meson version
+          # Add user bin to PATH and verify Meson version
+          export PATH="$HOME/.local/bin:$PATH"
           meson --version
 
       - name: Rebuild Mesa with regular static archives
@@ -60,6 +61,11 @@ jobs:
           
           # Clean previous build
           rm -rf build-switch
+          
+          # Ensure we use the correct Meson version
+          export PATH="$HOME/.local/bin:$PATH"
+          echo "Using Meson version:"
+          meson --version
           
           # Configure with options to create regular static archives
           echo "Configuring Mesa build..."
