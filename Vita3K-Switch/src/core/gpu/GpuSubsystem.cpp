@@ -14,4 +14,16 @@ void GpuSubsystem::executeGxmCommand(const GxmCommand& cmd) {
     }
 }
 
+void GpuSubsystem::beginFrame() {
+    if (renderer) {
+        renderer->beginFrame();
+    }
+}
+
+void GpuSubsystem::endFrame() {
+    if (renderer) {
+        renderer->endFrame();
+    }
+}
+
 GpuSubsystem::~GpuSubsystem() = default; 

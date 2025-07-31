@@ -48,6 +48,17 @@ bool RendererGLES2::create_context() {
     return true;
 }
 
+void RendererGLES2::beginFrame() {
+    // Clear the screen and prepare for rendering
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void RendererGLES2::endFrame() {
+    // Present the rendered frame
+    present();
+}
+
 void RendererGLES2::destroy_context() {
     if (gl_context) {
         SDL_GL_DeleteContext(gl_context);

@@ -9,6 +9,8 @@
 class RendererGLES2 : public Renderer {
 public:
     bool init() override;
+    void beginFrame() override;
+    void endFrame() override;
     void draw_frame(/* const FrameData& frame */) override;
     void present() override;
     void shutdown() override;
