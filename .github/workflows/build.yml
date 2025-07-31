@@ -1,6 +1,6 @@
 name: Build and Test VitaNS
 
-# Trigger build with Mesa thin archive fix
+# Trigger build with Mesa thin archive fix - Updated
 on:
   push:
     branches: [ master, main ]
