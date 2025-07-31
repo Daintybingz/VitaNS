@@ -42,16 +42,16 @@ jobs:
         run: |
           echo "Installing build tools for Mesa rebuild"
           apt-get update
-          apt-get install -y ninja-build pkg-config python3-pip
+          apt-get install -y ninja-build pkg-config python3-pip python3-venv
           apt-get install -y flex bison libdrm-dev libx11-dev libxext-dev libxdamage-dev libxfixes-dev libxxf86vm-dev libxrandr-dev libxcb1-dev libxcb-dri2-0-dev libxcb-dri3-dev libxcb-present-dev libxcb-sync-dev libxshmfence-dev
           
-          # Install newer version of Meson (Mesa requires >= 1.1.0)
+          # Install newer version of Meson using virtual environment
           echo "Installing newer Meson version..."
-          pip3 install --upgrade pip
-          pip3 install --user --break-system-packages meson==1.2.0
+          python3 -m venv meson_env
+          source meson_env/bin/activate
+          pip install meson==1.2.0
           
-          # Add user bin to PATH and verify Meson version
-          export PATH="$HOME/.local/bin:$PATH"
+          # Verify Meson version
           meson --version
 
       - name: Rebuild Mesa with regular static archives
@@ -62,8 +62,8 @@ jobs:
           # Clean previous build
           rm -rf build-switch
           
-          # Ensure we use the correct Meson version
-          export PATH="$HOME/.local/bin:$PATH"
+          # Activate virtual environment with correct Meson version
+          source ../meson_env/bin/activate
           echo "Using Meson version:"
           meson --version
           
