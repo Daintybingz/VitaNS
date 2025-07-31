@@ -48,7 +48,7 @@ jobs:
           # Install newer version of Meson using virtual environment
           echo "Installing newer Meson version..."
           python3 -m venv meson_env
-          source meson_env/bin/activate
+          . meson_env/bin/activate
           pip install meson==1.2.0
           
           # Verify Meson version
@@ -63,7 +63,7 @@ jobs:
           rm -rf build-switch
           
           # Activate virtual environment with correct Meson version
-          source ../meson_env/bin/activate
+          . ../meson_env/bin/activate
           echo "Using Meson version:"
           meson --version
           
