@@ -119,7 +119,16 @@ option(VITANS_SOFTWARE_RENDERER_ONLY "Build with only the SDL2/software renderer
 set(VITANS_RENDERER_BACKEND "gles2" CACHE STRING "Renderer backend: gles2 or software")
 set_property(CACHE VITANS_RENDERER_BACKEND PROPERTY STRINGS gles2 software)
 
-# Add custom Mesa library path
+# === Custom Mesa Integration for Nintendo Switch ===
+# All Mesa libraries are regular static archives, built for Switch.
+# Do NOT use system Mesa/portlibs for Switch. Always use these custom libraries.
+# If you update Mesa, rebuild all .a files and copy them to external/custom-mesa/lib/.
+#
+# This section ensures:
+#   - Only custom Mesa libraries are linked for Switch
+#   - Correct include and link order
+#   - No system Mesa/portlibs are used
+#
 set(CUSTOM_MESA_DIR "${CMAKE_SOURCE_DIR}/external/custom-mesa")
 set(CUSTOM_MESA_LIB_DIR "${CUSTOM_MESA_DIR}/lib")
 set(CUSTOM_MESA_INCLUDE_DIR "${CUSTOM_MESA_DIR}/include")
@@ -144,6 +153,16 @@ if(CUSTOM_MESA_LIBS)
 else()
     message(FATAL_ERROR "No custom Mesa libraries found in ${CUSTOM_MESA_LIB_DIR}.")
 endif()
+
+# Print which Mesa libraries are being linked (for CI/CD debug)
+message(STATUS "Linking with custom Mesa libraries:")
+message(STATUS "  ${CUSTOM_MESA_LIB_DIR}/libGLESv2.a")
+message(STATUS "  ${CUSTOM_MESA_LIB_DIR}/libglapi_static.a")
+message(STATUS "  ${CUSTOM_MESA_LIB_DIR}/libmesa_util.a")
+message(STATUS "  ${CUSTOM_MESA_LIB_DIR}/libmesa.a")
+message(STATUS "  ${CUSTOM_MESA_LIB_DIR}/libEGL.a")
+message(STATUS "  ${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a")
+message(STATUS "  ${CUSTOM_MESA_LIB_DIR}/libblake3.a")
 
 # Link with libraries for Switch
 if(VITANS_PLATFORM_SWITCH)
