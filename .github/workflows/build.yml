@@ -72,21 +72,12 @@ jobs:
           meson setup build-switch --cross-file switch.meson \
             -Dgles2=enabled \
             -Degl=enabled \
-            -Dgallium=enabled \
-            -Dshared-glapi=disabled \
+            -Dgallium-drivers=swrast \
             -Dglx=disabled \
-            -Dosmesa=disabled \
-            -Ddri=disabled \
-            -Ddri3=disabled \
             -Dgbm=disabled \
-            -Dxlib-lease=disabled \
-            -Dvideo-codecs=disabled \
-            -Dvulkan-beta=disabled \
-            -Dvulkan-layers=disabled \
-            -Dbuild-tests=false \
-            -Dbuild-aco-tests=false \
-            -Dglcpp-tests=false \
-            -Ddefault-library=static
+            -Ddri3=disabled \
+            -Dvulkan-drivers= \
+            -Dbuild-tests=false
           
           # Set environment to force regular archives
           export ARFLAGS="-crs"
