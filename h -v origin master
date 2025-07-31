@@ -1,0 +1,5 @@
+[33mb0483c7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m Trigger GitHub Actions build - test missing methods fix
+[33m62490c1[m Fix missing GpuSubsystem beginFrame/endFrame methods and add Renderer interface methods
+[33mb4686a5[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m Force trigger GitHub Actions workflow
+[33m08b6518[m Fix: Build Mesa in CI if custom libraries are missing
+[33m17d33d3[m Optimize workflow: Skip Mesa rebuild, use existing custom libraries
