@@ -59,8 +59,10 @@ jobs:
           echo "Rebuilding Mesa with regular static archives (not thin archives)"
           cd Mesa
           
-          # Clean previous build
+          # Clean previous build and any cached configuration
           rm -rf build-switch
+          rm -rf .mesonpy
+          rm -rf meson-private
           
           # Activate virtual environment with correct Meson version
           . ../meson_env/bin/activate
@@ -77,7 +79,33 @@ jobs:
             -Dgbm=disabled \
             -Ddri3=disabled \
             -Dvulkan-drivers= \
-            -Dbuild-tests=false
+            -Dplatforms=surfaceless \
+            -Dopengl=false \
+            -Dgles1=disabled \
+            -Dllvm=disabled \
+            -Dandroid-stub=false \
+            -Dandroid-strict=false \
+            -Dexpat=disabled \
+            -Dshader-cache=disabled \
+            -Dzlib=disabled \
+            -Dzstd=disabled \
+            -Dgallium-opencl=disabled \
+            -Dgallium-rusticl=false \
+            -Dgallium-va=disabled \
+            -Dgallium-vdpau=disabled \
+            -Dgallium-xa=disabled \
+            -Dgallium-nine=false \
+            -Dgallium-d3d10umd=false \
+            -Dgallium-omx=disabled \
+            -Dtools= \
+            -Dglvnd=disabled \
+            -Dvalgrind=disabled \
+            -Dlmsensors=disabled \
+            -Dperfetto=disabled \
+            -Dteflon=disabled \
+            -Dgpuvis=disabled \
+            -Dselinux=disabled \
+            -Dlibunwind=disabled
           
           # Set environment to force regular archives
           export ARFLAGS="-crs"
