@@ -123,6 +123,7 @@ set_property(CACHE VITANS_RENDERER_BACKEND PROPERTY STRINGS gles2 software)
 # All Mesa libraries are regular static archives, built for Switch.
 # Do NOT use system Mesa/portlibs for Switch. Always use these custom libraries.
 # If you update Mesa, rebuild all .a files and copy them to external/custom-mesa/lib/.
+# Trigger GitHub Actions workflow - Mesa integration complete
 #
 # This section ensures:
 #   - Only custom Mesa libraries are linked for Switch
