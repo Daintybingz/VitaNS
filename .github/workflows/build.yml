@@ -107,9 +107,9 @@ jobs:
             -Dselinux=disabled \
             -Dlibunwind=disabled
           
-          # Set environment to force regular archives
-          export ARFLAGS="-crs"
-          export AR="aarch64-none-elf-ar -crs"
+          # Set environment to force regular archives (not thin archives)
+          export ARFLAGS="--no-thin"
+          export AR="aarch64-none-elf-ar --no-thin"
           
           # Build
           echo "Building Mesa..."
