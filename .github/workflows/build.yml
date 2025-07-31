@@ -69,43 +69,18 @@ jobs:
           echo "Using Meson version:"
           meson --version
           
-          # Configure with options to create regular static archives
+          # Configure with minimal options for Switch build
           echo "Configuring Mesa build..."
           meson setup build-switch --cross-file switch.meson \
             -Dgles2=enabled \
             -Degl=enabled \
             -Dgallium-drivers=swrast \
-            -Dglx=disabled \
-            -Dgbm=disabled \
-            -Ddri3=disabled \
-            -Dvulkan-drivers= \
             -Dplatforms=surfaceless \
             -Dopengl=false \
             -Dgles1=disabled \
             -Dllvm=disabled \
-            -Dandroid-stub=false \
-            -Dandroid-strict=false \
-            -Dexpat=disabled \
-            -Dshader-cache=disabled \
-            -Dzlib=disabled \
-            -Dzstd=disabled \
-            -Dgallium-opencl=disabled \
-            -Dgallium-rusticl=false \
-            -Dgallium-va=disabled \
-            -Dgallium-vdpau=disabled \
-            -Dgallium-xa=disabled \
-            -Dgallium-nine=false \
-            -Dgallium-d3d10umd=false \
-            -Dgallium-omx=disabled \
             -Dtools= \
-            -Dglvnd=disabled \
-            -Dvalgrind=disabled \
-            -Dlmsensors=disabled \
-            -Dperfetto=disabled \
-            -Dteflon=disabled \
-            -Dgpuvis=disabled \
-            -Dselinux=disabled \
-            -Dlibunwind=disabled
+            -Dbuild-tests=false
           
           # Set environment to force regular archives (not thin archives)
           export ARFLAGS="--no-thin"
