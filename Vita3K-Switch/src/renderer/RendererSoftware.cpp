@@ -88,6 +88,14 @@ void RendererSoftware::shutdown() {
     destroy_context();
 }
 
+void RendererSoftware::beginFrame() {
+    // TODO: Add logic if needed
+}
+
+void RendererSoftware::endFrame() {
+    // TODO: Add logic if needed
+}
+
 RendererSoftware::~RendererSoftware() {
     shutdown();
 } 

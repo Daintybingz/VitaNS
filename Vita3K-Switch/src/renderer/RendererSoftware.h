@@ -11,6 +11,8 @@ public:
     void present() override;
     void shutdown() override;
     ~RendererSoftware() override;
+    void beginFrame() override;
+    void endFrame() override;
 
     // Upload framebuffer data (RGBA8888) to the texture
     void upload_framebuffer(const uint8_t* pixels, int w, int h);
