@@ -56,7 +56,10 @@ util_qsort_r(void *base, size_t nmemb, size_t size,
              int (*compar)(const void *, const void *, void *),
              void *arg)
 {
-#if defined(HAVE_GNU_QSORT_R)
+#ifdef __SWITCH__
+   /* On Switch, use the fallback implementation */
+   util_tls_qsort_r(base, nmemb, size, compar, arg);
+#elif defined(HAVE_GNU_QSORT_R)
    /* GNU extension added in glibc 2.8 */
    qsort_r(base, nmemb, size, compar, arg);
 #elif defined(HAVE_BSD_QSORT_R)

@@ -8,6 +8,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 
@@ -32,10 +33,15 @@
 FILE *
 os_file_create_unique(const char *filename, int filemode)
 {
+#ifdef __SWITCH__
+   // On Switch, use fopen directly since fdopen might not be available
+   return fopen(filename, "w");
+#else
    int fd = open(filename, O_CREAT | O_EXCL | O_WRONLY, filemode);
    if (fd == -1)
       return NULL;
    return fdopen(fd, "w");
+#endif
 }
 
 

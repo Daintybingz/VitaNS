@@ -189,7 +189,16 @@ __getProgramName()
 static char *
 __getProgramName()
 {
+#ifdef __SWITCH__
+   // On Switch, implement strdup manually
+   char *result = malloc(1);
+   if (result) {
+      result[0] = '\0';
+   }
+   return result;
+#else
    return strdup("");
+#endif
 }
 #endif
 #endif /* GET_PROGRAM_NAME_NOT_AVAILABLE */
@@ -207,7 +216,20 @@ static void
 util_get_process_name_callback(void)
 {
    const char *override_name = os_get_option("MESA_PROCESS_NAME");
+#ifdef __SWITCH__
+   // On Switch, implement strdup manually
+   if (override_name) {
+      size_t len = strlen(override_name) + 1;
+      program_name = malloc(len);
+      if (program_name) {
+         strcpy(program_name, override_name);
+      }
+   } else {
+      program_name = __getProgramName();
+   }
+#else
    program_name = override_name ? strdup(override_name) : __getProgramName();
+#endif
 
    if (program_name)
       atexit(free_program_name);

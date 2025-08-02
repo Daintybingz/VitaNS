@@ -32,6 +32,22 @@
 #include "u_math.h"
 #include "u_printf.h"
 
+#ifdef __SWITCH__
+// On Switch, implement strndup manually since it might not be available
+static char *strndup(const char *s, size_t n) {
+   size_t len = 0;
+   while (len < n && s[len] != '\0') {
+      len++;
+   }
+   char *result = malloc(len + 1);
+   if (result) {
+      memcpy(result, s, len);
+      result[len] = '\0';
+   }
+   return result;
+}
+#endif
+
 /* Some versions of MinGW are missing _vscprintf's declaration, although they
  * still provide the symbol in the import library. */
 #ifdef __MINGW32__

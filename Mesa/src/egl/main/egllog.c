@@ -37,12 +37,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "c11/threads.h"
 #include "util/macros.h"
 #include "util/simple_mtx.h"
 #include "util/u_string.h"
 
 #include "egllog.h"
+
+#ifdef __SWITCH__
+// On Switch, implement strcasecmp manually since it might not be available
+static int strcasecmp(const char *s1, const char *s2) {
+   while (*s1 && *s2) {
+      int c1 = tolower((unsigned char)*s1);
+      int c2 = tolower((unsigned char)*s2);
+      if (c1 != c2) {
+         return c1 - c2;
+      }
+      s1++;
+      s2++;
+   }
+   return tolower((unsigned char)*s1) - tolower((unsigned char)*s2);
+}
+#endif
 
 #ifdef HAVE_ANDROID_PLATFORM
 #define LOG_TAG "EGL-MAIN"

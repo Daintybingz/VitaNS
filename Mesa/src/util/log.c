@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include "c11/threads.h"
 #include "util/detect_os.h"
 #include "util/log.h"
@@ -445,9 +446,19 @@ _mesa_log_multiline(enum mesa_log_level level, const char *tag, const char *line
    struct log_stream tmp = {
       .level = level,
       .tag = tag,
+#ifdef __SWITCH__
+      .msg = malloc(strlen(lines) + 1),
+#else
       .msg = strdup(lines),
+#endif
       .pos = strlen(lines),
    };
+   
+#ifdef __SWITCH__
+   if (tmp.msg) {
+      strcpy(tmp.msg, lines);
+   }
+#endif
    mesa_log_stream_flush(&tmp, 0);
    free(tmp.msg);
 }

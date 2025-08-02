@@ -50,6 +50,9 @@ struct u_memstream
    char **bufp;
    size_t *sizep;
    char temp[PATH_MAX];
+#elif defined(__SWITCH__)
+   char **bufp;
+   size_t *sizep;
 #endif
 };
 

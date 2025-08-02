@@ -35,6 +35,9 @@
 #error "Must not be included directly. Include os_memory.h instead"
 #endif
 
+#include <stdlib.h>
+#include <string.h>
+
 
 /**
  * Add two size_t values with integer overflow check.
@@ -48,7 +51,7 @@ add_overflow_size_t(size_t a, size_t b, size_t *res)
 }
 
 
-#if defined(HAVE_POSIX_MEMALIGN)
+#if defined(HAVE_POSIX_MEMALIGN) && !defined(__SWITCH__)
 
 static inline void *
 os_malloc_aligned(size_t size, size_t alignment)
@@ -58,6 +61,22 @@ os_malloc_aligned(size_t size, size_t alignment)
    if(posix_memalign(&ptr, alignment, size) != 0)
       return NULL;
    return ptr;
+}
+
+#elif defined(__SWITCH__)
+
+static inline void *
+os_malloc_aligned(size_t size, size_t alignment)
+{
+   // On Switch, use malloc with manual alignment
+   void *ptr = malloc(size + alignment - 1);
+   if (!ptr)
+      return NULL;
+   
+   uintptr_t addr = (uintptr_t)ptr;
+   uintptr_t aligned_addr = (addr + alignment - 1) & ~(alignment - 1);
+   
+   return (void *)aligned_addr;
 }
 
 #define os_free_aligned(_ptr) free(_ptr)

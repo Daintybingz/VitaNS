@@ -33,8 +33,25 @@
 #include <inttypes.h>
 
 #include <stdio.h>
+#include <string.h>
 #include <limits.h> /* CHAR_BIT */
 #include <ctype.h> /* isalnum */
+
+#ifdef __SWITCH__
+// On Switch, implement strcasecmp manually since it might not be available
+static int strcasecmp(const char *s1, const char *s2) {
+   while (*s1 && *s2) {
+      int c1 = tolower((unsigned char)*s1);
+      int c2 = tolower((unsigned char)*s2);
+      if (c1 != c2) {
+         return c1 - c2;
+      }
+      s1++;
+      s2++;
+   }
+   return tolower((unsigned char)*s1) - tolower((unsigned char)*s2);
+}
+#endif
 
 #ifdef _WIN32
 #include <windows.h>

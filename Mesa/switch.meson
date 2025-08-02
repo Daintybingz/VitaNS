@@ -10,6 +10,8 @@ c_args = ['-I/opt/devkitpro/libnx/include', '-D__SWITCH__', '-O2', '-ffunction-s
 cpp_args = ['-I/opt/devkitpro/libnx/include', '-D__SWITCH__', '-O2', '-ffunction-sections', '-fdata-sections']
 c_link_args = []
 cpp_link_args = []
+# Force regular static archives instead of thin archives
+ar_args = ['--no-thin']
 
 [host_machine]
 system = 'none'

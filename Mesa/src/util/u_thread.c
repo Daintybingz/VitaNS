@@ -51,7 +51,10 @@ util_get_current_cpu(void)
 int u_thread_create(thrd_t *thrd, int (*routine)(void *), void *param)
 {
    int ret = thrd_error;
-#ifdef HAVE_PTHREAD
+#ifdef __SWITCH__
+   // On Switch, skip signal handling since signal functions might not be available
+   ret = thrd_create(thrd, routine, param);
+#elif defined(HAVE_PTHREAD)
    sigset_t saved_set, new_set;
 
    sigfillset(&new_set);

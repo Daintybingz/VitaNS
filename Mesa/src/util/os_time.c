@@ -81,7 +81,11 @@ os_time_sleep(int64_t usecs)
    usleep(usecs);
 
 #elif defined(__SWITCH__)
-   usleep(usecs);
+   // On Switch, use nanosleep instead of usleep
+   struct timespec time;
+   time.tv_sec = usecs / 1000000;
+   time.tv_nsec = (usecs % 1000000) * 1000;
+   nanosleep(&time, NULL);
 
 #elif DETECT_OS_WINDOWS
    DWORD dwMilliseconds = (DWORD) ((usecs + 999) / 1000);

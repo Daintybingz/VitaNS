@@ -61,6 +61,13 @@ u_memstream_open(struct u_memstream *mem, char **bufp, size_t *sizep)
    }
 
    return success;
+#elif defined(__SWITCH__)
+   // On Switch, use a simple approach with a temporary file
+   FILE *f = tmpfile();
+   mem->f = f;
+   mem->bufp = bufp;
+   mem->sizep = sizep;
+   return f != NULL;
 #else
    FILE *const f = open_memstream(bufp, sizep);
    mem->f = f;
@@ -88,6 +95,19 @@ u_memstream_close(struct u_memstream *mem)
    }
 
    remove(mem->temp);
+#elif defined(__SWITCH__)
+   long size = ftell(f);
+   if (size > 0) {
+      /* reserve space for the null terminator */
+      char *buf = malloc(size + 1);
+      fseek(f, 0, SEEK_SET);
+      fread(buf, 1, size, f);
+      /* insert null terminator */
+      buf[size] = '\0';
+
+      *mem->bufp = buf;
+      *mem->sizep = size;
+   }
 #endif
 
    fclose(f);

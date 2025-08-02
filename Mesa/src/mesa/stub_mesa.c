@@ -5,6 +5,10 @@
 
 #include <stddef.h>
 
+/* Function prototypes */
+void mesa_stub_init(void);
+void mesa_stub_cleanup(void);
+
 /* Basic stub functions to satisfy linking */
 void mesa_stub_init(void) {
     /* Empty stub */

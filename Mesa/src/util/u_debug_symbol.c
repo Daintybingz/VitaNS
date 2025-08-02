@@ -41,6 +41,20 @@
 #include "u_debug_symbol.h"
 #include "util/hash_table.h"
 
+#include <string.h>
+
+#ifdef __SWITCH__
+// On Switch, implement strdup manually since it might not be available
+static char *strdup(const char *s) {
+   size_t len = strlen(s) + 1;
+   char *result = malloc(len);
+   if (result) {
+      strcpy(result, s);
+   }
+   return result;
+}
+#endif
+
 
 #if DETECT_OS_WINDOWS
 

@@ -1,259 +1,282 @@
-# Copyright © 2013 Intel Corporation
-# SPDX-License-Identifier: MIT
+/*
+ * Copyright 2023 Intel Corporation
+ * SPDX-License-Identifier: MIT
+ */
 
-BUILTIN_TYPES = []
+/* This is an automatically generated file. */
 
-def simple_type(name, gl_type, base_type, rows, cols):
-    BUILTIN_TYPES.append({
-        "name": name,
-        "gl_type": gl_type,
-        "base_type": base_type,
-        "vector_elements": rows,
-        "matrix_columns": cols,
-    })
+#ifndef _BUILTIN_TYPES_
+#define _BUILTIN_TYPES_
 
-def sampler_type(name, gl_type, base_type, dim, shadow, array, sampled_type):
-    BUILTIN_TYPES.append({
-        "name": name,
-        "gl_type": gl_type,
-        "base_type": base_type,
-        "sampler_dimensionality": dim,
-        "sampler_shadow": shadow,
-        "sampler_array": array,
-        "sampled_type": sampled_type,
-        "vector_elements": 1,
-        "matrix_columns": 1,
-    })
+extern const struct glsl_type glsl_type_builtin_error;
+extern const struct glsl_type glsl_type_builtin_void;
+extern const struct glsl_type glsl_type_builtin_bool;
+extern const struct glsl_type glsl_type_builtin_bvec2;
+extern const struct glsl_type glsl_type_builtin_bvec3;
+extern const struct glsl_type glsl_type_builtin_bvec4;
+extern const struct glsl_type glsl_type_builtin_bvec5;
+extern const struct glsl_type glsl_type_builtin_bvec8;
+extern const struct glsl_type glsl_type_builtin_bvec16;
+extern const struct glsl_type glsl_type_builtin_int;
+extern const struct glsl_type glsl_type_builtin_ivec2;
+extern const struct glsl_type glsl_type_builtin_ivec3;
+extern const struct glsl_type glsl_type_builtin_ivec4;
+extern const struct glsl_type glsl_type_builtin_ivec5;
+extern const struct glsl_type glsl_type_builtin_ivec8;
+extern const struct glsl_type glsl_type_builtin_ivec16;
+extern const struct glsl_type glsl_type_builtin_uint;
+extern const struct glsl_type glsl_type_builtin_uvec2;
+extern const struct glsl_type glsl_type_builtin_uvec3;
+extern const struct glsl_type glsl_type_builtin_uvec4;
+extern const struct glsl_type glsl_type_builtin_uvec5;
+extern const struct glsl_type glsl_type_builtin_uvec8;
+extern const struct glsl_type glsl_type_builtin_uvec16;
+extern const struct glsl_type glsl_type_builtin_float;
+extern const struct glsl_type glsl_type_builtin_vec2;
+extern const struct glsl_type glsl_type_builtin_vec3;
+extern const struct glsl_type glsl_type_builtin_vec4;
+extern const struct glsl_type glsl_type_builtin_vec5;
+extern const struct glsl_type glsl_type_builtin_vec8;
+extern const struct glsl_type glsl_type_builtin_vec16;
+extern const struct glsl_type glsl_type_builtin_float16_t;
+extern const struct glsl_type glsl_type_builtin_f16vec2;
+extern const struct glsl_type glsl_type_builtin_f16vec3;
+extern const struct glsl_type glsl_type_builtin_f16vec4;
+extern const struct glsl_type glsl_type_builtin_f16vec5;
+extern const struct glsl_type glsl_type_builtin_f16vec8;
+extern const struct glsl_type glsl_type_builtin_f16vec16;
+extern const struct glsl_type glsl_type_builtin_double;
+extern const struct glsl_type glsl_type_builtin_dvec2;
+extern const struct glsl_type glsl_type_builtin_dvec3;
+extern const struct glsl_type glsl_type_builtin_dvec4;
+extern const struct glsl_type glsl_type_builtin_dvec5;
+extern const struct glsl_type glsl_type_builtin_dvec8;
+extern const struct glsl_type glsl_type_builtin_dvec16;
+extern const struct glsl_type glsl_type_builtin_int64_t;
+extern const struct glsl_type glsl_type_builtin_i64vec2;
+extern const struct glsl_type glsl_type_builtin_i64vec3;
+extern const struct glsl_type glsl_type_builtin_i64vec4;
+extern const struct glsl_type glsl_type_builtin_i64vec5;
+extern const struct glsl_type glsl_type_builtin_i64vec8;
+extern const struct glsl_type glsl_type_builtin_i64vec16;
+extern const struct glsl_type glsl_type_builtin_uint64_t;
+extern const struct glsl_type glsl_type_builtin_u64vec2;
+extern const struct glsl_type glsl_type_builtin_u64vec3;
+extern const struct glsl_type glsl_type_builtin_u64vec4;
+extern const struct glsl_type glsl_type_builtin_u64vec5;
+extern const struct glsl_type glsl_type_builtin_u64vec8;
+extern const struct glsl_type glsl_type_builtin_u64vec16;
+extern const struct glsl_type glsl_type_builtin_int16_t;
+extern const struct glsl_type glsl_type_builtin_i16vec2;
+extern const struct glsl_type glsl_type_builtin_i16vec3;
+extern const struct glsl_type glsl_type_builtin_i16vec4;
+extern const struct glsl_type glsl_type_builtin_i16vec5;
+extern const struct glsl_type glsl_type_builtin_i16vec8;
+extern const struct glsl_type glsl_type_builtin_i16vec16;
+extern const struct glsl_type glsl_type_builtin_uint16_t;
+extern const struct glsl_type glsl_type_builtin_u16vec2;
+extern const struct glsl_type glsl_type_builtin_u16vec3;
+extern const struct glsl_type glsl_type_builtin_u16vec4;
+extern const struct glsl_type glsl_type_builtin_u16vec5;
+extern const struct glsl_type glsl_type_builtin_u16vec8;
+extern const struct glsl_type glsl_type_builtin_u16vec16;
+extern const struct glsl_type glsl_type_builtin_int8_t;
+extern const struct glsl_type glsl_type_builtin_i8vec2;
+extern const struct glsl_type glsl_type_builtin_i8vec3;
+extern const struct glsl_type glsl_type_builtin_i8vec4;
+extern const struct glsl_type glsl_type_builtin_i8vec5;
+extern const struct glsl_type glsl_type_builtin_i8vec8;
+extern const struct glsl_type glsl_type_builtin_i8vec16;
+extern const struct glsl_type glsl_type_builtin_uint8_t;
+extern const struct glsl_type glsl_type_builtin_u8vec2;
+extern const struct glsl_type glsl_type_builtin_u8vec3;
+extern const struct glsl_type glsl_type_builtin_u8vec4;
+extern const struct glsl_type glsl_type_builtin_u8vec5;
+extern const struct glsl_type glsl_type_builtin_u8vec8;
+extern const struct glsl_type glsl_type_builtin_u8vec16;
+extern const struct glsl_type glsl_type_builtin_mat2;
+extern const struct glsl_type glsl_type_builtin_mat3;
+extern const struct glsl_type glsl_type_builtin_mat4;
+extern const struct glsl_type glsl_type_builtin_mat2x3;
+extern const struct glsl_type glsl_type_builtin_mat2x4;
+extern const struct glsl_type glsl_type_builtin_mat3x2;
+extern const struct glsl_type glsl_type_builtin_mat3x4;
+extern const struct glsl_type glsl_type_builtin_mat4x2;
+extern const struct glsl_type glsl_type_builtin_mat4x3;
+extern const struct glsl_type glsl_type_builtin_f16mat2;
+extern const struct glsl_type glsl_type_builtin_f16mat3;
+extern const struct glsl_type glsl_type_builtin_f16mat4;
+extern const struct glsl_type glsl_type_builtin_f16mat2x3;
+extern const struct glsl_type glsl_type_builtin_f16mat2x4;
+extern const struct glsl_type glsl_type_builtin_f16mat3x2;
+extern const struct glsl_type glsl_type_builtin_f16mat3x4;
+extern const struct glsl_type glsl_type_builtin_f16mat4x2;
+extern const struct glsl_type glsl_type_builtin_f16mat4x3;
+extern const struct glsl_type glsl_type_builtin_dmat2;
+extern const struct glsl_type glsl_type_builtin_dmat3;
+extern const struct glsl_type glsl_type_builtin_dmat4;
+extern const struct glsl_type glsl_type_builtin_dmat2x3;
+extern const struct glsl_type glsl_type_builtin_dmat2x4;
+extern const struct glsl_type glsl_type_builtin_dmat3x2;
+extern const struct glsl_type glsl_type_builtin_dmat3x4;
+extern const struct glsl_type glsl_type_builtin_dmat4x2;
+extern const struct glsl_type glsl_type_builtin_dmat4x3;
+extern const struct glsl_type glsl_type_builtin_atomic_uint;
+extern const struct glsl_type glsl_type_builtin_sampler;
+extern const struct glsl_type glsl_type_builtin_sampler1D;
+extern const struct glsl_type glsl_type_builtin_sampler2D;
+extern const struct glsl_type glsl_type_builtin_sampler3D;
+extern const struct glsl_type glsl_type_builtin_samplerCube;
+extern const struct glsl_type glsl_type_builtin_sampler1DArray;
+extern const struct glsl_type glsl_type_builtin_sampler2DArray;
+extern const struct glsl_type glsl_type_builtin_samplerCubeArray;
+extern const struct glsl_type glsl_type_builtin_sampler2DRect;
+extern const struct glsl_type glsl_type_builtin_samplerBuffer;
+extern const struct glsl_type glsl_type_builtin_sampler2DMS;
+extern const struct glsl_type glsl_type_builtin_sampler2DMSArray;
+extern const struct glsl_type glsl_type_builtin_isampler1D;
+extern const struct glsl_type glsl_type_builtin_isampler2D;
+extern const struct glsl_type glsl_type_builtin_isampler3D;
+extern const struct glsl_type glsl_type_builtin_isamplerCube;
+extern const struct glsl_type glsl_type_builtin_isampler1DArray;
+extern const struct glsl_type glsl_type_builtin_isampler2DArray;
+extern const struct glsl_type glsl_type_builtin_isamplerCubeArray;
+extern const struct glsl_type glsl_type_builtin_isampler2DRect;
+extern const struct glsl_type glsl_type_builtin_isamplerBuffer;
+extern const struct glsl_type glsl_type_builtin_isampler2DMS;
+extern const struct glsl_type glsl_type_builtin_isampler2DMSArray;
+extern const struct glsl_type glsl_type_builtin_usampler1D;
+extern const struct glsl_type glsl_type_builtin_usampler2D;
+extern const struct glsl_type glsl_type_builtin_usampler3D;
+extern const struct glsl_type glsl_type_builtin_usamplerCube;
+extern const struct glsl_type glsl_type_builtin_usampler1DArray;
+extern const struct glsl_type glsl_type_builtin_usampler2DArray;
+extern const struct glsl_type glsl_type_builtin_usamplerCubeArray;
+extern const struct glsl_type glsl_type_builtin_usampler2DRect;
+extern const struct glsl_type glsl_type_builtin_usamplerBuffer;
+extern const struct glsl_type glsl_type_builtin_usampler2DMS;
+extern const struct glsl_type glsl_type_builtin_usampler2DMSArray;
+extern const struct glsl_type glsl_type_builtin_samplerShadow;
+extern const struct glsl_type glsl_type_builtin_sampler1DShadow;
+extern const struct glsl_type glsl_type_builtin_sampler2DShadow;
+extern const struct glsl_type glsl_type_builtin_samplerCubeShadow;
+extern const struct glsl_type glsl_type_builtin_sampler1DArrayShadow;
+extern const struct glsl_type glsl_type_builtin_sampler2DArrayShadow;
+extern const struct glsl_type glsl_type_builtin_samplerCubeArrayShadow;
+extern const struct glsl_type glsl_type_builtin_sampler2DRectShadow;
+extern const struct glsl_type glsl_type_builtin_samplerExternalOES;
+extern const struct glsl_type glsl_type_builtin_texture1D;
+extern const struct glsl_type glsl_type_builtin_texture2D;
+extern const struct glsl_type glsl_type_builtin_texture3D;
+extern const struct glsl_type glsl_type_builtin_textureCube;
+extern const struct glsl_type glsl_type_builtin_texture1DArray;
+extern const struct glsl_type glsl_type_builtin_texture2DArray;
+extern const struct glsl_type glsl_type_builtin_textureCubeArray;
+extern const struct glsl_type glsl_type_builtin_texture2DRect;
+extern const struct glsl_type glsl_type_builtin_textureBuffer;
+extern const struct glsl_type glsl_type_builtin_texture2DMS;
+extern const struct glsl_type glsl_type_builtin_texture2DMSArray;
+extern const struct glsl_type glsl_type_builtin_itexture1D;
+extern const struct glsl_type glsl_type_builtin_itexture2D;
+extern const struct glsl_type glsl_type_builtin_itexture3D;
+extern const struct glsl_type glsl_type_builtin_itextureCube;
+extern const struct glsl_type glsl_type_builtin_itexture1DArray;
+extern const struct glsl_type glsl_type_builtin_itexture2DArray;
+extern const struct glsl_type glsl_type_builtin_itextureCubeArray;
+extern const struct glsl_type glsl_type_builtin_itexture2DRect;
+extern const struct glsl_type glsl_type_builtin_itextureBuffer;
+extern const struct glsl_type glsl_type_builtin_itexture2DMS;
+extern const struct glsl_type glsl_type_builtin_itexture2DMSArray;
+extern const struct glsl_type glsl_type_builtin_utexture1D;
+extern const struct glsl_type glsl_type_builtin_utexture2D;
+extern const struct glsl_type glsl_type_builtin_utexture3D;
+extern const struct glsl_type glsl_type_builtin_utextureCube;
+extern const struct glsl_type glsl_type_builtin_utexture1DArray;
+extern const struct glsl_type glsl_type_builtin_utexture2DArray;
+extern const struct glsl_type glsl_type_builtin_utextureCubeArray;
+extern const struct glsl_type glsl_type_builtin_utexture2DRect;
+extern const struct glsl_type glsl_type_builtin_utextureBuffer;
+extern const struct glsl_type glsl_type_builtin_utexture2DMS;
+extern const struct glsl_type glsl_type_builtin_utexture2DMSArray;
+extern const struct glsl_type glsl_type_builtin_textureExternalOES;
+extern const struct glsl_type glsl_type_builtin_vtexture1D;
+extern const struct glsl_type glsl_type_builtin_vtexture2D;
+extern const struct glsl_type glsl_type_builtin_vtexture3D;
+extern const struct glsl_type glsl_type_builtin_vtexture1DArray;
+extern const struct glsl_type glsl_type_builtin_vtexture2DArray;
+extern const struct glsl_type glsl_type_builtin_vtextureBuffer;
+extern const struct glsl_type glsl_type_builtin_image1D;
+extern const struct glsl_type glsl_type_builtin_image2D;
+extern const struct glsl_type glsl_type_builtin_image3D;
+extern const struct glsl_type glsl_type_builtin_image2DRect;
+extern const struct glsl_type glsl_type_builtin_imageCube;
+extern const struct glsl_type glsl_type_builtin_imageBuffer;
+extern const struct glsl_type glsl_type_builtin_image1DArray;
+extern const struct glsl_type glsl_type_builtin_image2DArray;
+extern const struct glsl_type glsl_type_builtin_imageCubeArray;
+extern const struct glsl_type glsl_type_builtin_image2DMS;
+extern const struct glsl_type glsl_type_builtin_image2DMSArray;
+extern const struct glsl_type glsl_type_builtin_iimage1D;
+extern const struct glsl_type glsl_type_builtin_iimage2D;
+extern const struct glsl_type glsl_type_builtin_iimage3D;
+extern const struct glsl_type glsl_type_builtin_iimage2DRect;
+extern const struct glsl_type glsl_type_builtin_iimageCube;
+extern const struct glsl_type glsl_type_builtin_iimageBuffer;
+extern const struct glsl_type glsl_type_builtin_iimage1DArray;
+extern const struct glsl_type glsl_type_builtin_iimage2DArray;
+extern const struct glsl_type glsl_type_builtin_iimageCubeArray;
+extern const struct glsl_type glsl_type_builtin_iimage2DMS;
+extern const struct glsl_type glsl_type_builtin_iimage2DMSArray;
+extern const struct glsl_type glsl_type_builtin_uimage1D;
+extern const struct glsl_type glsl_type_builtin_uimage2D;
+extern const struct glsl_type glsl_type_builtin_uimage3D;
+extern const struct glsl_type glsl_type_builtin_uimage2DRect;
+extern const struct glsl_type glsl_type_builtin_uimageCube;
+extern const struct glsl_type glsl_type_builtin_uimageBuffer;
+extern const struct glsl_type glsl_type_builtin_uimage1DArray;
+extern const struct glsl_type glsl_type_builtin_uimage2DArray;
+extern const struct glsl_type glsl_type_builtin_uimageCubeArray;
+extern const struct glsl_type glsl_type_builtin_uimage2DMS;
+extern const struct glsl_type glsl_type_builtin_uimage2DMSArray;
+extern const struct glsl_type glsl_type_builtin_i64image1D;
+extern const struct glsl_type glsl_type_builtin_i64image2D;
+extern const struct glsl_type glsl_type_builtin_i64image3D;
+extern const struct glsl_type glsl_type_builtin_i64image2DRect;
+extern const struct glsl_type glsl_type_builtin_i64imageCube;
+extern const struct glsl_type glsl_type_builtin_i64imageBuffer;
+extern const struct glsl_type glsl_type_builtin_i64image1DArray;
+extern const struct glsl_type glsl_type_builtin_i64image2DArray;
+extern const struct glsl_type glsl_type_builtin_i64imageCubeArray;
+extern const struct glsl_type glsl_type_builtin_i64image2DMS;
+extern const struct glsl_type glsl_type_builtin_i64image2DMSArray;
+extern const struct glsl_type glsl_type_builtin_u64image1D;
+extern const struct glsl_type glsl_type_builtin_u64image2D;
+extern const struct glsl_type glsl_type_builtin_u64image3D;
+extern const struct glsl_type glsl_type_builtin_u64image2DRect;
+extern const struct glsl_type glsl_type_builtin_u64imageCube;
+extern const struct glsl_type glsl_type_builtin_u64imageBuffer;
+extern const struct glsl_type glsl_type_builtin_u64image1DArray;
+extern const struct glsl_type glsl_type_builtin_u64image2DArray;
+extern const struct glsl_type glsl_type_builtin_u64imageCubeArray;
+extern const struct glsl_type glsl_type_builtin_u64image2DMS;
+extern const struct glsl_type glsl_type_builtin_u64image2DMSArray;
+extern const struct glsl_type glsl_type_builtin_vbuffer;
+extern const struct glsl_type glsl_type_builtin_vimage1D;
+extern const struct glsl_type glsl_type_builtin_vimage2D;
+extern const struct glsl_type glsl_type_builtin_vimage3D;
+extern const struct glsl_type glsl_type_builtin_vimage1DArray;
+extern const struct glsl_type glsl_type_builtin_vimage2DArray;
+extern const struct glsl_type glsl_type_builtin_subpassInput;
+extern const struct glsl_type glsl_type_builtin_subpassInputMS;
+extern const struct glsl_type glsl_type_builtin_isubpassInput;
+extern const struct glsl_type glsl_type_builtin_isubpassInputMS;
+extern const struct glsl_type glsl_type_builtin_usubpassInput;
+extern const struct glsl_type glsl_type_builtin_usubpassInputMS;
+extern const struct glsl_type glsl_type_builtin_textureSubpassInput;
+extern const struct glsl_type glsl_type_builtin_textureSubpassInputMS;
+extern const struct glsl_type glsl_type_builtin_itextureSubpassInput;
+extern const struct glsl_type glsl_type_builtin_itextureSubpassInputMS;
+extern const struct glsl_type glsl_type_builtin_utextureSubpassInput;
+extern const struct glsl_type glsl_type_builtin_utextureSubpassInputMS;
 
-def vector_type(base_name, vec_name, base_type, gl_type, extra_gl_type=None):
-    if extra_gl_type is None:
-        extra_gl_type = ""
-    simple_type(base_name, gl_type + extra_gl_type, base_type, 1, 1)
-    simple_type(vec_name + "2", gl_type + "_VEC2" + extra_gl_type, base_type, 2, 1)
-    simple_type(vec_name + "3", gl_type + "_VEC3" + extra_gl_type, base_type, 3, 1)
-    simple_type(vec_name + "4", gl_type + "_VEC4" + extra_gl_type, base_type, 4, 1)
-    simple_type(vec_name + "5", None, base_type, 5, 1)
-    simple_type(vec_name + "8", None, base_type, 8, 1)
-    simple_type(vec_name + "16", None, base_type, 16, 1)
-
-simple_type("error",  "GL_INVALID_ENUM", "GLSL_TYPE_ERROR", 0, 0)
-simple_type("void",   "GL_INVALID_ENUM", "GLSL_TYPE_VOID",  0, 0)
-
-vector_type("bool",      "bvec",   "GLSL_TYPE_BOOL",    "GL_BOOL")
-vector_type("int",       "ivec",   "GLSL_TYPE_INT",     "GL_INT")
-vector_type("uint",      "uvec",   "GLSL_TYPE_UINT",    "GL_UNSIGNED_INT")
-vector_type("float",     "vec",    "GLSL_TYPE_FLOAT",   "GL_FLOAT")
-vector_type("float16_t", "f16vec", "GLSL_TYPE_FLOAT16", "GL_FLOAT16", "_NV")
-vector_type("double",    "dvec",   "GLSL_TYPE_DOUBLE",  "GL_DOUBLE")
-vector_type("int64_t",   "i64vec", "GLSL_TYPE_INT64",   "GL_INT64", "_ARB")
-vector_type("uint64_t",  "u64vec", "GLSL_TYPE_UINT64",  "GL_UNSIGNED_INT64", "_ARB")
-vector_type("int16_t",   "i16vec", "GLSL_TYPE_INT16",   "GL_INT16", "_NV")
-vector_type("uint16_t",  "u16vec", "GLSL_TYPE_UINT16",  "GL_UNSIGNED_INT16", "_NV")
-vector_type("int8_t",    "i8vec",  "GLSL_TYPE_INT8",    "GL_INT8", "_NV")
-vector_type("uint8_t",   "u8vec",  "GLSL_TYPE_UINT8",   "GL_UNSIGNED_INT8", "_NV")
-
-simple_type("mat2",   "GL_FLOAT_MAT2",   "GLSL_TYPE_FLOAT", 2, 2)
-simple_type("mat3",   "GL_FLOAT_MAT3",   "GLSL_TYPE_FLOAT", 3, 3)
-simple_type("mat4",   "GL_FLOAT_MAT4",   "GLSL_TYPE_FLOAT", 4, 4)
-
-simple_type("mat2x3", "GL_FLOAT_MAT2x3", "GLSL_TYPE_FLOAT", 3, 2)
-simple_type("mat2x4", "GL_FLOAT_MAT2x4", "GLSL_TYPE_FLOAT", 4, 2)
-simple_type("mat3x2", "GL_FLOAT_MAT3x2", "GLSL_TYPE_FLOAT", 2, 3)
-simple_type("mat3x4", "GL_FLOAT_MAT3x4", "GLSL_TYPE_FLOAT", 4, 3)
-simple_type("mat4x2", "GL_FLOAT_MAT4x2", "GLSL_TYPE_FLOAT", 2, 4)
-simple_type("mat4x3", "GL_FLOAT_MAT4x3", "GLSL_TYPE_FLOAT", 3, 4)
-
-simple_type("f16mat2",   "GL_FLOAT16_MAT2_AMD",   "GLSL_TYPE_FLOAT16", 2, 2)
-simple_type("f16mat3",   "GL_FLOAT16_MAT3_AMD",   "GLSL_TYPE_FLOAT16", 3, 3)
-simple_type("f16mat4",   "GL_FLOAT16_MAT4_AMD",   "GLSL_TYPE_FLOAT16", 4, 4)
-
-simple_type("f16mat2x3", "GL_FLOAT16_MAT2x3_AMD", "GLSL_TYPE_FLOAT16", 3, 2)
-simple_type("f16mat2x4", "GL_FLOAT16_MAT2x4_AMD", "GLSL_TYPE_FLOAT16", 4, 2)
-simple_type("f16mat3x2", "GL_FLOAT16_MAT3x2_AMD", "GLSL_TYPE_FLOAT16", 2, 3)
-simple_type("f16mat3x4", "GL_FLOAT16_MAT3x4_AMD", "GLSL_TYPE_FLOAT16", 4, 3)
-simple_type("f16mat4x2", "GL_FLOAT16_MAT4x2_AMD", "GLSL_TYPE_FLOAT16", 2, 4)
-simple_type("f16mat4x3", "GL_FLOAT16_MAT4x3_AMD", "GLSL_TYPE_FLOAT16", 3, 4)
-
-simple_type("dmat2",   "GL_DOUBLE_MAT2",   "GLSL_TYPE_DOUBLE", 2, 2)
-simple_type("dmat3",   "GL_DOUBLE_MAT3",   "GLSL_TYPE_DOUBLE", 3, 3)
-simple_type("dmat4",   "GL_DOUBLE_MAT4",   "GLSL_TYPE_DOUBLE", 4, 4)
-
-simple_type("dmat2x3", "GL_DOUBLE_MAT2x3", "GLSL_TYPE_DOUBLE", 3, 2)
-simple_type("dmat2x4", "GL_DOUBLE_MAT2x4", "GLSL_TYPE_DOUBLE", 4, 2)
-simple_type("dmat3x2", "GL_DOUBLE_MAT3x2", "GLSL_TYPE_DOUBLE", 2, 3)
-simple_type("dmat3x4", "GL_DOUBLE_MAT3x4", "GLSL_TYPE_DOUBLE", 4, 3)
-simple_type("dmat4x2", "GL_DOUBLE_MAT4x2", "GLSL_TYPE_DOUBLE", 2, 4)
-simple_type("dmat4x3", "GL_DOUBLE_MAT4x3", "GLSL_TYPE_DOUBLE", 3, 4)
-
-simple_type("atomic_uint", "GL_UNSIGNED_INT_ATOMIC_COUNTER", "GLSL_TYPE_ATOMIC_UINT", 1, 1)
-
-sampler_type("sampler",           "GL_SAMPLER_1D",                   "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_1D",   0, 0, "GLSL_TYPE_VOID")
-sampler_type("sampler1D",         "GL_SAMPLER_1D",                   "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_1D",   0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("sampler2D",         "GL_SAMPLER_2D",                   "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_2D",   0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("sampler3D",         "GL_SAMPLER_3D",                   "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_3D",   0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("samplerCube",       "GL_SAMPLER_CUBE",                 "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_CUBE", 0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("sampler1DArray",    "GL_SAMPLER_1D_ARRAY",             "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_1D",   0, 1, "GLSL_TYPE_FLOAT")
-sampler_type("sampler2DArray",    "GL_SAMPLER_2D_ARRAY",             "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_2D",   0, 1, "GLSL_TYPE_FLOAT")
-sampler_type("samplerCubeArray",  "GL_SAMPLER_CUBE_MAP_ARRAY",       "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_CUBE", 0, 1, "GLSL_TYPE_FLOAT")
-sampler_type("sampler2DRect",     "GL_SAMPLER_2D_RECT",              "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_RECT", 0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("samplerBuffer",     "GL_SAMPLER_BUFFER",               "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_BUF",  0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("sampler2DMS",       "GL_SAMPLER_2D_MULTISAMPLE",       "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_MS",   0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("sampler2DMSArray",  "GL_SAMPLER_2D_MULTISAMPLE_ARRAY", "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_MS",   0, 1, "GLSL_TYPE_FLOAT")
-
-sampler_type("isampler1D",        "GL_INT_SAMPLER_1D",                   "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_1D",   0, 0, "GLSL_TYPE_INT")
-sampler_type("isampler2D",        "GL_INT_SAMPLER_2D",                   "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_2D",   0, 0, "GLSL_TYPE_INT")
-sampler_type("isampler3D",        "GL_INT_SAMPLER_3D",                   "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_3D",   0, 0, "GLSL_TYPE_INT")
-sampler_type("isamplerCube",      "GL_INT_SAMPLER_CUBE",                 "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_CUBE", 0, 0, "GLSL_TYPE_INT")
-sampler_type("isampler1DArray",   "GL_INT_SAMPLER_1D_ARRAY",             "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_1D",   0, 1, "GLSL_TYPE_INT")
-sampler_type("isampler2DArray",   "GL_INT_SAMPLER_2D_ARRAY",             "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_2D",   0, 1, "GLSL_TYPE_INT")
-sampler_type("isamplerCubeArray", "GL_INT_SAMPLER_CUBE_MAP_ARRAY",       "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_CUBE", 0, 1, "GLSL_TYPE_INT")
-sampler_type("isampler2DRect",    "GL_INT_SAMPLER_2D_RECT",              "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_RECT", 0, 0, "GLSL_TYPE_INT")
-sampler_type("isamplerBuffer",    "GL_INT_SAMPLER_BUFFER",               "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_BUF",  0, 0, "GLSL_TYPE_INT")
-sampler_type("isampler2DMS",      "GL_INT_SAMPLER_2D_MULTISAMPLE",       "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_MS",   0, 0, "GLSL_TYPE_INT")
-sampler_type("isampler2DMSArray", "GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY", "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_MS",   0, 1, "GLSL_TYPE_INT")
-
-sampler_type("usampler1D",        "GL_UNSIGNED_INT_SAMPLER_1D",                   "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_1D",   0, 0, "GLSL_TYPE_UINT")
-sampler_type("usampler2D",        "GL_UNSIGNED_INT_SAMPLER_2D",                   "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_2D",   0, 0, "GLSL_TYPE_UINT")
-sampler_type("usampler3D",        "GL_UNSIGNED_INT_SAMPLER_3D",                   "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_3D",   0, 0, "GLSL_TYPE_UINT")
-sampler_type("usamplerCube",      "GL_UNSIGNED_INT_SAMPLER_CUBE",                 "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_CUBE", 0, 0, "GLSL_TYPE_UINT")
-sampler_type("usampler1DArray",   "GL_UNSIGNED_INT_SAMPLER_1D_ARRAY",             "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_1D",   0, 1, "GLSL_TYPE_UINT")
-sampler_type("usampler2DArray",   "GL_UNSIGNED_INT_SAMPLER_2D_ARRAY",             "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_2D",   0, 1, "GLSL_TYPE_UINT")
-sampler_type("usamplerCubeArray", "GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY",       "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_CUBE", 0, 1, "GLSL_TYPE_UINT")
-sampler_type("usampler2DRect",    "GL_UNSIGNED_INT_SAMPLER_2D_RECT",              "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_RECT", 0, 0, "GLSL_TYPE_UINT")
-sampler_type("usamplerBuffer",    "GL_UNSIGNED_INT_SAMPLER_BUFFER",               "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_BUF",  0, 0, "GLSL_TYPE_UINT")
-sampler_type("usampler2DMS",      "GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE",       "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_MS",   0, 0, "GLSL_TYPE_UINT")
-sampler_type("usampler2DMSArray", "GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY", "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_MS",   0, 1, "GLSL_TYPE_UINT")
-
-sampler_type("samplerShadow",          "GL_SAMPLER_1D_SHADOW",             "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_1D",       1, 0, "GLSL_TYPE_VOID")
-sampler_type("sampler1DShadow",        "GL_SAMPLER_1D_SHADOW",             "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_1D",       1, 0, "GLSL_TYPE_FLOAT")
-sampler_type("sampler2DShadow",        "GL_SAMPLER_2D_SHADOW",             "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_2D",       1, 0, "GLSL_TYPE_FLOAT")
-sampler_type("samplerCubeShadow",      "GL_SAMPLER_CUBE_SHADOW",           "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_CUBE",     1, 0, "GLSL_TYPE_FLOAT")
-sampler_type("sampler1DArrayShadow",   "GL_SAMPLER_1D_ARRAY_SHADOW",       "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_1D",       1, 1, "GLSL_TYPE_FLOAT")
-sampler_type("sampler2DArrayShadow",   "GL_SAMPLER_2D_ARRAY_SHADOW",       "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_2D",       1, 1, "GLSL_TYPE_FLOAT")
-sampler_type("samplerCubeArrayShadow", "GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW", "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_CUBE",     1, 1, "GLSL_TYPE_FLOAT")
-sampler_type("sampler2DRectShadow",    "GL_SAMPLER_2D_RECT_SHADOW",        "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_RECT",     1, 0, "GLSL_TYPE_FLOAT")
-
-sampler_type("samplerExternalOES",     "GL_SAMPLER_EXTERNAL_OES",          "GLSL_TYPE_SAMPLER", "GLSL_SAMPLER_DIM_EXTERNAL", 0, 0, "GLSL_TYPE_FLOAT")
-
-sampler_type("texture1D",         "GL_SAMPLER_1D",                   "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_1D",   0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("texture2D",         "GL_SAMPLER_2D",                   "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_2D",   0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("texture3D",         "GL_SAMPLER_3D",                   "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_3D",   0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("textureCube",       "GL_SAMPLER_CUBE",                 "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_CUBE", 0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("texture1DArray",    "GL_SAMPLER_1D_ARRAY",             "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_1D",   0, 1, "GLSL_TYPE_FLOAT")
-sampler_type("texture2DArray",    "GL_SAMPLER_2D_ARRAY",             "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_2D",   0, 1, "GLSL_TYPE_FLOAT")
-sampler_type("textureCubeArray",  "GL_SAMPLER_CUBE_MAP_ARRAY",       "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_CUBE", 0, 1, "GLSL_TYPE_FLOAT")
-sampler_type("texture2DRect",     "GL_SAMPLER_2D_RECT",              "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_RECT", 0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("textureBuffer",     "GL_SAMPLER_BUFFER",               "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_BUF",  0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("texture2DMS",       "GL_SAMPLER_2D_MULTISAMPLE",       "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_MS",   0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("texture2DMSArray",  "GL_SAMPLER_2D_MULTISAMPLE_ARRAY", "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_MS",   0, 1, "GLSL_TYPE_FLOAT")
-
-sampler_type("itexture1D",        "GL_INT_SAMPLER_1D",                   "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_1D",   0, 0, "GLSL_TYPE_INT")
-sampler_type("itexture2D",        "GL_INT_SAMPLER_2D",                   "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_2D",   0, 0, "GLSL_TYPE_INT")
-sampler_type("itexture3D",        "GL_INT_SAMPLER_3D",                   "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_3D",   0, 0, "GLSL_TYPE_INT")
-sampler_type("itextureCube",      "GL_INT_SAMPLER_CUBE",                 "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_CUBE", 0, 0, "GLSL_TYPE_INT")
-sampler_type("itexture1DArray",   "GL_INT_SAMPLER_1D_ARRAY",             "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_1D",   0, 1, "GLSL_TYPE_INT")
-sampler_type("itexture2DArray",   "GL_INT_SAMPLER_2D_ARRAY",             "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_2D",   0, 1, "GLSL_TYPE_INT")
-sampler_type("itextureCubeArray", "GL_INT_SAMPLER_CUBE_MAP_ARRAY",       "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_CUBE", 0, 1, "GLSL_TYPE_INT")
-sampler_type("itexture2DRect",    "GL_INT_SAMPLER_2D_RECT",              "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_RECT", 0, 0, "GLSL_TYPE_INT")
-sampler_type("itextureBuffer",    "GL_INT_SAMPLER_BUFFER",               "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_BUF",  0, 0, "GLSL_TYPE_INT")
-sampler_type("itexture2DMS",      "GL_INT_SAMPLER_2D_MULTISAMPLE",       "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_MS",   0, 0, "GLSL_TYPE_INT")
-sampler_type("itexture2DMSArray", "GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY", "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_MS",   0, 1, "GLSL_TYPE_INT")
-
-sampler_type("utexture1D",        "GL_UNSIGNED_INT_SAMPLER_1D",                   "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_1D",   0, 0, "GLSL_TYPE_UINT")
-sampler_type("utexture2D",        "GL_UNSIGNED_INT_SAMPLER_2D",                   "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_2D",   0, 0, "GLSL_TYPE_UINT")
-sampler_type("utexture3D",        "GL_UNSIGNED_INT_SAMPLER_3D",                   "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_3D",   0, 0, "GLSL_TYPE_UINT")
-sampler_type("utextureCube",      "GL_UNSIGNED_INT_SAMPLER_CUBE",                 "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_CUBE", 0, 0, "GLSL_TYPE_UINT")
-sampler_type("utexture1DArray",   "GL_UNSIGNED_INT_SAMPLER_1D_ARRAY",             "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_1D",   0, 1, "GLSL_TYPE_UINT")
-sampler_type("utexture2DArray",   "GL_UNSIGNED_INT_SAMPLER_2D_ARRAY",             "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_2D",   0, 1, "GLSL_TYPE_UINT")
-sampler_type("utextureCubeArray", "GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY",       "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_CUBE", 0, 1, "GLSL_TYPE_UINT")
-sampler_type("utexture2DRect",    "GL_UNSIGNED_INT_SAMPLER_2D_RECT",              "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_RECT", 0, 0, "GLSL_TYPE_UINT")
-sampler_type("utextureBuffer",    "GL_UNSIGNED_INT_SAMPLER_BUFFER",               "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_BUF",  0, 0, "GLSL_TYPE_UINT")
-sampler_type("utexture2DMS",      "GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE",       "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_MS",   0, 0, "GLSL_TYPE_UINT")
-sampler_type("utexture2DMSArray", "GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY", "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_MS",   0, 1, "GLSL_TYPE_UINT")
-
-sampler_type("textureExternalOES",     "GL_SAMPLER_EXTERNAL_OES",          "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_EXTERNAL", 0, 0, "GLSL_TYPE_FLOAT")
-
-# OpenCL image types
-sampler_type("vtexture1D",        "GL_SAMPLER_1D",       "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_1D",  0, 0, "GLSL_TYPE_VOID")
-sampler_type("vtexture2D",        "GL_SAMPLER_2D",       "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_2D",  0, 0, "GLSL_TYPE_VOID")
-sampler_type("vtexture3D",        "GL_SAMPLER_3D",       "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_3D",  0, 0, "GLSL_TYPE_VOID")
-sampler_type("vtexture1DArray",   "GL_SAMPLER_1D_ARRAY", "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_1D",  0, 1, "GLSL_TYPE_VOID")
-sampler_type("vtexture2DArray",   "GL_SAMPLER_2D_ARRAY", "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_2D",  0, 1, "GLSL_TYPE_VOID")
-sampler_type("vtextureBuffer",    "GL_SAMPLER_BUFFER",   "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_BUF", 0, 0, "GLSL_TYPE_VOID")
-
-sampler_type("image1D",         "GL_IMAGE_1D",                                "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_1D",     0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("image2D",         "GL_IMAGE_2D",                                "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_2D",     0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("image3D",         "GL_IMAGE_3D",                                "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_3D",     0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("image2DRect",     "GL_IMAGE_2D_RECT",                           "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_RECT",   0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("imageCube",       "GL_IMAGE_CUBE",                              "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_CUBE",   0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("imageBuffer",     "GL_IMAGE_BUFFER",                            "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_BUF",    0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("image1DArray",    "GL_IMAGE_1D_ARRAY",                          "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_1D",     0, 1, "GLSL_TYPE_FLOAT")
-sampler_type("image2DArray",    "GL_IMAGE_2D_ARRAY",                          "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_2D",     0, 1, "GLSL_TYPE_FLOAT")
-sampler_type("imageCubeArray",  "GL_IMAGE_CUBE_MAP_ARRAY",                    "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_CUBE",   0, 1, "GLSL_TYPE_FLOAT")
-sampler_type("image2DMS",       "GL_IMAGE_2D_MULTISAMPLE",                    "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_MS",     0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("image2DMSArray",  "GL_IMAGE_2D_MULTISAMPLE_ARRAY",              "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_MS",     0, 1, "GLSL_TYPE_FLOAT")
-sampler_type("iimage1D",        "GL_INT_IMAGE_1D",                            "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_1D",     0, 0, "GLSL_TYPE_INT")
-sampler_type("iimage2D",        "GL_INT_IMAGE_2D",                            "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_2D",     0, 0, "GLSL_TYPE_INT")
-sampler_type("iimage3D",        "GL_INT_IMAGE_3D",                            "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_3D",     0, 0, "GLSL_TYPE_INT")
-sampler_type("iimage2DRect",    "GL_INT_IMAGE_2D_RECT",                       "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_RECT",   0, 0, "GLSL_TYPE_INT")
-sampler_type("iimageCube",      "GL_INT_IMAGE_CUBE",                          "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_CUBE",   0, 0, "GLSL_TYPE_INT")
-sampler_type("iimageBuffer",    "GL_INT_IMAGE_BUFFER",                        "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_BUF",    0, 0, "GLSL_TYPE_INT")
-sampler_type("iimage1DArray",   "GL_INT_IMAGE_1D_ARRAY",                      "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_1D",     0, 1, "GLSL_TYPE_INT")
-sampler_type("iimage2DArray",   "GL_INT_IMAGE_2D_ARRAY",                      "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_2D",     0, 1, "GLSL_TYPE_INT")
-sampler_type("iimageCubeArray", "GL_INT_IMAGE_CUBE_MAP_ARRAY",                "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_CUBE",   0, 1, "GLSL_TYPE_INT")
-sampler_type("iimage2DMS",      "GL_INT_IMAGE_2D_MULTISAMPLE",                "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_MS",     0, 0, "GLSL_TYPE_INT")
-sampler_type("iimage2DMSArray", "GL_INT_IMAGE_2D_MULTISAMPLE_ARRAY",          "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_MS",     0, 1, "GLSL_TYPE_INT")
-sampler_type("uimage1D",        "GL_UNSIGNED_INT_IMAGE_1D",                   "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_1D",     0, 0, "GLSL_TYPE_UINT")
-sampler_type("uimage2D",        "GL_UNSIGNED_INT_IMAGE_2D",                   "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_2D",     0, 0, "GLSL_TYPE_UINT")
-sampler_type("uimage3D",        "GL_UNSIGNED_INT_IMAGE_3D",                   "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_3D",     0, 0, "GLSL_TYPE_UINT")
-sampler_type("uimage2DRect",    "GL_UNSIGNED_INT_IMAGE_2D_RECT",              "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_RECT",   0, 0, "GLSL_TYPE_UINT")
-sampler_type("uimageCube",      "GL_UNSIGNED_INT_IMAGE_CUBE",                 "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_CUBE",   0, 0, "GLSL_TYPE_UINT")
-sampler_type("uimageBuffer",    "GL_UNSIGNED_INT_IMAGE_BUFFER",               "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_BUF",    0, 0, "GLSL_TYPE_UINT")
-sampler_type("uimage1DArray",   "GL_UNSIGNED_INT_IMAGE_1D_ARRAY",             "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_1D",     0, 1, "GLSL_TYPE_UINT")
-sampler_type("uimage2DArray",   "GL_UNSIGNED_INT_IMAGE_2D_ARRAY",             "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_2D",     0, 1, "GLSL_TYPE_UINT")
-sampler_type("uimageCubeArray", "GL_UNSIGNED_INT_IMAGE_CUBE_MAP_ARRAY",       "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_CUBE",   0, 1, "GLSL_TYPE_UINT")
-sampler_type("uimage2DMS",      "GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE",       "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_MS",     0, 0, "GLSL_TYPE_UINT")
-sampler_type("uimage2DMSArray", "GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_ARRAY", "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_MS",     0, 1, "GLSL_TYPE_UINT")
-sampler_type("i64image1D",        "GL_INT_IMAGE_1D",                          "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_1D",     0, 0, "GLSL_TYPE_INT64")
-sampler_type("i64image2D",        "GL_INT_IMAGE_2D",                          "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_2D",     0, 0, "GLSL_TYPE_INT64")
-sampler_type("i64image3D",        "GL_INT_IMAGE_3D",                          "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_3D",     0, 0, "GLSL_TYPE_INT64")
-sampler_type("i64image2DRect",    "GL_INT_IMAGE_2D_RECT",                     "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_RECT",   0, 0, "GLSL_TYPE_INT64")
-sampler_type("i64imageCube",      "GL_INT_IMAGE_CUBE",                        "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_CUBE",   0, 0, "GLSL_TYPE_INT64")
-sampler_type("i64imageBuffer",    "GL_INT_IMAGE_BUFFER",                      "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_BUF",    0, 0, "GLSL_TYPE_INT64")
-sampler_type("i64image1DArray",   "GL_INT_IMAGE_1D_ARRAY",                    "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_1D",     0, 1, "GLSL_TYPE_INT64")
-sampler_type("i64image2DArray",   "GL_INT_IMAGE_2D_ARRAY",                    "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_2D",     0, 1, "GLSL_TYPE_INT64")
-sampler_type("i64imageCubeArray", "GL_INT_IMAGE_CUBE_MAP_ARRAY",              "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_CUBE",   0, 1, "GLSL_TYPE_INT64")
-sampler_type("i64image2DMS",      "GL_INT_IMAGE_2D_MULTISAMPLE",              "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_MS",     0, 0, "GLSL_TYPE_INT64")
-sampler_type("i64image2DMSArray", "GL_INT_IMAGE_2D_MULTISAMPLE_ARRAY",        "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_MS",     0, 1, "GLSL_TYPE_INT64")
-sampler_type("u64image1D",        "GL_UNSIGNED_INT_IMAGE_1D",                 "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_1D",     0, 0, "GLSL_TYPE_UINT64")
-sampler_type("u64image2D",        "GL_UNSIGNED_INT_IMAGE_2D",                 "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_2D",     0, 0, "GLSL_TYPE_UINT64")
-sampler_type("u64image3D",        "GL_UNSIGNED_INT_IMAGE_3D",                 "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_3D",     0, 0, "GLSL_TYPE_UINT64")
-sampler_type("u64image2DRect",    "GL_UNSIGNED_INT_IMAGE_2D_RECT",            "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_RECT",   0, 0, "GLSL_TYPE_UINT64")
-sampler_type("u64imageCube",      "GL_UNSIGNED_INT_IMAGE_CUBE",               "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_CUBE",   0, 0, "GLSL_TYPE_UINT64")
-sampler_type("u64imageBuffer",    "GL_UNSIGNED_INT_IMAGE_BUFFER",             "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_BUF",    0, 0, "GLSL_TYPE_UINT64")
-sampler_type("u64image1DArray",   "GL_UNSIGNED_INT_IMAGE_1D_ARRAY",           "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_1D",     0, 1, "GLSL_TYPE_UINT64")
-sampler_type("u64image2DArray",   "GL_UNSIGNED_INT_IMAGE_2D_ARRAY",           "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_2D",     0, 1, "GLSL_TYPE_UINT64")
-sampler_type("u64imageCubeArray", "GL_UNSIGNED_INT_IMAGE_CUBE_MAP_ARRAY",     "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_CUBE",   0, 1, "GLSL_TYPE_UINT64")
-sampler_type("u64image2DMS",      "GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE",     "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_MS",     0, 0, "GLSL_TYPE_UINT64")
-sampler_type("u64image2DMSArray", "GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_ARRAY", "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_MS",     0, 1, "GLSL_TYPE_UINT64")
-
-# OpenCL image types
-sampler_type("vbuffer", "GL_IMAGE_BUFFER", "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_BUF", 0, 0, "GLSL_TYPE_VOID")
-sampler_type("vimage1D", "GL_IMAGE_1D", "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_1D", 0, 0, "GLSL_TYPE_VOID")
-sampler_type("vimage2D", "GL_IMAGE_2D", "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_2D", 0, 0, "GLSL_TYPE_VOID")
-sampler_type("vimage3D", "GL_IMAGE_3D", "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_3D", 0, 0, "GLSL_TYPE_VOID")
-sampler_type("vimage1DArray", "GL_IMAGE_1D_ARRAY", "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_1D", 0, 1, "GLSL_TYPE_VOID")
-sampler_type("vimage2DArray", "GL_IMAGE_2D_ARRAY", "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_2D", 0, 1, "GLSL_TYPE_VOID")
-
-sampler_type("subpassInput",           "0",                                   "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_SUBPASS",    0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("subpassInputMS",         "0",                                   "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_SUBPASS_MS", 0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("isubpassInput",          "0",                                   "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_SUBPASS",    0, 0, "GLSL_TYPE_INT")
-sampler_type("isubpassInputMS",        "0",                                   "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_SUBPASS_MS", 0, 0, "GLSL_TYPE_INT")
-sampler_type("usubpassInput",          "0",                                   "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_SUBPASS",    0, 0, "GLSL_TYPE_UINT")
-sampler_type("usubpassInputMS",        "0",                                   "GLSL_TYPE_IMAGE", "GLSL_SAMPLER_DIM_SUBPASS_MS", 0, 0, "GLSL_TYPE_UINT")
-sampler_type("textureSubpassInput",    "0",                                 "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_SUBPASS",    0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("textureSubpassInputMS",  "0",                                 "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_SUBPASS_MS", 0, 0, "GLSL_TYPE_FLOAT")
-sampler_type("itextureSubpassInput",   "0",                                 "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_SUBPASS",    0, 0, "GLSL_TYPE_INT")
-sampler_type("itextureSubpassInputMS", "0",                                 "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_SUBPASS_MS", 0, 0, "GLSL_TYPE_INT")
-sampler_type("utextureSubpassInput",   "0",                                 "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_SUBPASS",    0, 0, "GLSL_TYPE_UINT")
-sampler_type("utextureSubpassInputMS", "0",                                 "GLSL_TYPE_TEXTURE", "GLSL_SAMPLER_DIM_SUBPASS_MS", 0, 0, "GLSL_TYPE_UINT")
+#endif /* _BUILTIN_TYPES_ */

@@ -135,7 +135,7 @@ with_any_opengl = with_opengl or with_gles1 or with_gles2
 # Only build shared_glapi if at least one OpenGL API is enabled
 with_shared_glapi = with_shared_glapi and with_any_opengl
 
-system_has_kms_drm = ['openbsd', 'netbsd', 'freebsd', 'gnu/kfreebsd', 'dragonfly', 'linux', 'sunos', 'android', 'managarm'].contains(host_machine.system())
+system_has_kms_drm = ['openbsd', 'netbsd', 'freebsd', 'gnu/kfreebsd', 'dragonfly', 'linux', 'sunos', 'android', 'managarm', 'none'].contains(host_machine.system())
 
 gallium_drivers = get_option('gallium-drivers')
 if gallium_drivers.contains('auto')
@@ -343,7 +343,7 @@ if host_machine.system() == 'darwin'
   pre_args += '-DBUILDING_MESA'
 elif ['windows', 'cygwin'].contains(host_machine.system())
   with_dri_platform = 'windows'
-elif system_has_kms_drm
+elif system_has_kms_drm and host_machine.system() != 'none'
   with_dri_platform = 'drm'
 else
   # FIXME: haiku doesn't use dri, and xlib doesn't use dri, probably should
@@ -572,7 +572,7 @@ if with_any_vk and (with_platform_x11 and not with_dri3)
   error('Vulkan drivers require dri3 for X11 support')
 endif
 if with_dri
-  if with_glx == 'disabled' and not with_egl and not with_gbm
+  if with_glx == 'disabled' and not with_egl and not with_gbm.enabled()
     error('building dri drivers require at least one windowing system')
   endif
 endif
@@ -900,7 +900,7 @@ if with_libbacktrace
 endif
 
 if with_platform_android
-  dep_android_mapper4 = null_dep
+dep_android_mapper4 = null_dep
   if not with_android_stub
     dep_android = [
       dependency('cutils'),
@@ -908,18 +908,18 @@ if with_platform_android
       dependency('sync'),
     ]
     if with_libbacktrace
-      dep_android += dependency('backtrace')
-    endif
-    if get_option('platform-sdk-version') >= 26
-      dep_android += dependency('nativewindow')
-    endif
-    if get_option('platform-sdk-version') >= 30
-      dep_android_mapper4 = dependency('android.hardware.graphics.mapper', version : '>= 4.0', required : false)
-    endif
+  dep_android += dependency('backtrace')
+endif
+if get_option('platform-sdk-version') >= 26
+  dep_android += dependency('nativewindow')
+endif
+if get_option('platform-sdk-version') >= 30
+  dep_android_mapper4 = dependency('android.hardware.graphics.mapper', version : '>= 4.0', required : false)
+endif
   endif
-  pre_args += '-DANDROID_API_LEVEL=' + get_option('platform-sdk-version').to_string()
-  if get_option('android-strict')
-    pre_args += '-DANDROID_STRICT'
+pre_args += '-DANDROID_API_LEVEL=' + get_option('platform-sdk-version').to_string()
+if get_option('android-strict')
+  pre_args += '-DANDROID_STRICT'
   endif
 endif
 
@@ -1526,7 +1526,7 @@ ld_args_build_id = cc.get_supported_link_arguments('-Wl,--build-id=sha1')
 
 # check for dl support
 dep_dl = null_dep
-if host_machine.system() != 'windows'
+if host_machine.system() != 'windows' and host_machine.system() != 'none'
   if not cc.has_function('dlopen')
     dep_dl = cc.find_library('dl', required : true)
   endif
@@ -1987,7 +1987,7 @@ else
 endif
 
 dep_selinux = null_dep
-if get_option('selinux')
+if get_option('selinux').enabled()
   dep_selinux = dependency('libselinux')
   pre_args += '-DMESA_SELINUX'
 endif
@@ -2003,7 +2003,7 @@ if dep_unwind.found()
   pre_args += '-DHAVE_LIBUNWIND'
 endif
 
-if with_osmesa
+if with_osmesa.enabled()
   if not with_gallium_softpipe
     error('OSMesa gallium requires gallium softpipe or llvmpipe.')
   endif
@@ -2192,20 +2192,20 @@ endif
 with_perfetto = get_option('perfetto')
 with_datasources = get_option('datasources')
 with_any_datasource = with_datasources.length() != 0
-if with_perfetto
+if with_perfetto.enabled()
   dep_perfetto = dependency('perfetto', fallback: ['perfetto', 'dep_perfetto'])
   pre_args += '-DHAVE_PERFETTO'
 endif
 
 with_teflon = get_option('teflon')
-if with_teflon and with_tests
+if with_teflon.enabled() and with_tests
   dep_xtensor = dependency('xtensor')
   dep_flatbuffers = dependency('flatbuffers')
   prog_flatc = find_program('flatc')
 endif
 
 with_gpuvis = get_option('gpuvis')
-if with_gpuvis
+if with_gpuvis.enabled()
   pre_args += '-DHAVE_GPUVIS'
 endif
 

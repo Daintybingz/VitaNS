@@ -402,7 +402,15 @@ ralloc_strndup(const void *ctx, const char *str, size_t max)
    if (unlikely(str == NULL))
       return NULL;
 
+#ifdef __SWITCH__
+   // On Switch, implement strnlen manually
+   n = 0;
+   while (n < max && str[n] != '\0') {
+      n++;
+   }
+#else
    n = strnlen(str, max);
+#endif
    ptr = ralloc_array(ctx, char, n + 1);
    memcpy(ptr, str, n);
    ptr[n] = '\0';
@@ -439,7 +447,16 @@ ralloc_strcat(char **dest, const char *str)
 bool
 ralloc_strncat(char **dest, const char *str, size_t n)
 {
+#ifdef __SWITCH__
+   // On Switch, implement strnlen manually
+   size_t len = 0;
+   while (len < n && str[len] != '\0') {
+      len++;
+   }
+   return cat(dest, str, len);
+#else
    return cat(dest, str, strnlen(str, n));
+#endif
 }
 
 bool

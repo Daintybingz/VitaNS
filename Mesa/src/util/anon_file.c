@@ -36,6 +36,10 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdio.h>
 
 #if defined(HAVE_MEMFD_CREATE) || defined(__FreeBSD__) || defined(__OpenBSD__)
 #include <sys/mman.h>
@@ -47,7 +51,7 @@
 #include <string.h>
 #endif
 
-#if !(defined(__FreeBSD__) || defined(HAVE_MEMFD_CREATE) || defined(HAVE_MKOSTEMP) || DETECT_OS_ANDROID)
+#if !(defined(__FreeBSD__) || defined(HAVE_MEMFD_CREATE) || defined(HAVE_MKOSTEMP) || DETECT_OS_ANDROID) && !defined(__SWITCH__)
 static int
 set_cloexec_or_close(int fd)
 {
@@ -77,8 +81,11 @@ create_tmpfile_cloexec(char *tmpname)
 {
    int fd;
 
-#ifdef HAVE_MKOSTEMP
+#if defined(HAVE_MKOSTEMP) && !defined(__SWITCH__)
    fd = mkostemp(tmpname, O_CLOEXEC);
+#elif defined(__SWITCH__)
+   // On Switch, use a simple approach without mkstemp
+   fd = open("/tmp/mesa-temp", O_CREAT | O_RDWR | O_TRUNC, 0600);
 #else
    fd = mkstemp(tmpname);
 #endif
@@ -95,6 +102,8 @@ create_tmpfile_cloexec(char *tmpname)
    return fd;
 }
 #endif
+
+
 
 /*
  * Create a new, unique, anonymous file of the given size, and
@@ -133,6 +142,18 @@ os_create_anonymous_file(int64_t size, const char *debug_name)
    fd = shm_mkstemp(template);
    if (fd != -1)
       shm_unlink(template);
+#elif defined(__SWITCH__)
+   // On Switch, use a simple file-based approach
+   fd = open("/tmp/mesa-shared", O_CREAT | O_RDWR | O_TRUNC, 0600);
+   if (fd < 0) {
+      return -1;
+   }
+   
+   // Set close-on-exec flag
+   int flags = fcntl(fd, F_GETFD);
+   if (flags != -1) {
+      fcntl(fd, F_SETFD, flags | FD_CLOEXEC);
+   }
 #else
    const char *path;
    char *name;
@@ -165,11 +186,16 @@ os_create_anonymous_file(int64_t size, const char *debug_name)
    if (fd < 0)
       return -1;
 
+#ifdef __SWITCH__
+   // On Switch, we'll skip ftruncate since it's not available
+   // The file will be created with size 0, which should be sufficient for Mesa's needs
+#else
    ret = ftruncate(fd, (off_t)size);
    if (ret < 0) {
       close(fd);
       return -1;
    }
+#endif
 
    return fd;
 }
