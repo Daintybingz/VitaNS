@@ -14,7 +14,7 @@ fi
 echo "🧹 Cleaning previous build..."
 rm -rf build-switch
 
-# Configure with real implementations
+# Configure with real implementations - FIXED for static libraries
 echo "⚙️  Configuring Mesa with real implementations..."
 meson setup build-switch --cross-file switch.meson \
   -Dgles2=enabled \
@@ -50,7 +50,8 @@ meson setup build-switch --cross-file switch.meson \
   -Ddraw-use-llvm=false \
   -Dshared-llvm=disabled \
   -Dopencl-spirv=false \
-  -Dgallium-extra-hud=false
+  -Dgallium-extra-hud=false \
+  -Dshared-glapi=disabled
 
 echo "🔨 Building with real implementations..."
 ninja -C build-switch
@@ -79,10 +80,20 @@ if [ -f "build-switch/src/mapi/es2api/libGLESv2.a" ]; then
     nm build-switch/src/mapi/es2api/libGLESv2.a | grep -E "(glClear|glDrawArrays|glTexImage2D)" | head -5
 fi
 
-# Check GLAPI functions
+# Check GLAPI functions - CRITICAL for dispatch
 if [ -f "build-switch/src/mapi/glapi/libglapi_static.a" ]; then
     echo "GLAPI functions found:"
     nm build-switch/src/mapi/glapi/libglapi_static.a | grep -E "_glapi" | head -5
+    echo ""
+    echo "🔍 Checking for critical dispatch symbols:"
+    nm build-switch/src/mapi/glapi/libglapi_static.a | grep -E "(_glapi_tls_Dispatch|_glapi_get_proc_address)" || echo "❌ Missing critical dispatch symbols!"
+fi
+
+# Check utility functions
+if [ -f "build-switch/src/util/libmesa_util.a" ]; then
+    echo ""
+    echo "🔍 Checking utility functions:"
+    nm build-switch/src/util/libmesa_util.a | grep -E "(u_rwlock|_simple_mtx)" | head -5
 fi
 
 echo ""

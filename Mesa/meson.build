@@ -119,13 +119,19 @@ with_shared_glapi = get_option('shared-glapi') \
 
 with_opengl = get_option('opengl')
 
-with_gles1 = get_option('gles1') \
-  .require(with_shared_glapi, error_message : 'OpengGL ES 1.x requires shared-glapi') \
-  .allowed()
+# Allow OpenGL ES without shared-glapi for Switch platform
+if host_machine.system() == 'none'
+  with_gles1 = get_option('gles1').allowed()
+  with_gles2 = get_option('gles2').allowed()
+else
+  with_gles1 = get_option('gles1') \
+    .require(with_shared_glapi, error_message : 'OpengGL ES 1.x requires shared-glapi') \
+    .allowed()
 
-with_gles2 = get_option('gles2') \
-  .require(with_shared_glapi, error_message : 'OpengGL ES 2.x requires shared-glapi') \
-  .allowed()
+  with_gles2 = get_option('gles2') \
+    .require(with_shared_glapi, error_message : 'OpengGL ES 2.x requires shared-glapi') \
+    .allowed()
+endif
 
 pre_args += '-DHAVE_OPENGL=@0@'.format(with_opengl ? '1' : '0')
 pre_args += '-DHAVE_OPENGL_ES_1=@0@'.format(with_gles1 ? '1' : '0')
@@ -455,10 +461,14 @@ with_xlib_lease = get_option('xlib-lease') \
 
 with_egl = get_option('egl') \
   .require(with_platform_windows or with_platform_haiku or with_dri or with_platform_android, error_message : 'EGL requires DRI, Haiku, Windows or Android') \
-  .require(with_shared_glapi, error_message : 'EGL requires shared-glapi') \
   .require(with_glx != 'xlib', error_message :'EGL requires DRI, but GLX is being built with xlib support') \
   .disable_auto_if(with_platform_haiku) \
   .allowed()
+
+# Allow EGL without shared-glapi for Switch platform
+if host_machine.system() != 'none'
+  with_egl = with_egl.require(with_shared_glapi, error_message : 'EGL requires shared-glapi')
+endif
 
 if with_egl
   _platforms += 'surfaceless'
