@@ -103,7 +103,6 @@ jobs:
             -Dllvm=disabled \
             -Dtools= \
             -Dbuild-tests=false \
-            -Ddri-drivers= \
             -Dgallium-vdpau=disabled \
             -Dgallium-va=disabled \
             -Dgallium-xa=disabled \
@@ -111,8 +110,6 @@ jobs:
             -Dgallium-opencl=disabled \
             -Dgallium-omx=disabled \
             -Dgallium-rusticl=false \
-            -Dgallium-clover=disabled \
-            -Dgallium-dri=disabled \
             -Ddri3=disabled \
             -Dgbm=disabled \
             -Dglx=disabled \
