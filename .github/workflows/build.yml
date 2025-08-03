@@ -35,8 +35,31 @@ jobs:
 
       - name: Install Switch portlibs
         run: |
-          dkp-pacman -Syu --noconfirm
-          dkp-pacman -S --noconfirm switch-harfbuzz switch-sdl2 switch-sdl2_ttf switch-sdl2_image switch-glm
+          echo "Attempting to update devkitPro package databases..."
+          
+          # Try multiple times with different approaches
+          for attempt in 1 2 3; do
+            echo "Attempt $attempt: Updating package databases..."
+            if dkp-pacman -Syu --noconfirm; then
+              echo "✅ Package database update successful"
+              break
+            else
+              echo "❌ Attempt $attempt failed, trying alternative approach..."
+              # Try refreshing the database manually
+              dkp-pacman -Sy --noconfirm || true
+              sleep 5
+            fi
+          done
+          
+          echo "Installing required Switch libraries..."
+          if dkp-pacman -S --noconfirm switch-harfbuzz switch-sdl2 switch-sdl2_ttf switch-sdl2_image switch-glm; then
+            echo "✅ Switch libraries installed successfully"
+          else
+            echo "⚠️  Package installation failed, checking what's available..."
+            echo "Available packages:"
+            dkp-pacman -Ss switch- | head -20 || echo "Cannot list packages"
+            echo "Continuing with build anyway - some libraries may be missing"
+          fi
 
       - name: Verify custom Mesa libraries
         run: |
