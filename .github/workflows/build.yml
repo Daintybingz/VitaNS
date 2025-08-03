@@ -52,60 +52,60 @@ jobs:
           rm -rf external/custom-mesa/include/*
           
           echo "❌ Custom Mesa libraries removed. Building Mesa in CI..."
-          echo "Expected libraries: libEGL.a, libGLESv2.a, libglapi_static.a, libmesa_util.a, libmesa.a, libsoftpipe.a, libblake3.a"
-          
-          # Build Mesa in CI since libraries are missing
-          cd ../Mesa
-          
-          # Install build tools
-          apt-get update
-          apt-get install -y ninja-build pkg-config python3-pip python3-venv
-          apt-get install -y flex bison libdrm-dev libx11-dev libxext-dev libxdamage-dev libxfixes-dev libxxf86vm-dev libxrandr-dev libxcb1-dev libxcb-dri2-0-dev libxcb-dri3-dev libxcb-present-dev libxcb-sync-dev libxshmfence-dev
-          
+            echo "Expected libraries: libEGL.a, libGLESv2.a, libglapi_static.a, libmesa_util.a, libmesa.a, libsoftpipe.a, libblake3.a"
+            
+            # Build Mesa in CI since libraries are missing
+            cd ../Mesa
+            
+            # Install build tools
+            apt-get update
+            apt-get install -y ninja-build pkg-config python3-pip python3-venv
+            apt-get install -y flex bison libdrm-dev libx11-dev libxext-dev libxdamage-dev libxfixes-dev libxxf86vm-dev libxrandr-dev libxcb1-dev libxcb-dri2-0-dev libxcb-dri3-dev libxcb-present-dev libxcb-sync-dev libxshmfence-dev
+            
           # Install Meson and required Python dependencies
-          python3 -m venv meson_env
-          . meson_env/bin/activate
+            python3 -m venv meson_env
+            . meson_env/bin/activate
           pip install --no-cache-dir meson==1.4.0 mako>=0.8.0
-          
-          # Clean and build Mesa
-          rm -rf build-switch
-          . meson_env/bin/activate
-          meson setup build-switch --cross-file switch.meson \
+            
+            # Clean and build Mesa
+            rm -rf build-switch
+            . meson_env/bin/activate
+                      meson setup build-switch --cross-file switch.meson \
             -Dgles2=enabled \
             -Degl=enabled \
             -Dgallium-drivers=swrast \
             -Dplatforms=surfaceless \
             -Dopengl=false \
-            -Dgles1=disabled \
-            -Dllvm=disabled \
+            -Dgles1=false \
+            -Dllvm=false \
             -Dtools= \
             -Dbuild-tests=false \
             -Ddri-drivers= \
-            -Dgallium-vdpau=disabled \
-            -Dgallium-va=disabled \
-            -Dgallium-xa=disabled \
-            -Dgallium-nine=disabled \
-            -Dgallium-opencl=disabled \
-            -Dgallium-omx=disabled \
-            -Dgallium-rusticl=disabled \
-            -Dgallium-clover=disabled \
-            -Dgallium-dri=disabled \
-            -Ddri3=disabled \
-            -Dgbm=disabled \
-            -Dglx=disabled \
-            -Dosmesa=disabled \
-            -Dshared-glapi=disabled
+            -Dgallium-vdpau=false \
+            -Dgallium-va=false \
+            -Dgallium-xa=false \
+            -Dgallium-nine=false \
+            -Dgallium-opencl=false \
+            -Dgallium-omx=false \
+            -Dgallium-rusticl=false \
+            -Dgallium-clover=false \
+            -Dgallium-dri=false \
+            -Ddri3=false \
+            -Dgbm=false \
+            -Dglx=false \
+            -Dosmesa=false \
+            -Dshared-glapi=false
           
           # Set environment to force regular archives (not thin archives)
-          export ARFLAGS="--no-thin"
-          export AR="aarch64-none-elf-ar --no-thin"
+            export ARFLAGS="--no-thin"
+            export AR="aarch64-none-elf-ar --no-thin"
           export CFLAGS="$CFLAGS -fPIC"
           export CXXFLAGS="$CXXFLAGS -fPIC"
           export MESON_ARGS="--no-thin"
-          
+            
           # Build with verbose output to ensure complete libraries
-          cd build-switch
-          ninja -v
+            cd build-switch
+            ninja -v
           
           # Verify libraries are not thin archives
           echo "=== VERIFYING LIBRARY TYPES ==="
@@ -118,28 +118,28 @@ jobs:
               echo "---"
             fi
           done
-          
-          # Copy libraries to VitaNS
-          OUTPUT_DIR="../Vita3K-Switch/external/custom-mesa/lib"
-          mkdir -p "$OUTPUT_DIR"
-          find . -name "*.a" -exec cp {} "$OUTPUT_DIR" \;
-          
-          # Copy headers
-          HEADER_DIR="../Vita3K-Switch/external/custom-mesa/include"
-          mkdir -p "$HEADER_DIR"
-          if [ -d "../include/EGL" ]; then
-              cp -r ../include/EGL "$HEADER_DIR/"
-          fi
-          if [ -d "../include/GLES2" ]; then
-              cp -r ../include/GLES2 "$HEADER_DIR/"
-          fi
-          if [ -d "../include/KHR" ]; then
-              cp -r ../include/KHR "$HEADER_DIR/"
-          fi
-          cp ../include/*.h "$HEADER_DIR/" 2>/dev/null || true
-          
-          echo "Mesa built and libraries copied to VitaNS"
-          ls -la "$OUTPUT_DIR"
+            
+            # Copy libraries to VitaNS
+            OUTPUT_DIR="../Vita3K-Switch/external/custom-mesa/lib"
+            mkdir -p "$OUTPUT_DIR"
+            find . -name "*.a" -exec cp {} "$OUTPUT_DIR" \;
+            
+            # Copy headers
+            HEADER_DIR="../Vita3K-Switch/external/custom-mesa/include"
+            mkdir -p "$HEADER_DIR"
+            if [ -d "../include/EGL" ]; then
+                cp -r ../include/EGL "$HEADER_DIR/"
+            fi
+            if [ -d "../include/GLES2" ]; then
+                cp -r ../include/GLES2 "$HEADER_DIR/"
+            fi
+            if [ -d "../include/KHR" ]; then
+                cp -r ../include/KHR "$HEADER_DIR/"
+            fi
+            cp ../include/*.h "$HEADER_DIR/" 2>/dev/null || true
+            
+            echo "Mesa built and libraries copied to VitaNS"
+            ls -la "$OUTPUT_DIR"
 
       - name: Build VitaNS with custom Mesa
         run: |
