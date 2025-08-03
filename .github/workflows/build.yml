@@ -43,15 +43,16 @@ jobs:
           echo "Checking for existing custom Mesa libraries..."
           cd Vita3K-Switch
           
-          # Check if custom Mesa libraries exist
-          if [ -d "external/custom-mesa/lib" ] && [ "$(ls -A external/custom-mesa/lib/*.a 2>/dev/null)" ]; then
-            echo "✅ Custom Mesa libraries found:"
-            ls -la external/custom-mesa/lib/*.a
-            echo "✅ Custom Mesa headers found:"
-            ls -la external/custom-mesa/include/ || echo "No headers found"
-          else
-            echo "❌ Custom Mesa libraries not found. Building Mesa in CI..."
-            echo "Expected libraries: libEGL.a, libGLESv2.a, libglapi_static.a, libmesa_util.a, libmesa.a, libsoftpipe.a, libblake3.a"
+          # Force rebuild Mesa in CI to ensure complete static libraries
+          echo "🔄 Force rebuilding Mesa in CI to ensure complete static libraries (not thin archives)"
+          echo "This ensures all libraries contain actual code, not just references"
+          
+          # Remove existing libraries to force rebuild
+          rm -rf external/custom-mesa/lib/*.a
+          rm -rf external/custom-mesa/include/*
+          
+                    echo "❌ Custom Mesa libraries removed. Building Mesa in CI..."
+          echo "Expected libraries: libEGL.a, libGLESv2.a, libglapi_static.a, libmesa_util.a, libmesa.a, libsoftpipe.a, libblake3.a"
             
             # Build Mesa in CI since libraries are missing
             cd ../Mesa
@@ -80,13 +81,27 @@ jobs:
               -Dtools= \
               -Dbuild-tests=false
             
-            # Set environment to force regular archives
+            # Set environment to force regular archives (not thin archives)
             export ARFLAGS="--no-thin"
             export AR="aarch64-none-elf-ar --no-thin"
+            export CFLAGS="$CFLAGS -fPIC"
+            export CXXFLAGS="$CXXFLAGS -fPIC"
             
-            # Build
+            # Build with verbose output to ensure complete libraries
             cd build-switch
             ninja -v
+            
+            # Verify libraries are not thin archives
+            echo "=== VERIFYING LIBRARY TYPES ==="
+            for lib in *.a; do
+              if [ -f "$lib" ]; then
+                echo "Checking $lib:"
+                file "$lib"
+                size=$(stat -c%s "$lib" 2>/dev/null || stat -f%z "$lib" 2>/dev/null || echo "unknown")
+                echo "Size: $size bytes"
+                echo "---"
+              fi
+            done
             
             # Copy libraries to VitaNS
             OUTPUT_DIR="../Vita3K-Switch/external/custom-mesa/lib"
