@@ -65,7 +65,7 @@ jobs:
           # Install Meson
           python3 -m venv meson_env
           . meson_env/bin/activate
-          pip install meson==1.2.0
+          pip install meson==1.4.0
           
           # Clean and build Mesa
           rm -rf build-switch
@@ -86,6 +86,7 @@ jobs:
           export AR="aarch64-none-elf-ar --no-thin"
           export CFLAGS="$CFLAGS -fPIC"
           export CXXFLAGS="$CXXFLAGS -fPIC"
+          export MESON_ARGS="--no-thin"
           
           # Build with verbose output to ensure complete libraries
           cd build-switch
