@@ -107,10 +107,10 @@ jobs:
             -Dgallium-vdpau=disabled \
             -Dgallium-va=disabled \
             -Dgallium-xa=disabled \
-            -Dgallium-nine=disabled \
+            -Dgallium-nine=false \
             -Dgallium-opencl=disabled \
             -Dgallium-omx=disabled \
-            -Dgallium-rusticl=disabled \
+            -Dgallium-rusticl=false \
             -Dgallium-clover=disabled \
             -Dgallium-dri=disabled \
             -Ddri3=disabled \
