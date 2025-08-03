@@ -51,80 +51,79 @@ jobs:
           rm -rf external/custom-mesa/lib/*.a
           rm -rf external/custom-mesa/include/*
           
-                    echo "❌ Custom Mesa libraries removed. Building Mesa in CI..."
+          echo "❌ Custom Mesa libraries removed. Building Mesa in CI..."
           echo "Expected libraries: libEGL.a, libGLESv2.a, libglapi_static.a, libmesa_util.a, libmesa.a, libsoftpipe.a, libblake3.a"
-            
-            # Build Mesa in CI since libraries are missing
-            cd ../Mesa
-            
-            # Install build tools
-            apt-get update
-            apt-get install -y ninja-build pkg-config python3-pip python3-venv
-            apt-get install -y flex bison libdrm-dev libx11-dev libxext-dev libxdamage-dev libxfixes-dev libxxf86vm-dev libxrandr-dev libxcb1-dev libxcb-dri2-0-dev libxcb-dri3-dev libxcb-present-dev libxcb-sync-dev libxshmfence-dev
-            
-            # Install Meson
-            python3 -m venv meson_env
-            . meson_env/bin/activate
-            pip install meson==1.2.0
-            
-            # Clean and build Mesa
-            rm -rf build-switch
-            . meson_env/bin/activate
-            meson setup build-switch --cross-file switch.meson \
-              -Dgles2=enabled \
-              -Degl=enabled \
-              -Dgallium-drivers=swrast \
-              -Dplatforms=surfaceless \
-              -Dopengl=false \
-              -Dgles1=disabled \
-              -Dllvm=disabled \
-              -Dtools= \
-              -Dbuild-tests=false
-            
-            # Set environment to force regular archives (not thin archives)
-            export ARFLAGS="--no-thin"
-            export AR="aarch64-none-elf-ar --no-thin"
-            export CFLAGS="$CFLAGS -fPIC"
-            export CXXFLAGS="$CXXFLAGS -fPIC"
-            
-            # Build with verbose output to ensure complete libraries
-            cd build-switch
-            ninja -v
-            
-            # Verify libraries are not thin archives
-            echo "=== VERIFYING LIBRARY TYPES ==="
-            for lib in *.a; do
-              if [ -f "$lib" ]; then
-                echo "Checking $lib:"
-                file "$lib"
-                size=$(stat -c%s "$lib" 2>/dev/null || stat -f%z "$lib" 2>/dev/null || echo "unknown")
-                echo "Size: $size bytes"
-                echo "---"
-              fi
-            done
-            
-            # Copy libraries to VitaNS
-            OUTPUT_DIR="../Vita3K-Switch/external/custom-mesa/lib"
-            mkdir -p "$OUTPUT_DIR"
-            find . -name "*.a" -exec cp {} "$OUTPUT_DIR" \;
-            
-            # Copy headers
-            HEADER_DIR="../Vita3K-Switch/external/custom-mesa/include"
-            mkdir -p "$HEADER_DIR"
-            if [ -d "../include/EGL" ]; then
-                cp -r ../include/EGL "$HEADER_DIR/"
+          
+          # Build Mesa in CI since libraries are missing
+          cd ../Mesa
+          
+          # Install build tools
+          apt-get update
+          apt-get install -y ninja-build pkg-config python3-pip python3-venv
+          apt-get install -y flex bison libdrm-dev libx11-dev libxext-dev libxdamage-dev libxfixes-dev libxxf86vm-dev libxrandr-dev libxcb1-dev libxcb-dri2-0-dev libxcb-dri3-dev libxcb-present-dev libxcb-sync-dev libxshmfence-dev
+          
+          # Install Meson
+          python3 -m venv meson_env
+          . meson_env/bin/activate
+          pip install meson==1.2.0
+          
+          # Clean and build Mesa
+          rm -rf build-switch
+          . meson_env/bin/activate
+          meson setup build-switch --cross-file switch.meson \
+            -Dgles2=enabled \
+            -Degl=enabled \
+            -Dgallium-drivers=swrast \
+            -Dplatforms=surfaceless \
+            -Dopengl=false \
+            -Dgles1=disabled \
+            -Dllvm=disabled \
+            -Dtools= \
+            -Dbuild-tests=false
+          
+          # Set environment to force regular archives (not thin archives)
+          export ARFLAGS="--no-thin"
+          export AR="aarch64-none-elf-ar --no-thin"
+          export CFLAGS="$CFLAGS -fPIC"
+          export CXXFLAGS="$CXXFLAGS -fPIC"
+          
+          # Build with verbose output to ensure complete libraries
+          cd build-switch
+          ninja -v
+          
+          # Verify libraries are not thin archives
+          echo "=== VERIFYING LIBRARY TYPES ==="
+          for lib in *.a; do
+            if [ -f "$lib" ]; then
+              echo "Checking $lib:"
+              file "$lib"
+              size=$(stat -c%s "$lib" 2>/dev/null || stat -f%z "$lib" 2>/dev/null || echo "unknown")
+              echo "Size: $size bytes"
+              echo "---"
             fi
-            if [ -d "../include/GLES2" ]; then
-                cp -r ../include/GLES2 "$HEADER_DIR/"
-            fi
-            if [ -d "../include/KHR" ]; then
-                cp -r ../include/KHR "$HEADER_DIR/"
-            fi
-            cp ../include/*.h "$HEADER_DIR/" 2>/dev/null || true
-            
-            echo "Mesa built and libraries copied to VitaNS"
-            ls -la "$OUTPUT_DIR"
+          done
+          
+          # Copy libraries to VitaNS
+          OUTPUT_DIR="../Vita3K-Switch/external/custom-mesa/lib"
+          mkdir -p "$OUTPUT_DIR"
+          find . -name "*.a" -exec cp {} "$OUTPUT_DIR" \;
+          
+          # Copy headers
+          HEADER_DIR="../Vita3K-Switch/external/custom-mesa/include"
+          mkdir -p "$HEADER_DIR"
+          if [ -d "../include/EGL" ]; then
+              cp -r ../include/EGL "$HEADER_DIR/"
           fi
+          if [ -d "../include/GLES2" ]; then
+              cp -r ../include/GLES2 "$HEADER_DIR/"
+          fi
+          if [ -d "../include/KHR" ]; then
+              cp -r ../include/KHR "$HEADER_DIR/"
+          fi
+          cp ../include/*.h "$HEADER_DIR/" 2>/dev/null || true
+          
+          echo "Mesa built and libraries copied to VitaNS"
+          ls -la "$OUTPUT_DIR"
 
       - name: Build VitaNS with custom Mesa
         run: |
