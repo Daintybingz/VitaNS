@@ -79,7 +79,22 @@ jobs:
             -Dgles1=disabled \
             -Dllvm=disabled \
             -Dtools= \
-            -Dbuild-tests=false
+            -Dbuild-tests=false \
+            -Ddri-drivers= \
+            -Dgallium-vdpau=disabled \
+            -Dgallium-va=disabled \
+            -Dgallium-xa=disabled \
+            -Dgallium-nine=disabled \
+            -Dgallium-opencl=disabled \
+            -Dgallium-omx=disabled \
+            -Dgallium-rusticl=disabled \
+            -Dgallium-clover=disabled \
+            -Dgallium-dri=disabled \
+            -Ddri3=disabled \
+            -Dgbm=disabled \
+            -Dglx=disabled \
+            -Dosmesa=disabled \
+            -Dshared-glapi=disabled
           
           # Set environment to force regular archives (not thin archives)
           export ARFLAGS="--no-thin"
