@@ -86,8 +86,8 @@ jobs:
             apt-get install -y flex bison libdrm-dev libx11-dev libxext-dev libxdamage-dev libxfixes-dev libxxf86vm-dev libxrandr-dev libxcb1-dev libxcb-dri2-0-dev libxcb-dri3-dev libxcb-present-dev libxcb-sync-dev libxshmfence-dev
             
                     # Install Meson and required Python dependencies
-            python3 -m venv meson_env
-            . meson_env/bin/activate
+          python3 -m venv meson_env
+          . meson_env/bin/activate
           pip install --no-cache-dir meson==1.4.0 mako>=0.8.0
           
                     # Ensure Python can find Mesa's Python modules
@@ -100,19 +100,19 @@ jobs:
             echo "❌ Python module import failed, but continuing..."
           }
           cd ../../..
-            
-            # Clean and build Mesa
+          
+          # Clean and build Mesa
             rm -rf build-switch
             . meson_env/bin/activate
-            meson setup build-switch --cross-file switch.meson \
-              -Dgles2=enabled \
-              -Degl=enabled \
-              -Dgallium-drivers=swrast \
-              -Dplatforms=surfaceless \
-              -Dopengl=false \
-              -Dgles1=disabled \
-              -Dllvm=disabled \
-              -Dtools= \
+                                 meson setup build-switch --cross-file switch.meson \
+             -Dgles2=enabled \
+             -Degl=enabled \
+             -Dgallium-drivers=swrast \
+             -Dplatforms=surfaceless \
+             -Dopengl=false \
+             -Dgles1=disabled \
+             -Dllvm=disabled \
+             -Dtools= \
              -Dbuild-tests=false \
              -Dgallium-vdpau=disabled \
              -Dgallium-va=disabled \
@@ -129,8 +129,8 @@ jobs:
              -Dgallium-drivers=swrast
           
                     # Set environment to force regular archives (not thin archives)
-            export ARFLAGS="--no-thin"
-            export AR="aarch64-none-elf-ar --no-thin"
+          export ARFLAGS="--no-thin"
+          export AR="aarch64-none-elf-ar --no-thin"
           export CFLAGS="$CFLAGS -fPIC"
           export CXXFLAGS="$CXXFLAGS -fPIC"
           export MESON_ARGS="--no-thin"
@@ -148,7 +148,6 @@ jobs:
            # Patch Mesa to disable libdrm include
            echo "Patching Mesa to disable libdrm include..."
            sed -i 's/#ifdef HAVE_LIBDRM/#if 0/' src/egl/main/egldevice.h
-           sed -i 's/#ifdef HAVE_LIBDRM/#if 0/' src/egl/main/egldevice.c
             
           # Build with verbose output to ensure complete libraries
             cd build-switch
