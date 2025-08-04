@@ -61,203 +61,40 @@ jobs:
             echo "Continuing with build anyway - some libraries may be missing"
           fi
 
-      - name: Verify custom Mesa libraries
+      - name: Verify existing custom Mesa libraries
         run: |
-          echo "Checking for existing custom Mesa libraries..."
+          echo "=== Verifying existing custom Mesa libraries ==="
+          echo "Using pre-built custom Mesa libraries instead of rebuilding."
+          echo "These libraries were built locally and are compatible with devkitPro."
+          
           cd Vita3K-Switch
+          MESA_LIB_DIR="external/custom-mesa/lib"
           
-          # Force rebuild Mesa in CI to ensure complete static libraries
-          echo "🔄 Force rebuilding Mesa in CI to ensure complete static libraries (not thin archives)"
-          echo "This ensures all libraries contain actual code, not just references"
-          
-          # Remove existing libraries to force rebuild
-          rm -rf external/custom-mesa/lib/*.a
-          rm -rf external/custom-mesa/include/*
-          
-          echo "❌ Custom Mesa libraries removed. Building Mesa in CI..."
-          echo "Expected libraries: libEGL.a, libGLESv2.a, libglapi_static.a, libmesa_util.a, libmesa.a, libsoftpipe.a, libblake3.a"
-          
-          # Build Mesa in CI since libraries are missing
-          echo "=== STARTING MESA BUILD PROCESS ==="
-          cd ../Mesa
-          echo "Current directory: $(pwd)"
-          echo "Mesa directory contents:"
-          ls -la | head -10
-            
-            # Install build tools
-          echo "=== Installing build tools ==="
-          apt-get update
-          apt-get install -y ninja-build pkg-config python3-pip python3-venv
-          apt-get install -y flex bison libdrm-dev libx11-dev libxext-dev libxdamage-dev libxfixes-dev libxxf86vm-dev libxrandr-dev libxcb1-dev libxcb-dri2-0-dev libxcb-dri3-dev libxcb-present-dev libxcb-sync-dev libxshmfence-dev
-          echo "✅ Build tools installed"
-            
-          # Install Meson and required Python dependencies
-          echo "=== Setting up Python environment ==="
-          python3 -m venv meson_env
-          . meson_env/bin/activate
-          pip install --no-cache-dir meson==1.4.0 mako>=0.8.0
-          echo "✅ Python environment ready"
-          
-                    # Ensure Python can find Mesa's Python modules
-          export PYTHONPATH="${PYTHONPATH}:${PWD}/src/util/format"
-          
-          # Test Python code generation
-          echo "Testing Python code generation..."
-          cd src/util/format
-          python3 -c "import u_format_parse; import u_format_pack; print('✅ Python modules imported successfully')" || {
-            echo "❌ Python module import failed, but continuing..."
-          }
-          cd ../../..
-          
-          # Clean and build Mesa
-          echo "=== Configuring Mesa build ==="
-          rm -rf build-switch
-          . meson_env/bin/activate
-          echo "Meson version: $(meson --version)"
-          meson setup build-switch --cross-file switch.meson \
-             -Dgles2=enabled \
-             -Degl=enabled \
-             -Dgallium-drivers=swrast \
-             -Dplatforms=surfaceless \
-             -Dopengl=false \
-             -Dgles1=disabled \
-             -Dllvm=disabled \
-             -Dtools= \
-             -Dbuild-tests=false \
-             -Dgallium-vdpau=disabled \
-             -Dgallium-va=disabled \
-             -Dgallium-xa=disabled \
-             -Dgallium-nine=false \
-             -Dgallium-opencl=disabled \
-             -Dgallium-omx=disabled \
-             -Dgallium-rusticl=false \
-             -Ddri3=disabled \
-             -Dgbm=disabled \
-             -Dglx=disabled \
-             -Dosmesa=disabled \
-             -Dshared-glapi=disabled \
-             -Ddefault_library=static \
-             -Db_staticpic=true || {
-            echo "❌ Meson configuration failed!"
-            echo "Checking meson-log.txt for errors:"
-            cat build-switch/meson-logs/meson-log.txt 2>/dev/null || echo "No meson log found"
-            exit 1
-          }
-          echo "✅ Meson configuration completed"
-          
-          # Set environment to force regular archives (not thin archives)
-          export ARFLAGS="--no-thin"
-          export AR="aarch64-none-elf-ar --no-thin"
-          export CFLAGS="$CFLAGS -fPIC"
-          export CXXFLAGS="$CXXFLAGS -fPIC"
-          export MESON_ARGS="--no-thin"
-          
-          # Prevent DRM detection for Switch build
-          export PKG_CONFIG_PATH=""
-          export LIBDRM_CFLAGS=""
-          export LIBDRM_LIBS=""
-          # Force disable libdrm detection
-          export LIBDRM_LIBS="-lnotfound"
-          export LIBDRM_CFLAGS="-I/notfound"
-          # Override pkg-config to prevent libdrm detection
-          export PKG_CONFIG_LIBDIR="/dev/null"
-          
-          # Force disable HAVE_LIBDRM define
-          export CFLAGS="$CFLAGS -DHAVE_LIBDRM=0"
-          export CXXFLAGS="$CXXFLAGS -DHAVE_LIBDRM=0"
-          
-          # Patch Mesa to disable libdrm includes
-          echo "Patching Mesa to disable libdrm includes..."
-          sed -i 's/#ifdef HAVE_LIBDRM/#if 0/' src/egl/main/egldevice.h
-          sed -i 's/#ifdef HAVE_LIBDRM/#if 0/' src/egl/main/egldevice.c
-          
-          # Build with verbose output to ensure complete libraries
-          cd build-switch
-          echo "=== STARTING MESA BUILD ==="
-          echo "Build directory contents before ninja:"
-          ls -la
-          
-          # Build specific library targets
-          echo "Building specific Mesa targets..."
-          ninja -v src/egl/libEGL.a src/mapi/es2api/libGLESv2.a src/mapi/glapi/libglapi_static.a 2>&1 | tee ninja_build.log || { 
-            echo "❌ Mesa build failed!"
-            echo "Last 50 lines of build output:"
-            tail -n 50 ninja_build.log
-            echo "Checking for partial build results..."
-            find . -name "*.a" -type f | head -10
-            exit 1
-          }
-          echo "✅ Mesa build completed successfully"
-          echo "Build directory contents after ninja:"
-          ls -la
-          
-          # CRITICAL: Verify libraries were actually built
-          echo "=== VERIFYING MESA BUILD RESULTS ==="
-          set -e  # Ensure any failure stops the script
-          
-          echo "DEBUG: Current directory is $(pwd)"
-          echo "DEBUG: Build directory contents:"
-          ls -la
-          
-          # Count .a files explicitly
-          A_FILE_COUNT=$(find . -name "*.a" -type f | wc -l)
-          echo "DEBUG: Found $A_FILE_COUNT static library files (.a)"
-          
-          if [ "$A_FILE_COUNT" -eq 0 ]; then
-            echo "❌ CRITICAL ERROR: Mesa build completed but produced NO static libraries!"
-            echo "This indicates a fundamental build configuration issue."
-            echo ""
-            echo "=== BUILD DIRECTORY ANALYSIS ==="
-            echo "Current directory: $(pwd)"
-            echo "Build directory contents:"
-            ls -la
-            echo ""
-            echo "Searching for ANY library files:"
-            find . -name "lib*" -type f | head -20
-            echo ""
-            echo "Searching for ANY Mesa output files:"
-            find . -name "*mesa*" -type f | head -10
-            find . -name "*EGL*" -type f | head -10  
-            find . -name "*GL*" -type f | head -10
-            echo ""
-            echo "Checking meson build targets:"
-            cat build.ninja | grep -E "(build.*\.a|\.a.*:)" | head -10 || echo "No .a targets found in build.ninja"
-            echo ""
-            echo "MESA BUILD FAILED TO PRODUCE LIBRARIES - STOPPING BUILD"
-            echo "DEBUG: About to exit with code 1"
+          if [ ! -d "$MESA_LIB_DIR" ]; then
+            echo "❌ FATAL: Custom Mesa lib directory does not exist: $MESA_LIB_DIR"
             exit 1
           fi
           
-          # Show what we found
-          echo "✅ Found static libraries:"
-          find . -name "*.a" -type f
+          LIB_COUNT=$(ls -1 "$MESA_LIB_DIR"/*.a 2>/dev/null | wc -l || echo "0")
+          echo "Found $LIB_COUNT custom Mesa libraries in $MESA_LIB_DIR"
           
-          # Find and verify Mesa libraries  
-          echo "=== FINDING MESA LIBRARIES ==="
-          echo "Current directory: $(pwd)"
-          LIBS_FOUND=$(find . -name "*.a" -type f)
-          echo "Found $(echo "$LIBS_FOUND" | wc -l) static libraries:"
-          echo "$LIBS_FOUND"
-          echo ""
+          if [ "$LIB_COUNT" -eq 0 ]; then
+            echo "❌ FATAL: No custom Mesa libraries found!"
+            echo "Directory contents:"
+            ls -la "$MESA_LIB_DIR"
+            exit 1
+          fi
           
-          # Copy libraries to VitaNS
-          echo "=== COPYING MESA LIBRARIES ==="
-          OUTPUT_DIR="../Vita3K-Switch/external/custom-mesa/lib"
-          mkdir -p "$OUTPUT_DIR"
+          echo "✅ Custom Mesa libraries verified: $LIB_COUNT files found"
+          ls -la "$MESA_LIB_DIR"
           
-          echo "Copying $(echo "$LIBS_FOUND" | wc -l) libraries..."
-          find . -name "*.a" -exec cp {} "$OUTPUT_DIR" \;
-          
-          echo "Final library verification:"
-          ls -la "$OUTPUT_DIR"
-          
-          # Verify we have the essential Mesa libraries
+          # Verify essential libraries
           REQUIRED_LIBS="libEGL.a libGLESv2.a libglapi_static.a"
           echo "Checking for essential libraries: $REQUIRED_LIBS"
           ALL_FOUND=true
           for lib in $REQUIRED_LIBS; do
-            if [ -f "$OUTPUT_DIR/$lib" ]; then
-              size=$(stat -c%s "$OUTPUT_DIR/$lib" 2>/dev/null || echo "unknown")
+            if [ -f "$MESA_LIB_DIR/$lib" ]; then
+              size=$(stat -c%s "$MESA_LIB_DIR/$lib" 2>/dev/null || echo "unknown")
               echo "✅ $lib ($size bytes)"
             else
               echo "❌ MISSING: $lib"
@@ -267,81 +104,17 @@ jobs:
           
           if [ "$ALL_FOUND" = "false" ]; then
             echo "❌ CRITICAL: Essential Mesa libraries missing!"
-            echo "Available libraries:"
-            ls -1 "$OUTPUT_DIR" 2>/dev/null || echo "No libraries found"
             exit 1
           fi
-            
-            # Copy headers
-            HEADER_DIR="../Vita3K-Switch/external/custom-mesa/include"
-            mkdir -p "$HEADER_DIR"
-            if [ -d "../include/EGL" ]; then
-                cp -r ../include/EGL "$HEADER_DIR/"
-            fi
-            if [ -d "../include/GLES2" ]; then
-                cp -r ../include/GLES2 "$HEADER_DIR/"
-            fi
-            if [ -d "../include/KHR" ]; then
-                cp -r ../include/KHR "$HEADER_DIR/"
-            fi
-            cp ../include/*.h "$HEADER_DIR/" 2>/dev/null || true
-            
-            echo "✅ Mesa build completed successfully!"
-            echo "Final verification of copied libraries:"
-            ls -la "$OUTPUT_DIR"
-            
-            # Ensure we have at least the essential libraries before proceeding
-            if [ ! -f "$OUTPUT_DIR/libEGL.a" ] || [ ! -f "$OUTPUT_DIR/libGLESv2.a" ]; then
-              echo "❌ CRITICAL ERROR: Essential Mesa libraries missing!"
-              echo "Mesa build may have failed silently."
-              exit 1
-            fi
-            
-            # FINAL VALIDATION: Ensure libraries were actually copied
-            COPIED_COUNT=$(ls -1 "$OUTPUT_DIR"/*.a 2>/dev/null | wc -l)
-            echo "DEBUG: Final validation - found $COPIED_COUNT libraries in output directory"
-            if [ "$COPIED_COUNT" -eq 0 ]; then
-              echo "❌ CRITICAL FAILURE: No libraries found in output directory!"
-              echo "Libraries were built but copy operation failed."
-              ls -la "$OUTPUT_DIR"
-              echo "DEBUG: About to exit with code 1 due to no libraries copied"
-              exit 1
-            fi
-            
-            echo "✅ Mesa libraries successfully built and ready for VitaNS"
-            echo "✅ Final verification: $COPIED_COUNT libraries copied to VitaNS"
-            echo "DEBUG: Mesa build validation passed - setting MESA_BUILD_COMPLETE=true"
-            echo "MESA_BUILD_COMPLETE=true" >> $GITHUB_ENV
+          
+          echo "✅ All custom Mesa libraries verified and ready for use"
+          echo "MESA_BUILD_COMPLETE=true" >> $GITHUB_ENV
 
       - name: Build VitaNS with custom Mesa
         if: success()
         run: |
           echo "Building VitaNS with custom Mesa/EGL libraries"
-          
-          # CRITICAL: Direct validation of Mesa libraries
-          echo "=== CRITICAL VALIDATION ==="
-          MESA_LIB_DIR="Vita3K-Switch/external/custom-mesa/lib"
-          
-          if [ ! -d "$MESA_LIB_DIR" ]; then
-            echo "❌ FATAL: Mesa lib directory does not exist: $MESA_LIB_DIR"
-            exit 1
-          fi
-          
-          LIB_COUNT=$(ls -1 "$MESA_LIB_DIR"/*.a 2>/dev/null | wc -l || echo "0")
-          echo "Found $LIB_COUNT Mesa libraries in $MESA_LIB_DIR"
-          
-          if [ "$LIB_COUNT" -eq 0 ]; then
-            echo "❌ FATAL: No Mesa libraries found!"
-            echo "Directory contents:"
-            ls -la "$MESA_LIB_DIR"
-            echo ""
-            echo "This indicates the Mesa build step failed to produce libraries."
-            echo "The previous step should have failed but didn't."
-            exit 1
-          fi
-          
-          echo "✅ Mesa libraries validated: $LIB_COUNT files found"
-          ls -la "$MESA_LIB_DIR"
+          echo "Using pre-built custom Mesa libraries from Vita3K-Switch/external/custom-mesa/lib"
           
           cd Vita3K-Switch
           mkdir -p build
