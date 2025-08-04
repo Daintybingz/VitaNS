@@ -156,10 +156,16 @@ jobs:
             
           # Build with verbose output to ensure complete libraries
             cd build-switch
-            ninja -v
+            echo "=== STARTING MESA BUILD ==="
+            ninja -v || { echo "❌ Ninja build failed"; exit 1; }
+            echo "=== MESA BUILD COMPLETE ==="
           
           # Verify libraries are not thin archives
           echo "=== VERIFYING LIBRARY TYPES ==="
+          echo "Current directory: $(pwd)"
+          echo "Available .a files:"
+          ls -la *.a 2>/dev/null || echo "No .a files found in current directory"
+          echo "---"
           for lib in *.a; do
             if [ -f "$lib" ]; then
               echo "Checking $lib:"
@@ -173,7 +179,9 @@ jobs:
             # Copy libraries to VitaNS
             OUTPUT_DIR="../Vita3K-Switch/external/custom-mesa/lib"
             mkdir -p "$OUTPUT_DIR"
-            find . -name "*.a" -exec cp {} "$OUTPUT_DIR" \;
+            echo "=== COPYING MESA LIBRARIES ==="
+            find . -name "*.a" -exec cp {} "$OUTPUT_DIR" \; || { echo "❌ Failed to copy Mesa libraries"; exit 1; }
+            echo "Libraries copied successfully"
             
             # Copy headers
             HEADER_DIR="../Vita3K-Switch/external/custom-mesa/include"
