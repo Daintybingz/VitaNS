@@ -189,24 +189,44 @@ jobs:
           
           # CRITICAL: Verify libraries were actually built
           echo "=== VERIFYING MESA BUILD RESULTS ==="
-          LIBS_FOUND=$(find . -name "*.a" -type f)
-          if [ -z "$LIBS_FOUND" ]; then
+          set -e  # Ensure any failure stops the script
+          
+          # Count .a files explicitly
+          A_FILE_COUNT=$(find . -name "*.a" -type f | wc -l)
+          echo "Found $A_FILE_COUNT static library files (.a)"
+          
+          if [ "$A_FILE_COUNT" -eq 0 ]; then
             echo "❌ CRITICAL ERROR: Mesa build completed but produced NO static libraries!"
             echo "This indicates a fundamental build configuration issue."
+            echo ""
+            echo "=== BUILD DIRECTORY ANALYSIS ==="
+            echo "Current directory: $(pwd)"
             echo "Build directory contents:"
             ls -la
             echo ""
-            echo "Checking for any build outputs:"
-            find . -name "lib*" -type f | head -10
+            echo "Searching for ANY library files:"
+            find . -name "lib*" -type f | head -20
             echo ""
-            echo "Checking meson build configuration:"
-            cat build.ninja | grep -E "(\.a|archive)" | head -5 || echo "No archive targets found"
+            echo "Searching for ANY Mesa output files:"
+            find . -name "*mesa*" -type f | head -10
+            find . -name "*EGL*" -type f | head -10  
+            find . -name "*GL*" -type f | head -10
+            echo ""
+            echo "Checking meson build targets:"
+            cat build.ninja | grep -E "(build.*\.a|\.a.*:)" | head -10 || echo "No .a targets found in build.ninja"
+            echo ""
+            echo "MESA BUILD FAILED TO PRODUCE LIBRARIES - STOPPING BUILD"
             exit 1
           fi
           
-          # Find and verify Mesa libraries
+          # Show what we found
+          echo "✅ Found static libraries:"
+          find . -name "*.a" -type f
+          
+          # Find and verify Mesa libraries  
           echo "=== FINDING MESA LIBRARIES ==="
           echo "Current directory: $(pwd)"
+          LIBS_FOUND=$(find . -name "*.a" -type f)
           echo "Found $(echo "$LIBS_FOUND" | wc -l) static libraries:"
           echo "$LIBS_FOUND"
           echo ""
@@ -268,7 +288,17 @@ jobs:
               exit 1
             fi
             
+            # FINAL VALIDATION: Ensure libraries were actually copied
+            COPIED_COUNT=$(ls -1 "$OUTPUT_DIR"/*.a 2>/dev/null | wc -l)
+            if [ "$COPIED_COUNT" -eq 0 ]; then
+              echo "❌ CRITICAL FAILURE: No libraries found in output directory!"
+              echo "Libraries were built but copy operation failed."
+              ls -la "$OUTPUT_DIR"
+              exit 1
+            fi
+            
             echo "✅ Mesa libraries successfully built and ready for VitaNS"
+            echo "✅ Final verification: $COPIED_COUNT libraries copied to VitaNS"
             echo "MESA_BUILD_COMPLETE=true" >> $GITHUB_ENV
 
       - name: Build VitaNS with custom Mesa
