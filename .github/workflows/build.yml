@@ -75,20 +75,28 @@ jobs:
           rm -rf external/custom-mesa/include/*
           
           echo "❌ Custom Mesa libraries removed. Building Mesa in CI..."
-            echo "Expected libraries: libEGL.a, libGLESv2.a, libglapi_static.a, libmesa_util.a, libmesa.a, libsoftpipe.a, libblake3.a"
-            
-            # Build Mesa in CI since libraries are missing
-            cd ../Mesa
+          echo "Expected libraries: libEGL.a, libGLESv2.a, libglapi_static.a, libmesa_util.a, libmesa.a, libsoftpipe.a, libblake3.a"
+          
+          # Build Mesa in CI since libraries are missing
+          echo "=== STARTING MESA BUILD PROCESS ==="
+          cd ../Mesa
+          echo "Current directory: $(pwd)"
+          echo "Mesa directory contents:"
+          ls -la | head -10
             
             # Install build tools
-            apt-get update
-            apt-get install -y ninja-build pkg-config python3-pip python3-venv
-            apt-get install -y flex bison libdrm-dev libx11-dev libxext-dev libxdamage-dev libxfixes-dev libxxf86vm-dev libxrandr-dev libxcb1-dev libxcb-dri2-0-dev libxcb-dri3-dev libxcb-present-dev libxcb-sync-dev libxshmfence-dev
+          echo "=== Installing build tools ==="
+          apt-get update
+          apt-get install -y ninja-build pkg-config python3-pip python3-venv
+          apt-get install -y flex bison libdrm-dev libx11-dev libxext-dev libxdamage-dev libxfixes-dev libxxf86vm-dev libxrandr-dev libxcb1-dev libxcb-dri2-0-dev libxcb-dri3-dev libxcb-present-dev libxcb-sync-dev libxshmfence-dev
+          echo "✅ Build tools installed"
             
-                    # Install Meson and required Python dependencies
+          # Install Meson and required Python dependencies
+          echo "=== Setting up Python environment ==="
           python3 -m venv meson_env
           . meson_env/bin/activate
           pip install --no-cache-dir meson==1.4.0 mako>=0.8.0
+          echo "✅ Python environment ready"
           
                     # Ensure Python can find Mesa's Python modules
           export PYTHONPATH="${PYTHONPATH}:${PWD}/src/util/format"
@@ -102,9 +110,11 @@ jobs:
           cd ../../..
           
           # Clean and build Mesa
-            rm -rf build-switch
-            . meson_env/bin/activate
-                                 meson setup build-switch --cross-file switch.meson \
+          echo "=== Configuring Mesa build ==="
+          rm -rf build-switch
+          . meson_env/bin/activate
+          echo "Meson version: $(meson --version)"
+          meson setup build-switch --cross-file switch.meson \
              -Dgles2=enabled \
              -Degl=enabled \
              -Dgallium-drivers=swrast \
@@ -126,7 +136,13 @@ jobs:
              -Dglx=disabled \
              -Dosmesa=disabled \
              -Dshared-glapi=disabled \
-             -Dgallium-drivers=swrast
+             -Dgallium-drivers=swrast || {
+            echo "❌ Meson configuration failed!"
+            echo "Checking meson-log.txt for errors:"
+            cat build-switch/meson-logs/meson-log.txt 2>/dev/null || echo "No meson log found"
+            exit 1
+          }
+          echo "✅ Meson configuration completed"
           
           # Set environment to force regular archives (not thin archives)
           export ARFLAGS="--no-thin"
@@ -157,13 +173,19 @@ jobs:
           # Build with verbose output to ensure complete libraries
           cd build-switch
           echo "=== STARTING MESA BUILD ==="
-          ninja -v || { 
+          echo "Build directory contents before ninja:"
+          ls -la
+          ninja -v 2>&1 | tee ninja_build.log || { 
             echo "❌ Mesa build failed!"
+            echo "Last 50 lines of build output:"
+            tail -n 50 ninja_build.log
             echo "Checking for partial build results..."
             find . -name "*.a" -type f | head -10
             exit 1
           }
           echo "✅ Mesa build completed successfully"
+          echo "Build directory contents after ninja:"
+          ls -la
           
           # Find and verify Mesa libraries
           echo "=== FINDING MESA LIBRARIES ==="
