@@ -261,10 +261,21 @@ jobs:
             fi
             
             echo "✅ Mesa libraries successfully built and ready for VitaNS"
+            echo "MESA_BUILD_COMPLETE=true" >> $GITHUB_ENV
 
       - name: Build VitaNS with custom Mesa
+        if: success()
         run: |
           echo "Building VitaNS with custom Mesa/EGL libraries"
+          
+          # Verify Mesa build completed in previous step
+          if [ "$MESA_BUILD_COMPLETE" != "true" ]; then
+            echo "❌ FATAL: Mesa build did not complete in previous step!"
+            echo "The Mesa build step must have failed silently."
+            exit 1
+          fi
+          echo "✅ Mesa build completion confirmed"
+          
           cd Vita3K-Switch
           
           # Debug: Check if custom Mesa libraries exist
