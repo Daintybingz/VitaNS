@@ -306,21 +306,32 @@ jobs:
         run: |
           echo "Building VitaNS with custom Mesa/EGL libraries"
           
-          # Verify Mesa build completed in previous step
-          if [ "$MESA_BUILD_COMPLETE" != "true" ]; then
-            echo "❌ FATAL: Mesa build did not complete in previous step!"
-            echo "The Mesa build step must have failed silently."
+          # CRITICAL: Direct validation of Mesa libraries
+          echo "=== CRITICAL VALIDATION ==="
+          MESA_LIB_DIR="Vita3K-Switch/external/custom-mesa/lib"
+          
+          if [ ! -d "$MESA_LIB_DIR" ]; then
+            echo "❌ FATAL: Mesa lib directory does not exist: $MESA_LIB_DIR"
             exit 1
           fi
-          echo "✅ Mesa build completion confirmed"
+          
+          LIB_COUNT=$(ls -1 "$MESA_LIB_DIR"/*.a 2>/dev/null | wc -l || echo "0")
+          echo "Found $LIB_COUNT Mesa libraries in $MESA_LIB_DIR"
+          
+          if [ "$LIB_COUNT" -eq 0 ]; then
+            echo "❌ FATAL: No Mesa libraries found!"
+            echo "Directory contents:"
+            ls -la "$MESA_LIB_DIR"
+            echo ""
+            echo "This indicates the Mesa build step failed to produce libraries."
+            echo "The previous step should have failed but didn't."
+            exit 1
+          fi
+          
+          echo "✅ Mesa libraries validated: $LIB_COUNT files found"
+          ls -la "$MESA_LIB_DIR"
           
           cd Vita3K-Switch
-          
-          # Debug: Check if custom Mesa libraries exist
-          echo "=== Checking custom Mesa libraries ==="
-          ls -la external/custom-mesa/lib/ || echo "Custom Mesa lib directory not found"
-          ls -la external/custom-mesa/include/ || echo "Custom Mesa include directory not found"
-          
           mkdir -p build
           cd build
           cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake -DVITANS_RENDERER_BACKEND=gles2
