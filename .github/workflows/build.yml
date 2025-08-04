@@ -227,8 +227,18 @@ jobs:
             fi
             cp ../include/*.h "$HEADER_DIR/" 2>/dev/null || true
             
-            echo "Mesa built and libraries copied to VitaNS"
+            echo "✅ Mesa build completed successfully!"
+            echo "Final verification of copied libraries:"
             ls -la "$OUTPUT_DIR"
+            
+            # Ensure we have at least the essential libraries before proceeding
+            if [ ! -f "$OUTPUT_DIR/libEGL.a" ] || [ ! -f "$OUTPUT_DIR/libGLESv2.a" ]; then
+              echo "❌ CRITICAL ERROR: Essential Mesa libraries missing!"
+              echo "Mesa build may have failed silently."
+              exit 1
+            fi
+            
+            echo "✅ Mesa libraries successfully built and ready for VitaNS"
 
       - name: Build VitaNS with custom Mesa
         run: |
