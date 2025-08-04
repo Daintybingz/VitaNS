@@ -145,9 +145,14 @@ jobs:
            # Override pkg-config to prevent libdrm detection
            export PKG_CONFIG_LIBDIR="/dev/null"
            
-           # Patch Mesa to disable libdrm include
-           echo "Patching Mesa to disable libdrm include..."
+           # Force disable HAVE_LIBDRM define
+           export CFLAGS="$CFLAGS -DHAVE_LIBDRM=0"
+           export CXXFLAGS="$CXXFLAGS -DHAVE_LIBDRM=0"
+           
+           # Patch Mesa to disable libdrm includes
+           echo "Patching Mesa to disable libdrm includes..."
            sed -i 's/#ifdef HAVE_LIBDRM/#if 0/' src/egl/main/egldevice.h
+           sed -i 's/#ifdef HAVE_LIBDRM/#if 0/' src/egl/main/egldevice.c
             
           # Build with verbose output to ensure complete libraries
             cd build-switch
