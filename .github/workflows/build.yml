@@ -136,12 +136,8 @@ jobs:
              -Dglx=disabled \
              -Dosmesa=disabled \
              -Dshared-glapi=disabled \
-             -Dgallium-drivers=swrast \
              -Ddefault_library=static \
-             -Dshared-libs=false \
-             -Dstatic-libs=true \
-             -Db_staticpic=true \
-             -Dprefer-static=true || {
+             -Db_staticpic=true || {
             echo "❌ Meson configuration failed!"
             echo "Checking meson-log.txt for errors:"
             cat build-switch/meson-logs/meson-log.txt 2>/dev/null || echo "No meson log found"
