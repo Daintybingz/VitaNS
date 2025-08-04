@@ -156,32 +156,34 @@ jobs:
             
           # Build with verbose output to ensure complete libraries
             cd build-switch
-            echo "=== STARTING MESA BUILD ==="
-            ninja -v || { echo "❌ Ninja build failed"; exit 1; }
-            echo "=== MESA BUILD COMPLETE ==="
+            ninja -v
           
-          # Verify libraries are not thin archives
-          echo "=== VERIFYING LIBRARY TYPES ==="
+          # Find and verify Mesa libraries
+          echo "=== FINDING MESA LIBRARIES ==="
           echo "Current directory: $(pwd)"
-          echo "Available .a files:"
-          ls -la *.a 2>/dev/null || echo "No .a files found in current directory"
-          echo "---"
-          for lib in *.a; do
-            if [ -f "$lib" ]; then
-              echo "Checking $lib:"
-              file "$lib"
-              size=$(stat -c%s "$lib" 2>/dev/null || stat -f%z "$lib" 2>/dev/null || echo "unknown")
-              echo "Size: $size bytes"
-              echo "---"
-            fi
-          done
-            
-            # Copy libraries to VitaNS
-            OUTPUT_DIR="../Vita3K-Switch/external/custom-mesa/lib"
-            mkdir -p "$OUTPUT_DIR"
-            echo "=== COPYING MESA LIBRARIES ==="
-            find . -name "*.a" -exec cp {} "$OUTPUT_DIR" \; || { echo "❌ Failed to copy Mesa libraries"; exit 1; }
-            echo "Libraries copied successfully"
+          echo "Looking for .a files in build directory..."
+          find . -name "*.a" -type f | head -20
+          echo ""
+          
+          # Copy libraries to VitaNS
+          echo "=== COPYING MESA LIBRARIES ==="
+          OUTPUT_DIR="../Vita3K-Switch/external/custom-mesa/lib"
+          mkdir -p "$OUTPUT_DIR"
+          
+          # Copy all .a files found
+          LIBS_FOUND=$(find . -name "*.a" -type f)
+          if [ -z "$LIBS_FOUND" ]; then
+            echo "❌ ERROR: No .a files found in Mesa build!"
+            echo "Build directory contents:"
+            ls -la
+            exit 1
+          fi
+          
+          echo "Copying $(echo "$LIBS_FOUND" | wc -l) libraries..."
+          find . -name "*.a" -exec cp {} "$OUTPUT_DIR" \;
+          
+          echo "Libraries copied to $OUTPUT_DIR:"
+          ls -la "$OUTPUT_DIR"
             
             # Copy headers
             HEADER_DIR="../Vita3K-Switch/external/custom-mesa/include"
