@@ -1,0 +1,3 @@
+[33m328ef76[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m fix: Add Python module path and test Python code generation for Mesa build
+[33mdcfefdc[m fix: Remove non-existent Mesa options (dri-drivers, gallium-clover, gallium-dri)
+[33mb61523b[m fix: Use correct option types for Mesa build (boolean vs feature types)

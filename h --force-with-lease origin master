@@ -1,0 +1,3 @@
+[33m898c7c6[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m feat: Update custom Mesa libraries with real implementations for Switch - Replace stub libraries with full EGL/GLESv2 implementations - Add BUILD_SUCCESS_SUMMARY.md documenting the successful build - Update build scripts and configuration for Switch platform
+[33m3dd2bc4[m chore: update custom Mesa static libraries with real EGL/GLESv2 implementations for Switch
+[33me19f60e[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m fix: Implement missing beginFrame and endFrame in RendererSoftware to resolve abstract class error

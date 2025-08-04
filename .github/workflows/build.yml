@@ -126,7 +126,6 @@ jobs:
              -Dglx=disabled \
              -Dosmesa=disabled \
              -Dshared-glapi=disabled \
-             -Ddri-drivers= \
              -Dgallium-drivers=swrast
           
                     # Set environment to force regular archives (not thin archives)

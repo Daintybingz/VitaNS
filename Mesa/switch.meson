@@ -3,7 +3,7 @@ c = '/opt/devkitpro/devkitA64/bin/aarch64-none-elf-gcc'
 cpp = '/opt/devkitpro/devkitA64/bin/aarch64-none-elf-g++'
 ar = '/opt/devkitpro/devkitA64/bin/aarch64-none-elf-ar'
 strip = '/opt/devkitpro/devkitA64/bin/aarch64-none-elf-strip'
-pkgconfig = '/usr/bin/pkg-config'
+pkg-config = '/usr/bin/pkg-config'
 
 [built-in options]
 c_args = ['-I/opt/devkitpro/libnx/include', '-D__SWITCH__', '-O2', '-ffunction-sections', '-fdata-sections']
