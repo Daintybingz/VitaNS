@@ -187,11 +187,28 @@ jobs:
           echo "Build directory contents after ninja:"
           ls -la
           
+          # CRITICAL: Verify libraries were actually built
+          echo "=== VERIFYING MESA BUILD RESULTS ==="
+          LIBS_FOUND=$(find . -name "*.a" -type f)
+          if [ -z "$LIBS_FOUND" ]; then
+            echo "❌ CRITICAL ERROR: Mesa build completed but produced NO static libraries!"
+            echo "This indicates a fundamental build configuration issue."
+            echo "Build directory contents:"
+            ls -la
+            echo ""
+            echo "Checking for any build outputs:"
+            find . -name "lib*" -type f | head -10
+            echo ""
+            echo "Checking meson build configuration:"
+            cat build.ninja | grep -E "(\.a|archive)" | head -5 || echo "No archive targets found"
+            exit 1
+          fi
+          
           # Find and verify Mesa libraries
           echo "=== FINDING MESA LIBRARIES ==="
           echo "Current directory: $(pwd)"
-          echo "Looking for .a files in build directory..."
-          find . -name "*.a" -type f | head -20
+          echo "Found $(echo "$LIBS_FOUND" | wc -l) static libraries:"
+          echo "$LIBS_FOUND"
           echo ""
           
           # Copy libraries to VitaNS
@@ -199,40 +216,31 @@ jobs:
           OUTPUT_DIR="../Vita3K-Switch/external/custom-mesa/lib"
           mkdir -p "$OUTPUT_DIR"
           
-          # Copy all .a files found
-          LIBS_FOUND=$(find . -name "*.a" -type f)
-          if [ -z "$LIBS_FOUND" ]; then
-            echo "❌ ERROR: No .a files found in Mesa build!"
-            echo "Build directory contents:"
-            ls -la
-            exit 1
-          fi
-          
           echo "Copying $(echo "$LIBS_FOUND" | wc -l) libraries..."
           find . -name "*.a" -exec cp {} "$OUTPUT_DIR" \;
           
-          echo "Libraries copied to $OUTPUT_DIR:"
+          echo "Final library verification:"
           ls -la "$OUTPUT_DIR"
           
           # Verify we have the essential Mesa libraries
-          echo "=== VERIFYING ESSENTIAL LIBRARIES ==="
           REQUIRED_LIBS="libEGL.a libGLESv2.a libglapi_static.a"
-          MISSING_LIBS=""
+          echo "Checking for essential libraries: $REQUIRED_LIBS"
+          ALL_FOUND=true
           for lib in $REQUIRED_LIBS; do
-            if [ ! -f "$OUTPUT_DIR/$lib" ]; then
-              MISSING_LIBS="$MISSING_LIBS $lib"
+            if [ -f "$OUTPUT_DIR/$lib" ]; then
+              size=$(stat -c%s "$OUTPUT_DIR/$lib" 2>/dev/null || echo "unknown")
+              echo "✅ $lib ($size bytes)"
             else
-              echo "✅ Found $lib ($(stat -c%s "$OUTPUT_DIR/$lib" 2>/dev/null || echo "?") bytes)"
+              echo "❌ MISSING: $lib"
+              ALL_FOUND=false
             fi
           done
           
-          if [ -n "$MISSING_LIBS" ]; then
-            echo "❌ Missing essential libraries:$MISSING_LIBS"
+          if [ "$ALL_FOUND" = "false" ]; then
+            echo "❌ CRITICAL: Essential Mesa libraries missing!"
             echo "Available libraries:"
-            ls -1 "$OUTPUT_DIR"
-            echo "This might cause VitaNS build to fail"
-          else
-            echo "✅ All essential Mesa libraries found"
+            ls -1 "$OUTPUT_DIR" 2>/dev/null || echo "No libraries found"
+            exit 1
           fi
             
             # Copy headers
