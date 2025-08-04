@@ -136,7 +136,12 @@ jobs:
              -Dglx=disabled \
              -Dosmesa=disabled \
              -Dshared-glapi=disabled \
-             -Dgallium-drivers=swrast || {
+             -Dgallium-drivers=swrast \
+             -Ddefault_library=static \
+             -Dshared-libs=false \
+             -Dstatic-libs=true \
+             -Db_staticpic=true \
+             -Dprefer-static=true || {
             echo "❌ Meson configuration failed!"
             echo "Checking meson-log.txt for errors:"
             cat build-switch/meson-logs/meson-log.txt 2>/dev/null || echo "No meson log found"
@@ -175,7 +180,10 @@ jobs:
           echo "=== STARTING MESA BUILD ==="
           echo "Build directory contents before ninja:"
           ls -la
-          ninja -v 2>&1 | tee ninja_build.log || { 
+          
+          # Build specific library targets
+          echo "Building specific Mesa targets..."
+          ninja -v src/egl/libEGL.a src/mapi/es2api/libGLESv2.a src/mapi/glapi/libglapi_static.a 2>&1 | tee ninja_build.log || { 
             echo "❌ Mesa build failed!"
             echo "Last 50 lines of build output:"
             tail -n 50 ninja_build.log
