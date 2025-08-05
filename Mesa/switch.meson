@@ -3,15 +3,13 @@ c = '/opt/devkitpro/devkitA64/bin/aarch64-none-elf-gcc'
 cpp = '/opt/devkitpro/devkitA64/bin/aarch64-none-elf-g++'
 ar = '/opt/devkitpro/devkitA64/bin/aarch64-none-elf-ar'
 strip = '/opt/devkitpro/devkitA64/bin/aarch64-none-elf-strip'
-pkg-config = '/usr/bin/pkg-config'
+pkgconfig = '/usr/bin/pkg-config'
 
 [built-in options]
 c_args = ['-I/opt/devkitpro/libnx/include', '-D__SWITCH__', '-O2', '-ffunction-sections', '-fdata-sections']
 cpp_args = ['-I/opt/devkitpro/libnx/include', '-D__SWITCH__', '-O2', '-ffunction-sections', '-fdata-sections']
 c_link_args = []
 cpp_link_args = []
-# Force regular static archives instead of thin archives
-# Note: ar_args is deprecated, using environment variables instead
 
 [host_machine]
 system = 'none'
@@ -21,5 +19,7 @@ endian = 'little'
 
 [properties]
 needs_exe_wrapper = true
+# Force regular archives (not thin archives) for Switch compatibility
+ARFLAGS = '--no-thin'
 
 

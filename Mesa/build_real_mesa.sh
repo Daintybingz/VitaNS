@@ -10,6 +10,11 @@ if [ ! -f "meson.build" ]; then
     exit 1
 fi
 
+# Set environment variables to force regular archives (not thin archives)
+echo "🔧 Setting up environment for regular archives..."
+export ARFLAGS="--no-thin"
+export AR="/opt/devkitpro/devkitA64/bin/aarch64-none-elf-ar --no-thin"
+
 # Clean previous build
 echo "🧹 Cleaning previous build..."
 rm -rf build-switch
@@ -95,6 +100,11 @@ if [ -f "build-switch/src/util/libmesa_util.a" ]; then
     echo "🔍 Checking utility functions:"
     nm build-switch/src/util/libmesa_util.a | grep -E "(u_rwlock|_simple_mtx)" | head -5
 fi
+
+# Check archive types
+echo ""
+echo "🔍 Checking archive types (should be regular, not thin):"
+find build-switch -name "*.a" -exec file {} \; | head -5
 
 echo ""
 echo "🎉 Real Mesa build verification completed!"
