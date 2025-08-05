@@ -14,15 +14,15 @@ with_gpuvis = false
 with_shader_cache = false
 use_xmlconfig = false
 
-# Define all dependencies as null for minimal build
+# Define dependencies for Switch build
 prog_python = find_program('python3', required: false)
 dep_zlib = null_dep
 dep_valgrind = null_dep
 dep_zstd = null_dep
 dep_clock = null_dep
-dep_thread = null_dep
-dep_atomic = null_dep
-dep_m = null_dep
+dep_thread = dependency('threads', required: false)
+dep_atomic = dependency('atomic', required: false)
+dep_m = meson.get_compiler('c').find_library('m', required: false)
 dep_dl = null_dep
 dep_unwind = null_dep
 dep_futex = null_dep

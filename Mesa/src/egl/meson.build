@@ -31,7 +31,7 @@ symbols_check_args = []
 dep_dl = null_dep
 dep_libdrm = null_dep
 dep_clock = null_dep
-dep_thread = null_dep
+dep_thread = dependency('threads', required: false)
 idep_mesautil = null_dep
 libglapi = []
 libloader = []
@@ -71,6 +71,10 @@ sha1_h = files()
 wp_files = {'linux-dmabuf-unstable-v1': files()}
 wayland_drm_client_protocol_h = files()
 glvnd_vendor_name = 'mesa'
+
+# Define missing variables for EGL driver configuration
+libegl_drivers = []
+c_msvc_compat_args = []
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -304,3 +308,6 @@ if with_symbols_check
     suite : ['egl'],
   )
 endif
+
+# EGL Driver Configuration for Switch - Disabled for now
+# We'll focus on building core libraries first
