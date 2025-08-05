@@ -182,15 +182,16 @@ if(VITANS_PLATFORM_SWITCH)
         
         # Link libraries in correct order for Mesa
         # Use custom Mesa libraries (these were built specifically for Switch)
+        # CRITICAL: Link order matters - utilities first, then APIs, then drivers
         target_link_libraries(VitaNS PRIVATE
             nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz
-            ${CUSTOM_MESA_LIB_DIR}/libGLESv2.a
-            ${CUSTOM_MESA_LIB_DIR}/libglapi_static.a
             ${CUSTOM_MESA_LIB_DIR}/libmesa_util.a
-            ${CUSTOM_MESA_LIB_DIR}/libmesa.a
+            ${CUSTOM_MESA_LIB_DIR}/libblake3.a
+            ${CUSTOM_MESA_LIB_DIR}/libglapi_static.a
+            ${CUSTOM_MESA_LIB_DIR}/libGLESv2.a
             ${CUSTOM_MESA_LIB_DIR}/libEGL.a
             ${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a
-            ${CUSTOM_MESA_LIB_DIR}/libblake3.a
+            ${CUSTOM_MESA_LIB_DIR}/libmesa.a
         )
         message(STATUS "Using custom Mesa libraries built specifically for Switch")
         target_link_directories(VitaNS PRIVATE ${CUSTOM_MESA_LIB_DIR})
