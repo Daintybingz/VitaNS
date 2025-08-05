@@ -1,0 +1,3 @@
+[33mc73e45e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m Add debugging to identify Mesa linking issues in CI
+[33m8508bc1[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m Add complete Mesa graphics stack for Switch - All libraries with proper symbols
+[33m4679c1f[m 🔧 Fix Mesa library linking order for Switch

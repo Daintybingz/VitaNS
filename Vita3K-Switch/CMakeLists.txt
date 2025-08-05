@@ -134,12 +134,25 @@ set(CUSTOM_MESA_DIR "${CMAKE_SOURCE_DIR}/external/custom-mesa")
 set(CUSTOM_MESA_LIB_DIR "${CUSTOM_MESA_DIR}/lib")
 set(CUSTOM_MESA_INCLUDE_DIR "${CUSTOM_MESA_DIR}/include")
 
+# CRITICAL: Prevent system Mesa from being found
+# Override any system Mesa paths that might be set
+set(CMAKE_PREFIX_PATH "${CUSTOM_MESA_DIR}" ${CMAKE_PREFIX_PATH})
+set(CMAKE_LIBRARY_PATH "${CUSTOM_MESA_LIB_DIR}" ${CMAKE_LIBRARY_PATH})
+set(CMAKE_INCLUDE_PATH "${CUSTOM_MESA_INCLUDE_DIR}" ${CMAKE_INCLUDE_PATH})
+
+# Explicitly disable system Mesa detection
+set(EGL_FOUND FALSE)
+set(GLESv2_FOUND FALSE)
+set(MESA_FOUND FALSE)
+
 # DEBUG: Print current working directory and paths
 message(STATUS "=== MESA DEBUG INFO ===")
 message(STATUS "CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
 message(STATUS "CUSTOM_MESA_DIR: ${CUSTOM_MESA_DIR}")
 message(STATUS "CUSTOM_MESA_LIB_DIR: ${CUSTOM_MESA_LIB_DIR}")
 message(STATUS "CUSTOM_MESA_INCLUDE_DIR: ${CUSTOM_MESA_INCLUDE_DIR}")
+message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
+message(STATUS "CMAKE_LIBRARY_PATH: ${CMAKE_LIBRARY_PATH}")
 
 # Check if directories exist
 if(EXISTS "${CUSTOM_MESA_DIR}")
