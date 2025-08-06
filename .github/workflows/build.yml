@@ -202,31 +202,30 @@ jobs:
           
           # Create a CMake toolchain file to force our libraries
           cat > /tmp/custom-mesa-toolchain.cmake << 'EOF'
-          # Force custom Mesa libraries only
+          # Force custom Mesa libraries only - but don't interfere with devkitPro
           set(CUSTOM_MESA_DIR "$(pwd)/Vita3K-Switch/external/custom-mesa")
           set(CUSTOM_MESA_LIB_DIR "${CUSTOM_MESA_DIR}/lib")
           set(CUSTOM_MESA_INCLUDE_DIR "${CUSTOM_MESA_DIR}/include")
           
-          # Remove all system paths
-          list(REMOVE_ITEM CMAKE_PREFIX_PATH "/usr" "/usr/local" "/opt")
-          list(REMOVE_ITEM CMAKE_LIBRARY_PATH "/usr/lib" "/usr/local/lib" "/opt/lib")
-          list(REMOVE_ITEM CMAKE_INCLUDE_PATH "/usr/include" "/usr/local/include" "/opt/include")
+          # Don't remove devkitPro paths - only remove Mesa-specific system paths
+          list(REMOVE_ITEM CMAKE_LIBRARY_PATH "/usr/lib/libEGL*" "/usr/lib/libGLESv2*" "/usr/lib/libmesa*")
+          list(REMOVE_ITEM CMAKE_INCLUDE_PATH "/usr/include/EGL" "/usr/include/GLES2" "/usr/include/mesa")
           
-          # Force our custom Mesa only
-          set(CMAKE_LIBRARY_PATH "${CUSTOM_MESA_LIB_DIR}")
-          set(CMAKE_INCLUDE_PATH "${CUSTOM_MESA_INCLUDE_DIR}")
-          set(CMAKE_PREFIX_PATH "${CUSTOM_MESA_DIR}")
+          # Add our custom Mesa paths
+          list(APPEND CMAKE_LIBRARY_PATH "${CUSTOM_MESA_LIB_DIR}")
+          list(APPEND CMAKE_INCLUDE_PATH "${CUSTOM_MESA_INCLUDE_DIR}")
+          list(APPEND CMAKE_PREFIX_PATH "${CUSTOM_MESA_DIR}")
           
-          # Disable all Mesa find_package
+          # Disable Mesa find_package but keep other find_package working
           set(CMAKE_DISABLE_FIND_PACKAGE_EGL TRUE)
           set(CMAKE_DISABLE_FIND_PACKAGE_GLESv2 TRUE)
           set(CMAKE_DISABLE_FIND_PACKAGE_Mesa TRUE)
           
-          # Set explicit linker flags
+          # Set explicit linker flags for Mesa only
           set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L${CUSTOM_MESA_LIB_DIR}")
           set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -L${CUSTOM_MESA_LIB_DIR}")
           
-          # Force our libraries
+          # Force our Mesa libraries
           set(EGL_LIBRARIES "${CUSTOM_MESA_LIB_DIR}/libEGL.a")
           set(GLESv2_LIBRARIES "${CUSTOM_MESA_LIB_DIR}/libGLESv2.a")
           set(EGL_FOUND TRUE)
@@ -246,16 +245,15 @@ jobs:
           mkdir -p build
           cd build
           
-          # Use custom toolchain to force our Mesa libraries only
+          # Use Switch toolchain but force our Mesa libraries
           cmake .. \
             -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake \
-            -C /tmp/custom-mesa-toolchain.cmake \
             -DVITANS_RENDERER_BACKEND=gles2 \
             -DCMAKE_EXE_LINKER_FLAGS="-L$(pwd)/../external/custom-mesa/lib" \
             -DCMAKE_SHARED_LINKER_FLAGS="-L$(pwd)/../external/custom-mesa/lib"
           
-          # Build with explicit library linking
-          make -j$(nproc) LDFLAGS="-L$(pwd)/../external/custom-mesa/lib"
+          # Build with explicit Mesa library path
+          make -j$(nproc)
 
       - name: Build Validation and Basic Testing
         run: |
