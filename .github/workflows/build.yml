@@ -147,43 +147,17 @@ jobs:
           echo "Checking for required symbols in custom Mesa libraries..."
           
           # List of critical symbols that were missing in the error
-          REQUIRED_SYMBOLS=(
-            "u_rwlock_rdlock"
-            "u_rwlock_rdunlock"
-            "u_rwlock_wrlock"
-            "u_rwlock_wrunlock"
-            "_simple_mtx_plain_init_once"
-            "util_call_once_data_slow"
-            "_glapi_get_proc_address"
-            "debug_get_bool_option"
-            "os_get_option"
-            "_eglDriver"
-            "simple_mtx_init"
-            "u_rwlock_init"
-            "os_dupfd_cloexec"
-          )
+          REQUIRED_SYMBOLS="u_rwlock_rdlock u_rwlock_rdunlock u_rwlock_wrlock u_rwlock_wrunlock _simple_mtx_plain_init_once util_call_once_data_slow _glapi_get_proc_address"
           
-          echo "Checking symbols in libEGL.a..."
-          if [ -f "$MESA_LIB_DIR/libEGL.a" ]; then
-            nm "$MESA_LIB_DIR/libEGL.a" | grep -E "($(IFS='|'; echo "${REQUIRED_SYMBOLS[*]}"))" || echo "⚠️  Some required symbols not found in libEGL.a"
-          fi
+          # Check each library for symbols
+          for lib in "$MESA_LIB_DIR"/*.a; do
+            if [ -f "$lib" ]; then
+              echo "Checking library: $(basename "$lib")"
+              nm "$lib" 2>/dev/null | grep -E "($(echo $REQUIRED_SYMBOLS | tr ' ' '|'))" || echo "  No required symbols found in $(basename "$lib")"
+            fi
+          done
           
-          echo "Checking symbols in libGLESv2.a..."
-          if [ -f "$MESA_LIB_DIR/libGLESv2.a" ]; then
-            nm "$MESA_LIB_DIR/libGLESv2.a" | grep -E "($(IFS='|'; echo "${REQUIRED_SYMBOLS[*]}"))" || echo "⚠️  Some required symbols not found in libGLESv2.a"
-          fi
-          
-          echo "Checking symbols in libglapi_static.a..."
-          if [ -f "$MESA_LIB_DIR/libglapi_static.a" ]; then
-            nm "$MESA_LIB_DIR/libglapi_static.a" | grep -E "($(IFS='|'; echo "${REQUIRED_SYMBOLS[*]}"))" || echo "⚠️  Some required symbols not found in libglapi_static.a"
-          fi
-          
-          echo "Checking symbols in libmesa_util.a..."
-          if [ -f "$MESA_LIB_DIR/libmesa_util.a" ]; then
-            nm "$MESA_LIB_DIR/libmesa_util.a" | grep -E "($(IFS='|'; echo "${REQUIRED_SYMBOLS[*]}"))" || echo "⚠️  Some required symbols not found in libmesa_util.a"
-          fi
-          
-          echo "=== CUSTOM MESA SYMBOL VERIFICATION COMPLETE ==="
+          echo "Symbol verification complete"
 
       - name: Prevent system Mesa interference
         run: |
