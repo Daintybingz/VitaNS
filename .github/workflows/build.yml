@@ -245,15 +245,13 @@ jobs:
           mkdir -p build
           cd build
           
-          # Use Switch toolchain but force our Mesa libraries
+          # Use Switch toolchain without interfering with devkitPro
           cmake .. \
             -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake \
-            -DVITANS_RENDERER_BACKEND=gles2 \
-            -DCMAKE_EXE_LINKER_FLAGS="-L$(pwd)/../external/custom-mesa/lib" \
-            -DCMAKE_SHARED_LINKER_FLAGS="-L$(pwd)/../external/custom-mesa/lib"
+            -DVITANS_RENDERER_BACKEND=gles2
           
-          # Build with explicit Mesa library path
-          make -j$(nproc)
+          # Build with explicit Mesa library path only for Mesa libraries
+          make -j$(nproc) LDFLAGS="-L$(pwd)/../external/custom-mesa/lib"
 
       - name: Build Validation and Basic Testing
         run: |

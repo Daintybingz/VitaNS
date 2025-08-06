@@ -7,6 +7,58 @@ endif()
 cmake_minimum_required(VERSION 3.10)
 project(VitaNS VERSION 0.1.0)
 
+# Apply Mesa isolation after project() call to avoid interfering with compiler test
+# Completely block system Mesa
+set(CMAKE_PREFIX_PATH "${CUSTOM_MESA_DIR}" ${CMAKE_PREFIX_PATH})
+set(CMAKE_LIBRARY_PATH "${CUSTOM_MESA_LIB_DIR}" ${CMAKE_LIBRARY_PATH})
+set(CMAKE_INCLUDE_PATH "${CUSTOM_MESA_INCLUDE_DIR}" ${CMAKE_INCLUDE_PATH})
+
+# Force custom Mesa only - remove all system paths
+list(REMOVE_ITEM CMAKE_PREFIX_PATH "/usr" "/usr/local" "/opt")
+list(REMOVE_ITEM CMAKE_LIBRARY_PATH "/usr/lib" "/usr/local/lib" "/opt/lib")
+list(REMOVE_ITEM CMAKE_INCLUDE_PATH "/usr/include" "/usr/local/include" "/opt/include")
+
+# Clear pkg-config to prevent system Mesa detection
+set(ENV{PKG_CONFIG_PATH} "")
+set(ENV{PKG_CONFIG_LIBDIR} "")
+
+# Disable all Mesa find_package calls
+set(CMAKE_DISABLE_FIND_PACKAGE_EGL TRUE)
+set(CMAKE_DISABLE_FIND_PACKAGE_GLESv2 TRUE)
+set(CMAKE_DISABLE_FIND_PACKAGE_Mesa TRUE)
+
+# Force custom Mesa paths
+set(CMAKE_LIBRARY_PATH "${CUSTOM_MESA_LIB_DIR}")
+set(CMAKE_INCLUDE_PATH "${CUSTOM_MESA_INCLUDE_DIR}")
+
+# Set custom Mesa variables
+set(EGL_LIBRARIES "${CUSTOM_MESA_LIB_DIR}/libEGL.a")
+set(GLESv2_LIBRARIES "${CUSTOM_MESA_LIB_DIR}/libGLESv2.a")
+set(EGL_INCLUDE_DIRS "${CUSTOM_MESA_INCLUDE_DIR}")
+set(GLESv2_INCLUDE_DIRS "${CUSTOM_MESA_INCLUDE_DIR}")
+
+# Mark as found to prevent CMake from searching
+set(EGL_FOUND TRUE)
+set(GLESv2_FOUND TRUE)
+set(MESA_FOUND TRUE)
+
+# Set explicit linker flags to force our custom libraries
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L${CUSTOM_MESA_LIB_DIR}")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -L${CUSTOM_MESA_LIB_DIR}")
+
+# Force specific library linking order
+set(CUSTOM_MESA_LIBS 
+    "${CUSTOM_MESA_LIB_DIR}/libmesa_util.a"
+    "${CUSTOM_MESA_LIB_DIR}/libblake3.a"
+    "${CUSTOM_MESA_LIB_DIR}/libglapi_static.a"
+    "${CUSTOM_MESA_LIB_DIR}/libGLESv2.a"
+    "${CUSTOM_MESA_LIB_DIR}/libEGL.a"
+    "${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a"
+    "${CUSTOM_MESA_LIB_DIR}/libmesa.a"
+)
+
+message(STATUS "Custom Mesa libraries: ${CUSTOM_MESA_LIBS}")
+
 # Add nlohmann include globally for all sources
 include_directories(${CMAKE_SOURCE_DIR}/external/nlohmann)
 
@@ -135,54 +187,8 @@ set(CUSTOM_MESA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/custom-mesa")
 set(CUSTOM_MESA_LIB_DIR "${CUSTOM_MESA_DIR}/lib")
 set(CUSTOM_MESA_INCLUDE_DIR "${CUSTOM_MESA_DIR}/include")
 
-# Completely block system Mesa
-set(CMAKE_PREFIX_PATH "${CUSTOM_MESA_DIR}" ${CMAKE_PREFIX_PATH})
-set(CMAKE_LIBRARY_PATH "${CUSTOM_MESA_LIB_DIR}" ${CMAKE_LIBRARY_PATH})
-set(CMAKE_INCLUDE_PATH "${CUSTOM_MESA_INCLUDE_DIR}" ${CMAKE_INCLUDE_PATH})
-
-# Force custom Mesa only - remove all system paths
-list(REMOVE_ITEM CMAKE_PREFIX_PATH "/usr" "/usr/local" "/opt")
-list(REMOVE_ITEM CMAKE_LIBRARY_PATH "/usr/lib" "/usr/local/lib" "/opt/lib")
-list(REMOVE_ITEM CMAKE_INCLUDE_PATH "/usr/include" "/usr/local/include" "/opt/include")
-
-# Clear pkg-config to prevent system Mesa detection
-set(ENV{PKG_CONFIG_PATH} "")
-set(ENV{PKG_CONFIG_LIBDIR} "")
-
-# Disable all Mesa find_package calls
-set(CMAKE_DISABLE_FIND_PACKAGE_EGL TRUE)
-set(CMAKE_DISABLE_FIND_PACKAGE_GLESv2 TRUE)
-set(CMAKE_DISABLE_FIND_PACKAGE_Mesa TRUE)
-
-# Force custom Mesa paths
-set(CMAKE_LIBRARY_PATH "${CUSTOM_MESA_LIB_DIR}")
-set(CMAKE_INCLUDE_PATH "${CUSTOM_MESA_INCLUDE_DIR}")
-
-# Set custom Mesa variables
-set(EGL_LIBRARIES "${CUSTOM_MESA_LIB_DIR}/libEGL.a")
-set(GLESv2_LIBRARIES "${CUSTOM_MESA_LIB_DIR}/libGLESv2.a")
-set(EGL_INCLUDE_DIRS "${CUSTOM_MESA_INCLUDE_DIR}")
-set(GLESv2_INCLUDE_DIRS "${CUSTOM_MESA_INCLUDE_DIR}")
-
-# Mark as found to prevent CMake from searching
-set(EGL_FOUND TRUE)
-set(GLESv2_FOUND TRUE)
-set(MESA_FOUND TRUE)
-
-# Set explicit linker flags to force our custom libraries
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L${CUSTOM_MESA_LIB_DIR}")
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -L${CUSTOM_MESA_LIB_DIR}")
-
-# Force specific library linking order
-set(CUSTOM_MESA_LIBS 
-    "${CUSTOM_MESA_LIB_DIR}/libmesa_util.a"
-    "${CUSTOM_MESA_LIB_DIR}/libblake3.a"
-    "${CUSTOM_MESA_LIB_DIR}/libglapi_static.a"
-    "${CUSTOM_MESA_LIB_DIR}/libGLESv2.a"
-    "${CUSTOM_MESA_LIB_DIR}/libEGL.a"
-    "${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a"
-    "${CUSTOM_MESA_LIB_DIR}/libmesa.a"
-)
+# Don't interfere with compiler test - only apply Mesa isolation after project() call
+# The actual Mesa library forcing will be done in the target_link_libraries section
 
 # Verify custom Mesa libraries exist
 if(NOT EXISTS "${CUSTOM_MESA_LIB_DIR}/libEGL.a")
@@ -195,7 +201,6 @@ endif()
 
 message(STATUS "Using custom Mesa libraries from: ${CUSTOM_MESA_LIB_DIR}")
 message(STATUS "Custom Mesa include directory: ${CUSTOM_MESA_INCLUDE_DIR}")
-message(STATUS "Custom Mesa libraries: ${CUSTOM_MESA_LIBS}")
 
 # DEBUG: Print current working directory and paths
 message(STATUS "=== MESA DEBUG INFO ===")
