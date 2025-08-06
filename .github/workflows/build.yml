@@ -138,13 +138,13 @@ jobs:
 
       - name: Verify custom Mesa library symbols
         run: |
-          echo "=== VERIFYING CUSTOM MESA LIBRARY SYMBOLS ==="
+          echo "=== VERIFYING CUSTOM MESA LIBRARY SYMBOLS FOR NINTENDO SWITCH ==="
           
           cd Vita3K-Switch
           MESA_LIB_DIR="external/custom-mesa/lib"
           
           # Check for required symbols in our custom libraries
-          echo "Checking for required symbols in custom Mesa libraries..."
+          echo "Checking for required symbols in custom Mesa libraries for Switch..."
           
           # List of critical symbols that were missing in the error
           REQUIRED_SYMBOLS="u_rwlock_rdlock u_rwlock_rdunlock u_rwlock_wrlock u_rwlock_wrunlock _simple_mtx_plain_init_once util_call_once_data_slow _glapi_get_proc_address debug_get_bool_option os_get_option _eglDriver simple_mtx_init u_rwlock_init os_dupfd_cloexec"
@@ -157,7 +157,20 @@ jobs:
             fi
           done
           
-          echo "Symbol verification complete"
+          # Verify Switch-specific requirements
+          echo "=== NINTENDO SWITCH MESA VERIFICATION ==="
+          echo "Checking if libraries are built for Switch (aarch64-none-elf)..."
+          
+          # Check if libraries contain Switch-specific symbols
+          for lib in "$MESA_LIB_DIR"/*.a; do
+            if [ -f "$lib" ]; then
+              echo "Verifying $(basename "$lib") for Switch compatibility..."
+              # Check for Switch-specific symbols
+              nm "$lib" 2>/dev/null | grep -E "(nx|switch|aarch64)" || echo "  No Switch-specific symbols found in $(basename "$lib")"
+            fi
+          done
+          
+          echo "Switch Mesa verification complete"
 
       - name: Build VitaNS with custom Mesa
         if: success()

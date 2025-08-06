@@ -232,13 +232,17 @@ if(VITANS_PLATFORM_SWITCH)
             list(FILTER SOURCES EXCLUDE REGEX ".*/renderer/gl/.*")
             list(FILTER SOURCES EXCLUDE REGEX ".*/display/display_buffer.*")
     else()
-        message(STATUS "Building with all custom Mesa libraries (GLES2 backend)")
+        message(STATUS "Building with all custom Mesa libraries (GLES2 backend) for Nintendo Switch")
         
         # CRITICAL: Ensure we're not linking system Mesa libraries
-        message(STATUS "=== PREVENTING SYSTEM MESA LINKING ===")
+        message(STATUS "=== NINTENDO SWITCH MESA CONFIGURATION ===")
         message(STATUS "Using ONLY custom Mesa libraries from: ${CUSTOM_MESA_LIB_DIR}")
         
-        # Explicitly link with our custom Mesa libraries in correct order
+        # Ensure GLES2 renderer files are included for Switch
+        list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/src/renderer/RendererGLES2.cpp")
+        list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/src/display/display_buffer.cpp")
+        
+        # Explicitly link with our custom Mesa libraries in correct order for Switch
         target_link_libraries(VitaNS PRIVATE 
             nx 
             SDL2 
@@ -248,21 +252,28 @@ if(VITANS_PLATFORM_SWITCH)
             z 
             bz2 
             harfbuzz
-            # Custom Mesa libraries in correct link order
-            "${CUSTOM_MESA_LIB_DIR}/libEGL.a"
-            "${CUSTOM_MESA_LIB_DIR}/libGLESv2.a"
-            "${CUSTOM_MESA_LIB_DIR}/libglapi_static.a"
+            # Custom Mesa libraries for Switch in correct link order
             "${CUSTOM_MESA_LIB_DIR}/libmesa_util.a"
-            "${CUSTOM_MESA_LIB_DIR}/libmesa.a"
-            "${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a"
             "${CUSTOM_MESA_LIB_DIR}/libblake3.a"
+            "${CUSTOM_MESA_LIB_DIR}/libglapi_static.a"
+            "${CUSTOM_MESA_LIB_DIR}/libGLESv2.a"
+            "${CUSTOM_MESA_LIB_DIR}/libEGL.a"
+            "${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a"
+            "${CUSTOM_MESA_LIB_DIR}/libmesa.a"
         )
         
         # Add include directories for our custom Mesa
         target_include_directories(VitaNS PRIVATE ${CUSTOM_MESA_INCLUDE_DIR})
         
-        message(STATUS "✅ Linked with custom Mesa libraries")
+        # Set Switch-specific compile definitions
+        target_compile_definitions(VitaNS PRIVATE 
+            VITANS_RENDERER_GLES2=1
+            VITANS_PLATFORM_SWITCH=1
+        )
+        
+        message(STATUS "✅ Linked with custom Mesa libraries for Nintendo Switch")
         message(STATUS "✅ System Mesa libraries excluded")
+        message(STATUS "✅ Switch-specific configuration applied")
     endif()
 else()
     # Non-Switch platforms: add OpenGL/EGL files and link OpenGL/EGL if needed
