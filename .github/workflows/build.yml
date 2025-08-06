@@ -60,10 +60,8 @@ jobs:
           
           echo "✅ Custom Mesa directories found"
           
-          # Check for all required libraries
-          REQUIRED_LIBS=("libEGL.a" "libGLESv2.a" "libglapi_static.a" "libmesa_util.a" "libsoftpipe.a" "libblake3.a" "libmesa.a")
-          
-          for lib in "${REQUIRED_LIBS[@]}"; do
+          # Check for all required libraries (sh-compatible)
+          for lib in libEGL.a libGLESv2.a libglapi_static.a libmesa_util.a libsoftpipe.a libblake3.a libmesa.a; do
             if [ ! -f "$CUSTOM_MESA_LIB_DIR/$lib" ]; then
               echo "❌ Required library not found: $lib"
               exit 1
@@ -74,10 +72,8 @@ jobs:
           
           echo "✅ All required Mesa libraries present"
           
-          # Check for required headers
-          REQUIRED_HEADERS=("EGL/egl.h" "GLES2/gl2.h" "KHR/khrplatform.h")
-          
-          for header in "${REQUIRED_HEADERS[@]}"; do
+          # Check for required headers (sh-compatible)
+          for header in "EGL/egl.h" "GLES2/gl2.h" "KHR/khrplatform.h"; do
             if [ ! -f "$CUSTOM_MESA_INCLUDE_DIR/$header" ]; then
               echo "❌ Required header not found: $header"
               exit 1
