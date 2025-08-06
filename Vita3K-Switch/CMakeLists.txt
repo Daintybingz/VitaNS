@@ -140,24 +140,27 @@ set(CMAKE_PREFIX_PATH "${CUSTOM_MESA_DIR}" ${CMAKE_PREFIX_PATH})
 set(CMAKE_LIBRARY_PATH "${CUSTOM_MESA_LIB_DIR}" ${CMAKE_LIBRARY_PATH})
 set(CMAKE_INCLUDE_PATH "${CUSTOM_MESA_INCLUDE_DIR}" ${CMAKE_INCLUDE_PATH})
 
-# Explicitly disable system Mesa detection
-set(EGL_FOUND FALSE)
-set(GLESv2_FOUND FALSE)
-set(MESA_FOUND FALSE)
+# FORCE: Override any system Mesa environment
+set(ENV{MESA_GL_VERSION_OVERRIDE} "")
+set(ENV{MESA_GLSL_VERSION_OVERRIDE} "")
+set(ENV{LIBGL_ALWAYS_SOFTWARE} "")
+set(ENV{MESA_DEBUG} "")
+set(ENV{LIBGL_DRIVERS_PATH} "${CUSTOM_MESA_LIB_DIR}")
+set(ENV{MESA_LOADER_DRIVER_OVERRIDE} "")
 
 # AGGRESSIVE: Remove any system Mesa from find paths
 list(REMOVE_ITEM CMAKE_PREFIX_PATH "/usr" "/usr/local" "/opt")
 list(REMOVE_ITEM CMAKE_LIBRARY_PATH "/usr/lib" "/usr/local/lib" "/opt/lib")
 list(REMOVE_ITEM CMAKE_INCLUDE_PATH "/usr/include" "/usr/local/include" "/opt/include")
 
-# Force pkg-config to not find system Mesa
-set(ENV{PKG_CONFIG_PATH} "")
-set(ENV{PKG_CONFIG_LIBDIR} "")
-
-# Override any find_package calls for Mesa
+# FORCE: Override any find_package calls for Mesa
 set(CMAKE_DISABLE_FIND_PACKAGE_EGL TRUE)
 set(CMAKE_DISABLE_FIND_PACKAGE_GLESv2 TRUE)
 set(CMAKE_DISABLE_FIND_PACKAGE_Mesa TRUE)
+
+# AGGRESSIVE: Set explicit paths to our custom Mesa only
+set(CMAKE_LIBRARY_PATH "${CUSTOM_MESA_LIB_DIR}")
+set(CMAKE_INCLUDE_PATH "${CUSTOM_MESA_INCLUDE_DIR}")
 
 # DEBUG: Print current working directory and paths
 message(STATUS "=== MESA DEBUG INFO ===")

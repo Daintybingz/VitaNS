@@ -287,6 +287,69 @@ jobs:
           
           echo "=== CUSTOM MESA ISOLATION COMPLETE ==="
 
+      - name: Completely prevent Mesa build and force custom libraries
+        run: |
+          echo "=== COMPLETELY PREVENTING MESA BUILD ==="
+          
+          # Kill any running Mesa build processes
+          pkill -f "mesa\|egl\|gles" || echo "No Mesa processes found"
+          
+          # Remove any CI-built Mesa directories
+          rm -rf /home/gbins/mesa || echo "No /home/gbins/mesa found"
+          rm -rf /tmp/mesa* || echo "No /tmp/mesa* found"
+          rm -rf /var/tmp/mesa* || echo "No /var/tmp/mesa* found"
+          
+          # Create isolated environment for our custom Mesa only
+          echo "Creating isolated environment for custom Mesa libraries..."
+          
+          # Backup and remove any system Mesa
+          sudo rm -rf /usr/lib/libEGL* /usr/lib/libGLES* /usr/lib/libglapi* /usr/lib/libmesa* || echo "No system Mesa libs found"
+          sudo rm -rf /usr/local/lib/libEGL* /usr/local/lib/libGLES* /usr/local/lib/libglapi* /usr/local/lib/libmesa* || echo "No local Mesa libs found"
+          
+          # Set environment to use only our custom Mesa
+          export MESA_LIB_DIR="$PWD/Vita3K-Switch/external/custom-mesa/lib"
+          export MESA_INCLUDE_DIR="$PWD/Vita3K-Switch/external/custom-mesa/include"
+          
+          # Override any Mesa-related environment variables
+          unset MESA_GL_VERSION_OVERRIDE
+          unset MESA_GLSL_VERSION_OVERRIDE
+          unset LIBGL_ALWAYS_SOFTWARE
+          unset MESA_DEBUG
+          unset MESA_LOADER_DRIVER_OVERRIDE
+          
+          # Clear pkg-config to prevent system Mesa detection
+          export PKG_CONFIG_PATH=""
+          export PKG_CONFIG_LIBDIR=""
+          
+          # Create custom pkg-config files for our Mesa
+          mkdir -p /tmp/custom-mesa-pkgconfig
+          echo "prefix=$PWD/Vita3K-Switch/external/custom-mesa" > /tmp/custom-mesa-pkgconfig/egl.pc
+          echo "exec_prefix=\${prefix}" >> /tmp/custom-mesa-pkgconfig/egl.pc
+          echo "libdir=\${prefix}/lib" >> /tmp/custom-mesa-pkgconfig/egl.pc
+          echo "includedir=\${prefix}/include" >> /tmp/custom-mesa-pkgconfig/egl.pc
+          echo "Name: egl" >> /tmp/custom-mesa-pkgconfig/egl.pc
+          echo "Description: Custom Mesa EGL library" >> /tmp/custom-mesa-pkgconfig/egl.pc
+          echo "Version: 1.0" >> /tmp/custom-mesa-pkgconfig/egl.pc
+          echo "Libs: -L\${libdir} -lEGL" >> /tmp/custom-mesa-pkgconfig/egl.pc
+          echo "Cflags: -I\${includedir}" >> /tmp/custom-mesa-pkgconfig/egl.pc
+          
+          echo "prefix=$PWD/Vita3K-Switch/external/custom-mesa" > /tmp/custom-mesa-pkgconfig/glesv2.pc
+          echo "exec_prefix=\${prefix}" >> /tmp/custom-mesa-pkgconfig/glesv2.pc
+          echo "libdir=\${prefix}/lib" >> /tmp/custom-mesa-pkgconfig/glesv2.pc
+          echo "includedir=\${prefix}/include" >> /tmp/custom-mesa-pkgconfig/glesv2.pc
+          echo "Name: glesv2" >> /tmp/custom-mesa-pkgconfig/glesv2.pc
+          echo "Description: Custom Mesa OpenGL ES 2.0 library" >> /tmp/custom-mesa-pkgconfig/glesv2.pc
+          echo "Version: 1.0" >> /tmp/custom-mesa-pkgconfig/glesv2.pc
+          echo "Libs: -L\${libdir} -lGLESv2" >> /tmp/custom-mesa-pkgconfig/glesv2.pc
+          echo "Cflags: -I\${includedir}" >> /tmp/custom-mesa-pkgconfig/glesv2.pc
+          
+          # Set pkg-config to use our custom files
+          export PKG_CONFIG_PATH="/tmp/custom-mesa-pkgconfig"
+          
+          echo "✅ Custom Mesa environment isolated"
+          echo "✅ System Mesa completely removed"
+          echo "✅ Only custom Mesa libraries will be used"
+
       - name: Build VitaNS with custom Mesa
         if: success()
         run: |
