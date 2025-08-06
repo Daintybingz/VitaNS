@@ -46,14 +46,14 @@ set(MESA_FOUND TRUE)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L${CUSTOM_MESA_LIB_DIR}")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -L${CUSTOM_MESA_LIB_DIR}")
 
-# Force specific library linking order
+# Force specific library linking order (corrected based on successful rebuild)
 set(CUSTOM_MESA_LIBS 
-    "${CUSTOM_MESA_LIB_DIR}/libmesa_util.a"
-    "${CUSTOM_MESA_LIB_DIR}/libblake3.a"
-    "${CUSTOM_MESA_LIB_DIR}/libglapi_static.a"
     "${CUSTOM_MESA_LIB_DIR}/libGLESv2.a"
+    "${CUSTOM_MESA_LIB_DIR}/libglapi_static.a"
     "${CUSTOM_MESA_LIB_DIR}/libEGL.a"
+    "${CUSTOM_MESA_LIB_DIR}/libmesa_util.a"
     "${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a"
+    "${CUSTOM_MESA_LIB_DIR}/libblake3.a"
     "${CUSTOM_MESA_LIB_DIR}/libmesa.a"
 )
 
@@ -283,21 +283,37 @@ if(VITANS_PLATFORM_SWITCH)
         list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/src/display/display_buffer.cpp")
         
         # Explicitly link with our custom Mesa libraries in correct order for Switch
+        # Based on successful rebuild: -lGLESv2 -lglapi_static -lEGL -lmesa_util -lsoftpipe -lblake3 -lmesa -lpthread -lm
         target_link_libraries(VitaNS PRIVATE
-    nx
-    SDL2
-    SDL2_ttf
-    freetype
-    png
-    z
-    bz2
-    harfbuzz
-    # Force custom Mesa libraries only - no system Mesa
-    ${CUSTOM_MESA_LIBS}
-)
+            nx
+            SDL2
+            SDL2_ttf
+            freetype
+            png
+            z
+            bz2
+            harfbuzz
+            # Custom Mesa libraries in correct dependency order
+            "${CUSTOM_MESA_LIB_DIR}/libGLESv2.a"
+            "${CUSTOM_MESA_LIB_DIR}/libglapi_static.a"
+            "${CUSTOM_MESA_LIB_DIR}/libEGL.a"
+            "${CUSTOM_MESA_LIB_DIR}/libmesa_util.a"
+            "${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a"
+            "${CUSTOM_MESA_LIB_DIR}/libblake3.a"
+            "${CUSTOM_MESA_LIB_DIR}/libmesa.a"
+            # System dependencies required by Mesa
+            -lpthread
+            -lm
+        )
         
         # Add include directories for our custom Mesa
-        target_include_directories(VitaNS PRIVATE ${CUSTOM_MESA_INCLUDE_DIR})
+        target_include_directories(VitaNS PRIVATE 
+            ${CUSTOM_MESA_INCLUDE_DIR}
+            ${CUSTOM_MESA_INCLUDE_DIR}/EGL
+            ${CUSTOM_MESA_INCLUDE_DIR}/GLES2
+            ${CUSTOM_MESA_INCLUDE_DIR}/GLES3
+            ${CUSTOM_MESA_INCLUDE_DIR}/KHR
+        )
         
         # Set Switch-specific compile definitions
         target_compile_definitions(VitaNS PRIVATE 
