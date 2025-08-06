@@ -119,14 +119,26 @@ jobs:
         run: |
           echo "=== PREVENTING MESA BUILD COMMANDS ==="
           
-          # Alias cmake and make to prevent Mesa building
-          echo 'function cmake() { echo "CMake called with: $*"; if [[ "$*" == *"mesa"* ]]; then echo "BLOCKED: Mesa build detected"; return 1; fi; command cmake "$@"; }' >> ~/.bashrc
-          echo 'function make() { echo "Make called with: $*"; if [[ "$*" == *"mesa"* ]]; then echo "BLOCKED: Mesa build detected"; return 1; fi; command make "$@"; }' >> ~/.bashrc
+          # Set environment variables to prevent Mesa building
+          export MESA_BUILD_BLOCKED=1
+          export MESA_GL_VERSION_OVERRIDE=""
+          export MESA_GLSL_VERSION_OVERRIDE=""
+          export LIBGL_ALWAYS_SOFTWARE=""
+          export MESA_DEBUG=""
           
-          # Source the bashrc to activate aliases
-          source ~/.bashrc
+          # Create a simple script to block Mesa builds
+          cat > /tmp/block-mesa.sh << 'EOF'
+          #!/bin/sh
+          if echo "$*" | grep -q "mesa"; then
+            echo "BLOCKED: Mesa build detected in command: $*"
+            exit 1
+          fi
+          exec "$@"
+          EOF
           
-          echo "Build command blocking activated"
+          chmod +x /tmp/block-mesa.sh
+          
+          echo "Build command blocking activated - Mesa builds will be blocked"
 
       - name: Build VitaNS for Nintendo Switch
         if: success()
