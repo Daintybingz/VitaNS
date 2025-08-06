@@ -184,22 +184,78 @@ jobs:
           
           echo "Nuclear Mesa isolation complete"
 
+      - name: Complete linker isolation - Force only custom Mesa
+        run: |
+          echo "=== COMPLETE LINKER ISOLATION ==="
+          
+          # Set environment to force ONLY our custom Mesa libraries
+          export CUSTOM_MESA_LIB_DIR="$(pwd)/Vita3K-Switch/external/custom-mesa/lib"
+          export CUSTOM_MESA_INCLUDE_DIR="$(pwd)/Vita3K-Switch/external/custom-mesa/include"
+          
+          # Remove ALL system Mesa from linker search
+          export LDFLAGS="-L$CUSTOM_MESA_LIB_DIR"
+          export CPPFLAGS="-I$CUSTOM_MESA_INCLUDE_DIR"
+          
+          # Clear any system Mesa environment
+          unset PKG_CONFIG_PATH PKG_CONFIG_LIBDIR
+          unset MESA_GL_VERSION_OVERRIDE MESA_GLSL_VERSION_OVERRIDE
+          
+          # Create a CMake toolchain file to force our libraries
+          cat > /tmp/custom-mesa-toolchain.cmake << 'EOF'
+          # Force custom Mesa libraries only
+          set(CUSTOM_MESA_DIR "$(pwd)/Vita3K-Switch/external/custom-mesa")
+          set(CUSTOM_MESA_LIB_DIR "${CUSTOM_MESA_DIR}/lib")
+          set(CUSTOM_MESA_INCLUDE_DIR "${CUSTOM_MESA_DIR}/include")
+          
+          # Remove all system paths
+          list(REMOVE_ITEM CMAKE_PREFIX_PATH "/usr" "/usr/local" "/opt")
+          list(REMOVE_ITEM CMAKE_LIBRARY_PATH "/usr/lib" "/usr/local/lib" "/opt/lib")
+          list(REMOVE_ITEM CMAKE_INCLUDE_PATH "/usr/include" "/usr/local/include" "/opt/include")
+          
+          # Force our custom Mesa only
+          set(CMAKE_LIBRARY_PATH "${CUSTOM_MESA_LIB_DIR}")
+          set(CMAKE_INCLUDE_PATH "${CUSTOM_MESA_INCLUDE_DIR}")
+          set(CMAKE_PREFIX_PATH "${CUSTOM_MESA_DIR}")
+          
+          # Disable all Mesa find_package
+          set(CMAKE_DISABLE_FIND_PACKAGE_EGL TRUE)
+          set(CMAKE_DISABLE_FIND_PACKAGE_GLESv2 TRUE)
+          set(CMAKE_DISABLE_FIND_PACKAGE_Mesa TRUE)
+          
+          # Set explicit linker flags
+          set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L${CUSTOM_MESA_LIB_DIR}")
+          set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -L${CUSTOM_MESA_LIB_DIR}")
+          
+          # Force our libraries
+          set(EGL_LIBRARIES "${CUSTOM_MESA_LIB_DIR}/libEGL.a")
+          set(GLESv2_LIBRARIES "${CUSTOM_MESA_LIB_DIR}/libGLESv2.a")
+          set(EGL_FOUND TRUE)
+          set(GLESv2_FOUND TRUE)
+          set(MESA_FOUND TRUE)
+          EOF
+          
+          echo "Complete linker isolation configured"
+
       - name: Build VitaNS for Nintendo Switch
         if: success()
         run: |
-          echo "Building VitaNS with custom Mesa/EGL libraries"
-          echo "Using pre-built custom Mesa libraries from Vita3K-Switch/external/custom-mesa/lib"
+          echo "Building VitaNS with COMPLETE custom Mesa isolation"
+          echo "Using ONLY custom Mesa libraries from Vita3K-Switch/external/custom-mesa/lib"
           
           cd Vita3K-Switch
           mkdir -p build
           cd build
           
-          # Explicitly set environment to prevent system Mesa
-          export PKG_CONFIG_PATH=""
-          export PKG_CONFIG_LIBDIR=""
+          # Use custom toolchain to force our Mesa libraries only
+          cmake .. \
+            -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake \
+            -C /tmp/custom-mesa-toolchain.cmake \
+            -DVITANS_RENDERER_BACKEND=gles2 \
+            -DCMAKE_EXE_LINKER_FLAGS="-L$(pwd)/../external/custom-mesa/lib" \
+            -DCMAKE_SHARED_LINKER_FLAGS="-L$(pwd)/../external/custom-mesa/lib"
           
-          cmake .. -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake -DVITANS_RENDERER_BACKEND=gles2
-          make -j$(nproc)
+          # Build with explicit library linking
+          make -j$(nproc) LDFLAGS="-L$(pwd)/../external/custom-mesa/lib"
 
       - name: Build Validation and Basic Testing
         run: |

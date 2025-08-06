@@ -1,3 +1,8 @@
 [33m898c7c6[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m feat: Update custom Mesa libraries with real implementations for Switch - Replace stub libraries with full EGL/GLESv2 implementations - Add BUILD_SUCCESS_SUMMARY.md documenting the successful build - Update build scripts and configuration for Switch platform
 [33m3dd2bc4[m chore: update custom Mesa static libraries with real EGL/GLESv2 implementations for Switch
 [33me19f60e[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m fix: Implement missing beginFrame and endFrame in RendererSoftware to resolve abstract class error
+[33m0fd5bf9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m Nuclear Mesa isolation: Force custom libraries only with explicit linker flags
+[33mf9a0046[m Fix shell compatibility - replace bash functions with sh-compatible approach
+[33mf3031fe[m Fix Mesa library paths for CI environment - use relative paths and add debugging
+[33mda29269[m Comprehensive Mesa blocking: Prevent CI Mesa building and force custom libraries only
+[33m9910394[m Nintendo Switch Mesa configuration - proper linking and verification for Switch development
