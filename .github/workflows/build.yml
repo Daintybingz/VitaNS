@@ -40,6 +40,12 @@ jobs:
         run: |
           echo "=== COMPLETELY BLOCKING MESA BUILD ==="
           
+          # Check actual workspace path
+          echo "Current working directory: $(pwd)"
+          echo "GitHub workspace: ${{ github.workspace }}"
+          echo "Checking if custom Mesa exists:"
+          ls -la Vita3K-Switch/external/custom-mesa/ || echo "Custom Mesa directory not found"
+          
           # Kill any running Mesa build processes
           pkill -f "mesa\|egl\|gles" || true
           
@@ -50,9 +56,9 @@ jobs:
           sudo rm -rf /usr/lib/libEGL* /usr/lib/libGLESv2* /usr/lib/libmesa* || true
           sudo rm -rf /usr/local/lib/libEGL* /usr/local/lib/libGLESv2* /usr/local/lib/libmesa* || true
           
-          # Set environment to force custom Mesa only
-          export MESA_LIB_DIR="${{ github.workspace }}/Vita3K-Switch/external/custom-mesa/lib"
-          export MESA_INCLUDE_DIR="${{ github.workspace }}/Vita3K-Switch/external/custom-mesa/include"
+          # Set environment to force custom Mesa only - use relative path
+          export MESA_LIB_DIR="$(pwd)/Vita3K-Switch/external/custom-mesa/lib"
+          export MESA_INCLUDE_DIR="$(pwd)/Vita3K-Switch/external/custom-mesa/include"
           
           # Unset all Mesa-related environment variables
           unset MESA_GL_VERSION_OVERRIDE MESA_GLSL_VERSION_OVERRIDE LIBGL_ALWAYS_SOFTWARE MESA_DEBUG
@@ -61,7 +67,7 @@ jobs:
           # Create custom pkg-config files that point ONLY to our custom libraries
           mkdir -p /tmp/custom-mesa-pkgconfig
           cat > /tmp/custom-mesa-pkgconfig/egl.pc << 'EOF'
-          prefix=${{ github.workspace }}/Vita3K-Switch/external/custom-mesa
+          prefix=$(pwd)/Vita3K-Switch/external/custom-mesa
           exec_prefix=${prefix}
           libdir=${prefix}/lib
           includedir=${prefix}/include
@@ -74,7 +80,7 @@ jobs:
           EOF
           
           cat > /tmp/custom-mesa-pkgconfig/glesv2.pc << 'EOF'
-          prefix=${{ github.workspace }}/Vita3K-Switch/external/custom-mesa
+          prefix=$(pwd)/Vita3K-Switch/external/custom-mesa
           exec_prefix=${prefix}
           libdir=${prefix}/lib
           includedir=${prefix}/include
@@ -91,10 +97,18 @@ jobs:
           
           # Verify our custom libraries exist and are complete
           echo "=== VERIFYING CUSTOM MESA LIBRARIES ==="
-          ls -la "$MESA_LIB_DIR"/
+          ls -la "$MESA_LIB_DIR"/ || echo "Mesa lib directory not found"
           echo "=== CHECKING FOR REQUIRED SYMBOLS ==="
-          nm "$MESA_LIB_DIR"/libEGL.a | grep -E "(simple_mtx|util_call_once|u_rwlock)" | head -10
-          nm "$MESA_LIB_DIR"/libGLESv2.a | grep -E "(simple_mtx|util_call_once|u_rwlock)" | head -10
+          if [ -f "$MESA_LIB_DIR/libEGL.a" ]; then
+            nm "$MESA_LIB_DIR"/libEGL.a | grep -E "(simple_mtx|util_call_once|u_rwlock)" | head -10
+          else
+            echo "libEGL.a not found"
+          fi
+          if [ -f "$MESA_LIB_DIR/libGLESv2.a" ]; then
+            nm "$MESA_LIB_DIR"/libGLESv2.a | grep -E "(simple_mtx|util_call_once|u_rwlock)" | head -10
+          else
+            echo "libGLESv2.a not found"
+          fi
           
           echo "=== ENVIRONMENT SETUP COMPLETE ==="
           echo "MESA_LIB_DIR: $MESA_LIB_DIR"
