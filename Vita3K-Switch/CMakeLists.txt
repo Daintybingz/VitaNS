@@ -238,37 +238,31 @@ if(VITANS_PLATFORM_SWITCH)
         message(STATUS "=== PREVENTING SYSTEM MESA LINKING ===")
         message(STATUS "Using ONLY custom Mesa libraries from: ${CUSTOM_MESA_LIB_DIR}")
         
-        # Ensure GLES2 renderer files are included
-        list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/src/renderer/RendererGLES2.cpp")
-        list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/src/display/display_buffer.cpp")
-        
-        # Link libraries in correct order for Mesa
-        # Use custom Mesa libraries (these were built specifically for Switch)
-        # CRITICAL: Link order matters - utilities first, then APIs, then drivers
-        target_link_libraries(VitaNS PRIVATE
-            nx SDL2 SDL2_ttf freetype png z bz2 harfbuzz
-            ${CUSTOM_MESA_LIB_DIR}/libmesa_util.a
-            ${CUSTOM_MESA_LIB_DIR}/libblake3.a
-            ${CUSTOM_MESA_LIB_DIR}/libglapi_static.a
-            ${CUSTOM_MESA_LIB_DIR}/libGLESv2.a
-            ${CUSTOM_MESA_LIB_DIR}/libEGL.a
-            ${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a
-            ${CUSTOM_MESA_LIB_DIR}/libmesa.a
+        # Explicitly link with our custom Mesa libraries in correct order
+        target_link_libraries(VitaNS PRIVATE 
+            nx 
+            SDL2 
+            SDL2_ttf 
+            freetype 
+            png 
+            z 
+            bz2 
+            harfbuzz
+            # Custom Mesa libraries in correct link order
+            "${CUSTOM_MESA_LIB_DIR}/libEGL.a"
+            "${CUSTOM_MESA_LIB_DIR}/libGLESv2.a"
+            "${CUSTOM_MESA_LIB_DIR}/libglapi_static.a"
+            "${CUSTOM_MESA_LIB_DIR}/libmesa_util.a"
+            "${CUSTOM_MESA_LIB_DIR}/libmesa.a"
+            "${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a"
+            "${CUSTOM_MESA_LIB_DIR}/libblake3.a"
         )
-        message(STATUS "Using custom Mesa libraries built specifically for Switch")
-        target_link_directories(VitaNS PRIVATE ${CUSTOM_MESA_LIB_DIR})
-        target_compile_definitions(VitaNS PRIVATE VITANS_RENDERER_GLES2=1)
         
-        # Verify that we're linking the correct libraries
-        message(STATUS "=== LINKING VERIFICATION ===")
-        message(STATUS "All Mesa libraries are from custom build:")
-        message(STATUS "  libmesa_util.a: ${CUSTOM_MESA_LIB_DIR}/libmesa_util.a")
-        message(STATUS "  libblake3.a: ${CUSTOM_MESA_LIB_DIR}/libblake3.a")
-        message(STATUS "  libglapi_static.a: ${CUSTOM_MESA_LIB_DIR}/libglapi_static.a")
-        message(STATUS "  libGLESv2.a: ${CUSTOM_MESA_LIB_DIR}/libGLESv2.a")
-        message(STATUS "  libEGL.a: ${CUSTOM_MESA_LIB_DIR}/libEGL.a")
-        message(STATUS "  libsoftpipe.a: ${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a")
-        message(STATUS "  libmesa.a: ${CUSTOM_MESA_LIB_DIR}/libmesa.a")
+        # Add include directories for our custom Mesa
+        target_include_directories(VitaNS PRIVATE ${CUSTOM_MESA_INCLUDE_DIR})
+        
+        message(STATUS "✅ Linked with custom Mesa libraries")
+        message(STATUS "✅ System Mesa libraries excluded")
     endif()
 else()
     # Non-Switch platforms: add OpenGL/EGL files and link OpenGL/EGL if needed
