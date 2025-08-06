@@ -130,37 +130,56 @@ set_property(CACHE VITANS_RENDERER_BACKEND PROPERTY STRINGS gles2 software)
 #   - Correct include and link order
 #   - No system Mesa/portlibs are used
 #
-set(CUSTOM_MESA_DIR "${CMAKE_SOURCE_DIR}/external/custom-mesa")
+# Force custom Mesa libraries only - prevent any system Mesa usage
+set(CUSTOM_MESA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/custom-mesa")
 set(CUSTOM_MESA_LIB_DIR "${CUSTOM_MESA_DIR}/lib")
 set(CUSTOM_MESA_INCLUDE_DIR "${CUSTOM_MESA_DIR}/include")
 
-# CRITICAL: Prevent system Mesa from being found
-# Override any system Mesa paths that might be set
+# Completely block system Mesa
 set(CMAKE_PREFIX_PATH "${CUSTOM_MESA_DIR}" ${CMAKE_PREFIX_PATH})
 set(CMAKE_LIBRARY_PATH "${CUSTOM_MESA_LIB_DIR}" ${CMAKE_LIBRARY_PATH})
 set(CMAKE_INCLUDE_PATH "${CUSTOM_MESA_INCLUDE_DIR}" ${CMAKE_INCLUDE_PATH})
 
-# FORCE: Override any system Mesa environment
-set(ENV{MESA_GL_VERSION_OVERRIDE} "")
-set(ENV{MESA_GLSL_VERSION_OVERRIDE} "")
-set(ENV{LIBGL_ALWAYS_SOFTWARE} "")
-set(ENV{MESA_DEBUG} "")
-set(ENV{LIBGL_DRIVERS_PATH} "${CUSTOM_MESA_LIB_DIR}")
-set(ENV{MESA_LOADER_DRIVER_OVERRIDE} "")
-
-# AGGRESSIVE: Remove any system Mesa from find paths
+# Force custom Mesa only - remove all system paths
 list(REMOVE_ITEM CMAKE_PREFIX_PATH "/usr" "/usr/local" "/opt")
 list(REMOVE_ITEM CMAKE_LIBRARY_PATH "/usr/lib" "/usr/local/lib" "/opt/lib")
 list(REMOVE_ITEM CMAKE_INCLUDE_PATH "/usr/include" "/usr/local/include" "/opt/include")
 
-# FORCE: Override any find_package calls for Mesa
+# Clear pkg-config to prevent system Mesa detection
+set(ENV{PKG_CONFIG_PATH} "")
+set(ENV{PKG_CONFIG_LIBDIR} "")
+
+# Disable all Mesa find_package calls
 set(CMAKE_DISABLE_FIND_PACKAGE_EGL TRUE)
 set(CMAKE_DISABLE_FIND_PACKAGE_GLESv2 TRUE)
 set(CMAKE_DISABLE_FIND_PACKAGE_Mesa TRUE)
 
-# AGGRESSIVE: Set explicit paths to our custom Mesa only
+# Force custom Mesa paths
 set(CMAKE_LIBRARY_PATH "${CUSTOM_MESA_LIB_DIR}")
 set(CMAKE_INCLUDE_PATH "${CUSTOM_MESA_INCLUDE_DIR}")
+
+# Set custom Mesa variables
+set(EGL_LIBRARIES "${CUSTOM_MESA_LIB_DIR}/libEGL.a")
+set(GLESv2_LIBRARIES "${CUSTOM_MESA_LIB_DIR}/libGLESv2.a")
+set(EGL_INCLUDE_DIRS "${CUSTOM_MESA_INCLUDE_DIR}")
+set(GLESv2_INCLUDE_DIRS "${CUSTOM_MESA_INCLUDE_DIR}")
+
+# Mark as found to prevent CMake from searching
+set(EGL_FOUND TRUE)
+set(GLESv2_FOUND TRUE)
+set(MESA_FOUND TRUE)
+
+# Verify custom Mesa libraries exist
+if(NOT EXISTS "${CUSTOM_MESA_LIB_DIR}/libEGL.a")
+    message(FATAL_ERROR "Custom Mesa library not found: ${CUSTOM_MESA_LIB_DIR}/libEGL.a")
+endif()
+
+if(NOT EXISTS "${CUSTOM_MESA_LIB_DIR}/libGLESv2.a")
+    message(FATAL_ERROR "Custom Mesa library not found: ${CUSTOM_MESA_LIB_DIR}/libGLESv2.a")
+endif()
+
+message(STATUS "Using custom Mesa libraries from: ${CUSTOM_MESA_LIB_DIR}")
+message(STATUS "Custom Mesa include directory: ${CUSTOM_MESA_INCLUDE_DIR}")
 
 # DEBUG: Print current working directory and paths
 message(STATUS "=== MESA DEBUG INFO ===")

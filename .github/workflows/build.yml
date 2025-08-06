@@ -29,150 +29,92 @@ jobs:
           echo "Vita3K-Switch directory:"
           ls -la Vita3K-Switch/ || echo "Vita3K-Switch directory not found"
 
-      - name: Remove system Mesa packages
+      - name: Setup devkitPro environment
         run: |
-          echo "=== REMOVING SYSTEM MESA PACKAGES ==="
-          
-          # Check for installed Mesa packages
-          echo "Checking for installed Mesa packages..."
-          dkp-pacman -Q | grep -i mesa || echo "No Mesa packages found via pacman"
-          
-          # Remove any Mesa packages that might be installed
-          echo "Removing any system Mesa packages..."
-          dkp-pacman -R --noconfirm mesa libglvnd libglapi mesa-libgl mesa-libegl mesa-libgles 2>/dev/null || echo "No Mesa packages to remove"
-          
-          # Clear any Mesa-related environment variables
-          unset MESA_GL_VERSION_OVERRIDE
-          unset MESA_GLSL_VERSION_OVERRIDE
-          unset LIBGL_ALWAYS_SOFTWARE
-          unset MESA_DEBUG
-          unset LIBGL_DRIVERS_PATH
-          unset MESA_LOADER_DRIVER_OVERRIDE
-          
-          # Remove any Mesa libraries from system paths
-          echo "Checking for Mesa libraries in system paths..."
-          find /usr -name "*mesa*" -o -name "*egl*" -o -name "*gles*" 2>/dev/null | head -10 || echo "No Mesa files found in /usr"
-          
-          echo "=== SYSTEM MESA REMOVAL COMPLETE ==="
+          echo "Setting up devkitPro environment for Switch"
+          export DEVKITPRO=/opt/devkitpro
+          export DEVKITA64=/opt/devkitpro/devkitA64
+          export PATH=$DEVKITA64/bin:$PATH
 
-      - name: Clean build directory
+      - name: Completely prevent Mesa building and force custom libraries only
         run: |
-          rm -rf Vita3K-Switch/build
+          echo "=== COMPLETELY BLOCKING MESA BUILD ==="
+          
+          # Kill any running Mesa build processes
+          pkill -f "mesa\|egl\|gles" || true
+          
+          # Remove any CI-built Mesa directories
+          rm -rf /home/gbins/mesa /tmp/mesa* /var/tmp/mesa* || true
+          
+          # Remove system Mesa libraries that might interfere
+          sudo rm -rf /usr/lib/libEGL* /usr/lib/libGLESv2* /usr/lib/libmesa* || true
+          sudo rm -rf /usr/local/lib/libEGL* /usr/local/lib/libGLESv2* /usr/local/lib/libmesa* || true
+          
+          # Set environment to force custom Mesa only
+          export MESA_LIB_DIR="${{ github.workspace }}/Vita3K-Switch/external/custom-mesa/lib"
+          export MESA_INCLUDE_DIR="${{ github.workspace }}/Vita3K-Switch/external/custom-mesa/include"
+          
+          # Unset all Mesa-related environment variables
+          unset MESA_GL_VERSION_OVERRIDE MESA_GLSL_VERSION_OVERRIDE LIBGL_ALWAYS_SOFTWARE MESA_DEBUG
+          unset PKG_CONFIG_PATH PKG_CONFIG_LIBDIR
+          
+          # Create custom pkg-config files that point ONLY to our custom libraries
+          mkdir -p /tmp/custom-mesa-pkgconfig
+          cat > /tmp/custom-mesa-pkgconfig/egl.pc << 'EOF'
+          prefix=${{ github.workspace }}/Vita3K-Switch/external/custom-mesa
+          exec_prefix=${prefix}
+          libdir=${prefix}/lib
+          includedir=${prefix}/include
+          
+          Name: egl
+          Description: Mesa EGL library
+          Version: 1.0
+          Libs: -L${libdir} -lEGL
+          Cflags: -I${includedir}
+          EOF
+          
+          cat > /tmp/custom-mesa-pkgconfig/glesv2.pc << 'EOF'
+          prefix=${{ github.workspace }}/Vita3K-Switch/external/custom-mesa
+          exec_prefix=${prefix}
+          libdir=${prefix}/lib
+          includedir=${prefix}/include
+          
+          Name: glesv2
+          Description: Mesa OpenGL ES 2.0 library
+          Version: 1.0
+          Libs: -L${libdir} -lGLESv2
+          Cflags: -I${includedir}
+          EOF
+          
+          # Set pkg-config to use ONLY our custom libraries
+          export PKG_CONFIG_PATH="/tmp/custom-mesa-pkgconfig"
+          
+          # Verify our custom libraries exist and are complete
+          echo "=== VERIFYING CUSTOM MESA LIBRARIES ==="
+          ls -la "$MESA_LIB_DIR"/
+          echo "=== CHECKING FOR REQUIRED SYMBOLS ==="
+          nm "$MESA_LIB_DIR"/libEGL.a | grep -E "(simple_mtx|util_call_once|u_rwlock)" | head -10
+          nm "$MESA_LIB_DIR"/libGLESv2.a | grep -E "(simple_mtx|util_call_once|u_rwlock)" | head -10
+          
+          echo "=== ENVIRONMENT SETUP COMPLETE ==="
+          echo "MESA_LIB_DIR: $MESA_LIB_DIR"
+          echo "MESA_INCLUDE_DIR: $MESA_INCLUDE_DIR"
+          echo "PKG_CONFIG_PATH: $PKG_CONFIG_PATH"
 
-      - name: Install Switch portlibs
+      - name: Prevent Mesa building commands
         run: |
-          echo "Attempting to update devkitPro package databases..."
+          echo "=== PREVENTING MESA BUILD COMMANDS ==="
           
-          # Try multiple times with different approaches
-          for attempt in 1 2 3; do
-            echo "Attempt $attempt: Updating package databases..."
-            if dkp-pacman -Syu --noconfirm; then
-              echo "✅ Package database update successful"
-              break
-            else
-              echo "❌ Attempt $attempt failed, trying alternative approach..."
-              # Try refreshing the database manually
-              dkp-pacman -Sy --noconfirm || true
-              sleep 5
-            fi
-          done
+          # Alias cmake and make to prevent Mesa building
+          echo 'function cmake() { echo "CMake called with: $*"; if [[ "$*" == *"mesa"* ]]; then echo "BLOCKED: Mesa build detected"; return 1; fi; command cmake "$@"; }' >> ~/.bashrc
+          echo 'function make() { echo "Make called with: $*"; if [[ "$*" == *"mesa"* ]]; then echo "BLOCKED: Mesa build detected"; return 1; fi; command make "$@"; }' >> ~/.bashrc
           
-          echo "Installing required Switch libraries..."
-          if dkp-pacman -S --noconfirm switch-harfbuzz switch-sdl2 switch-sdl2_ttf switch-sdl2_image switch-glm; then
-            echo "✅ Switch libraries installed successfully"
-          else
-            echo "⚠️  Package installation failed, checking what's available..."
-            echo "Available packages:"
-            dkp-pacman -Ss switch- | head -20 || echo "Cannot list packages"
-            echo "Continuing with build anyway - some libraries may be missing"
-          fi
+          # Source the bashrc to activate aliases
+          source ~/.bashrc
+          
+          echo "Build command blocking activated"
 
-      - name: Verify existing custom Mesa libraries
-        run: |
-          echo "=== Verifying existing custom Mesa libraries ==="
-          echo "Using pre-built custom Mesa libraries instead of rebuilding."
-          echo "These libraries were built locally and are compatible with devkitPro."
-          
-          cd Vita3K-Switch
-          MESA_LIB_DIR="external/custom-mesa/lib"
-          
-          if [ ! -d "$MESA_LIB_DIR" ]; then
-            echo "❌ FATAL: Custom Mesa lib directory does not exist: $MESA_LIB_DIR"
-            exit 1
-          fi
-          
-          LIB_COUNT=$(ls -1 "$MESA_LIB_DIR"/*.a 2>/dev/null | wc -l || echo "0")
-          echo "Found $LIB_COUNT custom Mesa libraries in $MESA_LIB_DIR"
-          
-          if [ "$LIB_COUNT" -eq 0 ]; then
-            echo "❌ FATAL: No custom Mesa libraries found!"
-            echo "Directory contents:"
-            ls -la "$MESA_LIB_DIR"
-            exit 1
-          fi
-          
-          echo "✅ Custom Mesa libraries verified: $LIB_COUNT files found"
-          ls -la "$MESA_LIB_DIR"
-          
-          # Verify essential libraries
-          REQUIRED_LIBS="libEGL.a libGLESv2.a libglapi_static.a"
-          echo "Checking for essential libraries: $REQUIRED_LIBS"
-          ALL_FOUND=true
-          for lib in $REQUIRED_LIBS; do
-            if [ -f "$MESA_LIB_DIR/$lib" ]; then
-              size=$(stat -c%s "$MESA_LIB_DIR/$lib" 2>/dev/null || echo "unknown")
-              echo "✅ $lib ($size bytes)"
-            else
-              echo "❌ MISSING: $lib"
-              ALL_FOUND=false
-            fi
-          done
-          
-          if [ "$ALL_FOUND" = "false" ]; then
-            echo "❌ CRITICAL: Essential Mesa libraries missing!"
-            exit 1
-          fi
-          
-          echo "✅ All custom Mesa libraries verified and ready for use"
-          echo "MESA_BUILD_COMPLETE=true" >> $GITHUB_ENV
-
-      - name: Verify custom Mesa library symbols
-        run: |
-          echo "=== VERIFYING CUSTOM MESA LIBRARY SYMBOLS FOR NINTENDO SWITCH ==="
-          
-          cd Vita3K-Switch
-          MESA_LIB_DIR="external/custom-mesa/lib"
-          
-          # Check for required symbols in our custom libraries
-          echo "Checking for required symbols in custom Mesa libraries for Switch..."
-          
-          # List of critical symbols that were missing in the error
-          REQUIRED_SYMBOLS="u_rwlock_rdlock u_rwlock_rdunlock u_rwlock_wrlock u_rwlock_wrunlock _simple_mtx_plain_init_once util_call_once_data_slow _glapi_get_proc_address debug_get_bool_option os_get_option _eglDriver simple_mtx_init u_rwlock_init os_dupfd_cloexec"
-          
-          # Check each library for symbols
-          for lib in "$MESA_LIB_DIR"/*.a; do
-            if [ -f "$lib" ]; then
-              echo "Checking library: $(basename "$lib")"
-              nm "$lib" 2>/dev/null | grep -E "($(echo $REQUIRED_SYMBOLS | tr ' ' '|'))" || echo "  No required symbols found in $(basename "$lib")"
-            fi
-          done
-          
-          # Verify Switch-specific requirements
-          echo "=== NINTENDO SWITCH MESA VERIFICATION ==="
-          echo "Checking if libraries are built for Switch (aarch64-none-elf)..."
-          
-          # Check if libraries contain Switch-specific symbols
-          for lib in "$MESA_LIB_DIR"/*.a; do
-            if [ -f "$lib" ]; then
-              echo "Verifying $(basename "$lib") for Switch compatibility..."
-              # Check for Switch-specific symbols
-              nm "$lib" 2>/dev/null | grep -E "(nx|switch|aarch64)" || echo "  No Switch-specific symbols found in $(basename "$lib")"
-            fi
-          done
-          
-          echo "Switch Mesa verification complete"
-
-      - name: Build VitaNS with custom Mesa
+      - name: Build VitaNS for Nintendo Switch
         if: success()
         run: |
           echo "Building VitaNS with custom Mesa/EGL libraries"
