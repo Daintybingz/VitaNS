@@ -140,6 +140,50 @@ jobs:
           
           echo "Build command blocking activated - Mesa builds will be blocked"
 
+      - name: Nuclear Mesa isolation - Force custom libraries only
+        run: |
+          echo "=== NUCLEAR MESA ISOLATION ==="
+          
+          # Completely remove any CI-built Mesa
+          echo "Removing any CI-built Mesa completely..."
+          rm -rf /home/gbins/mesa /tmp/mesa* /var/tmp/mesa* || true
+          sudo rm -rf /usr/lib/libEGL* /usr/lib/libGLESv2* /usr/lib/libmesa* || true
+          sudo rm -rf /usr/local/lib/libEGL* /usr/local/lib/libGLESv2* /usr/local/lib/libmesa* || true
+          
+          # Set explicit linker flags to force our custom libraries
+          export LDFLAGS="-L$(pwd)/Vita3K-Switch/external/custom-mesa/lib"
+          export CPPFLAGS="-I$(pwd)/Vita3K-Switch/external/custom-mesa/include"
+          
+          # Create a custom linker script to force our libraries
+          cat > /tmp/custom-linker.sh << 'EOF'
+          #!/bin/sh
+          # Force custom Mesa libraries only
+          CUSTOM_LIB_DIR="$(pwd)/Vita3K-Switch/external/custom-mesa/lib"
+          
+          # Remove any system Mesa from linker search
+          NEW_LDFLAGS=""
+          for flag in $LDFLAGS; do
+            if echo "$flag" | grep -q "/usr\|/usr/local\|/opt"; then
+              echo "Removing system path: $flag"
+            else
+              NEW_LDFLAGS="$NEW_LDFLAGS $flag"
+            fi
+          done
+          
+          # Add our custom library path first
+          export LDFLAGS="-L$CUSTOM_LIB_DIR $NEW_LDFLAGS"
+          export LIBS="-lEGL -lGLESv2 -lglapi_static -lmesa_util -lmesa -lsoftpipe -lblake3"
+          
+          echo "Forced linker flags: $LDFLAGS"
+          echo "Forced libraries: $LIBS"
+          
+          exec "$@"
+          EOF
+          
+          chmod +x /tmp/custom-linker.sh
+          
+          echo "Nuclear Mesa isolation complete"
+
       - name: Build VitaNS for Nintendo Switch
         if: success()
         run: |

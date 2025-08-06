@@ -169,6 +169,21 @@ set(EGL_FOUND TRUE)
 set(GLESv2_FOUND TRUE)
 set(MESA_FOUND TRUE)
 
+# Set explicit linker flags to force our custom libraries
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L${CUSTOM_MESA_LIB_DIR}")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -L${CUSTOM_MESA_LIB_DIR}")
+
+# Force specific library linking order
+set(CUSTOM_MESA_LIBS 
+    "${CUSTOM_MESA_LIB_DIR}/libmesa_util.a"
+    "${CUSTOM_MESA_LIB_DIR}/libblake3.a"
+    "${CUSTOM_MESA_LIB_DIR}/libglapi_static.a"
+    "${CUSTOM_MESA_LIB_DIR}/libGLESv2.a"
+    "${CUSTOM_MESA_LIB_DIR}/libEGL.a"
+    "${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a"
+    "${CUSTOM_MESA_LIB_DIR}/libmesa.a"
+)
+
 # Verify custom Mesa libraries exist
 if(NOT EXISTS "${CUSTOM_MESA_LIB_DIR}/libEGL.a")
     message(FATAL_ERROR "Custom Mesa library not found: ${CUSTOM_MESA_LIB_DIR}/libEGL.a")
@@ -180,6 +195,7 @@ endif()
 
 message(STATUS "Using custom Mesa libraries from: ${CUSTOM_MESA_LIB_DIR}")
 message(STATUS "Custom Mesa include directory: ${CUSTOM_MESA_INCLUDE_DIR}")
+message(STATUS "Custom Mesa libraries: ${CUSTOM_MESA_LIBS}")
 
 # DEBUG: Print current working directory and paths
 message(STATUS "=== MESA DEBUG INFO ===")
@@ -262,24 +278,18 @@ if(VITANS_PLATFORM_SWITCH)
         list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/src/display/display_buffer.cpp")
         
         # Explicitly link with our custom Mesa libraries in correct order for Switch
-        target_link_libraries(VitaNS PRIVATE 
-            nx 
-            SDL2 
-            SDL2_ttf 
-            freetype 
-            png 
-            z 
-            bz2 
-            harfbuzz
-            # Custom Mesa libraries for Switch in correct link order
-            "${CUSTOM_MESA_LIB_DIR}/libmesa_util.a"
-            "${CUSTOM_MESA_LIB_DIR}/libblake3.a"
-            "${CUSTOM_MESA_LIB_DIR}/libglapi_static.a"
-            "${CUSTOM_MESA_LIB_DIR}/libGLESv2.a"
-            "${CUSTOM_MESA_LIB_DIR}/libEGL.a"
-            "${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a"
-            "${CUSTOM_MESA_LIB_DIR}/libmesa.a"
-        )
+        target_link_libraries(VitaNS PRIVATE
+    nx
+    SDL2
+    SDL2_ttf
+    freetype
+    png
+    z
+    bz2
+    harfbuzz
+    # Force custom Mesa libraries only - no system Mesa
+    ${CUSTOM_MESA_LIBS}
+)
         
         # Add include directories for our custom Mesa
         target_include_directories(VitaNS PRIVATE ${CUSTOM_MESA_INCLUDE_DIR})
