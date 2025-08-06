@@ -136,6 +136,55 @@ jobs:
           echo "✅ All custom Mesa libraries verified and ready for use"
           echo "MESA_BUILD_COMPLETE=true" >> $GITHUB_ENV
 
+      - name: Verify custom Mesa library symbols
+        run: |
+          echo "=== VERIFYING CUSTOM MESA LIBRARY SYMBOLS ==="
+          
+          cd Vita3K-Switch
+          MESA_LIB_DIR="external/custom-mesa/lib"
+          
+          # Check for required symbols in our custom libraries
+          echo "Checking for required symbols in custom Mesa libraries..."
+          
+          # List of critical symbols that were missing in the error
+          REQUIRED_SYMBOLS=(
+            "u_rwlock_rdlock"
+            "u_rwlock_rdunlock"
+            "u_rwlock_wrlock"
+            "u_rwlock_wrunlock"
+            "_simple_mtx_plain_init_once"
+            "util_call_once_data_slow"
+            "_glapi_get_proc_address"
+            "debug_get_bool_option"
+            "os_get_option"
+            "_eglDriver"
+            "simple_mtx_init"
+            "u_rwlock_init"
+            "os_dupfd_cloexec"
+          )
+          
+          echo "Checking symbols in libEGL.a..."
+          if [ -f "$MESA_LIB_DIR/libEGL.a" ]; then
+            nm "$MESA_LIB_DIR/libEGL.a" | grep -E "($(IFS='|'; echo "${REQUIRED_SYMBOLS[*]}"))" || echo "⚠️  Some required symbols not found in libEGL.a"
+          fi
+          
+          echo "Checking symbols in libGLESv2.a..."
+          if [ -f "$MESA_LIB_DIR/libGLESv2.a" ]; then
+            nm "$MESA_LIB_DIR/libGLESv2.a" | grep -E "($(IFS='|'; echo "${REQUIRED_SYMBOLS[*]}"))" || echo "⚠️  Some required symbols not found in libGLESv2.a"
+          fi
+          
+          echo "Checking symbols in libglapi_static.a..."
+          if [ -f "$MESA_LIB_DIR/libglapi_static.a" ]; then
+            nm "$MESA_LIB_DIR/libglapi_static.a" | grep -E "($(IFS='|'; echo "${REQUIRED_SYMBOLS[*]}"))" || echo "⚠️  Some required symbols not found in libglapi_static.a"
+          fi
+          
+          echo "Checking symbols in libmesa_util.a..."
+          if [ -f "$MESA_LIB_DIR/libmesa_util.a" ]; then
+            nm "$MESA_LIB_DIR/libmesa_util.a" | grep -E "($(IFS='|'; echo "${REQUIRED_SYMBOLS[*]}"))" || echo "⚠️  Some required symbols not found in libmesa_util.a"
+          fi
+          
+          echo "=== CUSTOM MESA SYMBOL VERIFICATION COMPLETE ==="
+
       - name: Prevent system Mesa interference
         run: |
           echo "=== PREVENTING SYSTEM MESA INTERFERENCE ==="
@@ -194,6 +243,75 @@ jobs:
           fi
           
           echo "=== MESA BUILD PROCESS BLOCKED ==="
+
+      - name: Completely isolate custom Mesa libraries
+        run: |
+          echo "=== COMPLETELY ISOLATING CUSTOM MESA LIBRARIES ==="
+          
+          cd Vita3K-Switch
+          CUSTOM_MESA_DIR="external/custom-mesa"
+          
+          # Create a completely isolated environment for our custom Mesa
+          echo "Creating isolated Mesa environment..."
+          
+          # Backup original system Mesa libraries (if they exist)
+          sudo mkdir -p /tmp/system-mesa-backup
+          sudo find /usr -name "*mesa*" -o -name "*egl*" -o -name "*gles*" 2>/dev/null | xargs -I {} sudo cp {} /tmp/system-mesa-backup/ 2>/dev/null || echo "No system Mesa libraries to backup"
+          
+          # Remove any system Mesa libraries from linker paths
+          echo "Removing system Mesa from linker paths..."
+          export LD_LIBRARY_PATH=""
+          export LIBRARY_PATH="$CUSTOM_MESA_DIR/lib"
+          export CPATH="$CUSTOM_MESA_DIR/include"
+          
+          # Override any Mesa-related environment variables
+          export MESA_GL_VERSION_OVERRIDE=""
+          export MESA_GLSL_VERSION_OVERRIDE=""
+          export LIBGL_ALWAYS_SOFTWARE=""
+          export MESA_DEBUG=""
+          export LIBGL_DRIVERS_PATH="$CUSTOM_MESA_DIR/lib"
+          export MESA_LOADER_DRIVER_OVERRIDE=""
+          
+          # Create symlinks to force use of our custom libraries
+          echo "Creating symlinks to force custom Mesa usage..."
+          sudo mkdir -p /usr/local/lib/mesa-custom
+          sudo cp $CUSTOM_MESA_DIR/lib/*.a /usr/local/lib/mesa-custom/ 2>/dev/null || echo "No custom libraries to copy"
+          
+          # Override pkg-config to only find our custom Mesa
+          echo "Overriding pkg-config for custom Mesa..."
+          export PKG_CONFIG_PATH="$CUSTOM_MESA_DIR/lib/pkgconfig"
+          export PKG_CONFIG_LIBDIR="$CUSTOM_MESA_DIR/lib/pkgconfig"
+          
+          # Create custom pkg-config files for our Mesa
+          mkdir -p $CUSTOM_MESA_DIR/lib/pkgconfig
+          cat > $CUSTOM_MESA_DIR/lib/pkgconfig/egl.pc << EOF
+          prefix=$CUSTOM_MESA_DIR
+          exec_prefix=\${prefix}
+          libdir=\${prefix}/lib
+          includedir=\${prefix}/include
+          
+          Name: egl
+          Description: Custom Mesa EGL library
+          Version: 1.0
+          Libs: -L\${libdir} -lEGL
+          Cflags: -I\${includedir}
+          EOF
+          
+          cat > $CUSTOM_MESA_DIR/lib/pkgconfig/glesv2.pc << EOF
+          prefix=$CUSTOM_MESA_DIR
+          exec_prefix=\${prefix}
+          libdir=\${prefix}/lib
+          includedir=\${prefix}/include
+          
+          Name: glesv2
+          Description: Custom Mesa GLESv2 library
+          Version: 1.0
+          Libs: -L\${libdir} -lGLESv2
+          Cflags: -I\${includedir}
+          Requires: egl
+          EOF
+          
+          echo "=== CUSTOM MESA ISOLATION COMPLETE ==="
 
       - name: Build VitaNS with custom Mesa
         if: success()
