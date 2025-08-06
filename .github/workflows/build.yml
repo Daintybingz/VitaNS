@@ -36,222 +36,86 @@ jobs:
           export DEVKITA64=/opt/devkitpro/devkitA64
           export PATH=$DEVKITA64/bin:$PATH
 
-      - name: Completely prevent Mesa building and force custom libraries only
+      - name: Verify custom Mesa libraries exist
         run: |
-          echo "=== COMPLETELY BLOCKING MESA BUILD ==="
-          
-          # Check actual workspace path
-          echo "Current working directory: $(pwd)"
-          echo "GitHub workspace: ${{ github.workspace }}"
-          echo "Checking if custom Mesa exists:"
-          ls -la Vita3K-Switch/external/custom-mesa/ || echo "Custom Mesa directory not found"
-          
-          # Kill any running Mesa build processes
-          pkill -f "mesa\|egl\|gles" || true
-          
-          # Remove any CI-built Mesa directories
-          rm -rf /home/gbins/mesa /tmp/mesa* /var/tmp/mesa* || true
-          
-          # Remove system Mesa libraries that might interfere
-          sudo rm -rf /usr/lib/libEGL* /usr/lib/libGLESv2* /usr/lib/libmesa* || true
-          sudo rm -rf /usr/local/lib/libEGL* /usr/local/lib/libGLESv2* /usr/local/lib/libmesa* || true
-          
-          # Set environment to force custom Mesa only - use relative path
-          export MESA_LIB_DIR="$(pwd)/Vita3K-Switch/external/custom-mesa/lib"
-          export MESA_INCLUDE_DIR="$(pwd)/Vita3K-Switch/external/custom-mesa/include"
-          
-          # Unset all Mesa-related environment variables
-          unset MESA_GL_VERSION_OVERRIDE MESA_GLSL_VERSION_OVERRIDE LIBGL_ALWAYS_SOFTWARE MESA_DEBUG
-          unset PKG_CONFIG_PATH PKG_CONFIG_LIBDIR
-          
-          # Create custom pkg-config files that point ONLY to our custom libraries
-          mkdir -p /tmp/custom-mesa-pkgconfig
-          cat > /tmp/custom-mesa-pkgconfig/egl.pc << 'EOF'
-          prefix=$(pwd)/Vita3K-Switch/external/custom-mesa
-          exec_prefix=${prefix}
-          libdir=${prefix}/lib
-          includedir=${prefix}/include
-          
-          Name: egl
-          Description: Mesa EGL library
-          Version: 1.0
-          Libs: -L${libdir} -lEGL
-          Cflags: -I${includedir}
-          EOF
-          
-          cat > /tmp/custom-mesa-pkgconfig/glesv2.pc << 'EOF'
-          prefix=$(pwd)/Vita3K-Switch/external/custom-mesa
-          exec_prefix=${prefix}
-          libdir=${prefix}/lib
-          includedir=${prefix}/include
-          
-          Name: glesv2
-          Description: Mesa OpenGL ES 2.0 library
-          Version: 1.0
-          Libs: -L${libdir} -lGLESv2
-          Cflags: -I${includedir}
-          EOF
-          
-          # Set pkg-config to use ONLY our custom libraries
-          export PKG_CONFIG_PATH="/tmp/custom-mesa-pkgconfig"
-          
-          # Verify our custom libraries exist and are complete
           echo "=== VERIFYING CUSTOM MESA LIBRARIES ==="
-          ls -la "$MESA_LIB_DIR"/ || echo "Mesa lib directory not found"
-          echo "=== CHECKING FOR REQUIRED SYMBOLS ==="
-          if [ -f "$MESA_LIB_DIR/libEGL.a" ]; then
-            nm "$MESA_LIB_DIR"/libEGL.a | grep -E "(simple_mtx|util_call_once|u_rwlock)" | head -10
-          else
-            echo "libEGL.a not found"
-          fi
-          if [ -f "$MESA_LIB_DIR/libGLESv2.a" ]; then
-            nm "$MESA_LIB_DIR"/libGLESv2.a | grep -E "(simple_mtx|util_call_once|u_rwlock)" | head -10
-          else
-            echo "libGLESv2.a not found"
-          fi
           
-          echo "=== ENVIRONMENT SETUP COMPLETE ==="
-          echo "MESA_LIB_DIR: $MESA_LIB_DIR"
-          echo "MESA_INCLUDE_DIR: $MESA_INCLUDE_DIR"
-          echo "PKG_CONFIG_PATH: $PKG_CONFIG_PATH"
-
-      - name: Prevent Mesa building commands
-        run: |
-          echo "=== PREVENTING MESA BUILD COMMANDS ==="
+          # Check if our custom Mesa libraries exist
+          CUSTOM_MESA_DIR="$(pwd)/Vita3K-Switch/external/custom-mesa"
+          CUSTOM_MESA_LIB_DIR="$CUSTOM_MESA_DIR/lib"
+          CUSTOM_MESA_INCLUDE_DIR="$CUSTOM_MESA_DIR/include"
           
-          # Set environment variables to prevent Mesa building
-          export MESA_BUILD_BLOCKED=1
-          export MESA_GL_VERSION_OVERRIDE=""
-          export MESA_GLSL_VERSION_OVERRIDE=""
-          export LIBGL_ALWAYS_SOFTWARE=""
-          export MESA_DEBUG=""
+          echo "Checking custom Mesa directory: $CUSTOM_MESA_DIR"
+          ls -la "$CUSTOM_MESA_DIR" || echo "Custom Mesa directory not found"
           
-          # Create a simple script to block Mesa builds
-          cat > /tmp/block-mesa.sh << 'EOF'
-          #!/bin/sh
-          if echo "$*" | grep -q "mesa"; then
-            echo "BLOCKED: Mesa build detected in command: $*"
+          if [ ! -d "$CUSTOM_MESA_LIB_DIR" ]; then
+            echo "❌ Custom Mesa lib directory not found: $CUSTOM_MESA_LIB_DIR"
             exit 1
           fi
-          exec "$@"
-          EOF
           
-          chmod +x /tmp/block-mesa.sh
+          if [ ! -d "$CUSTOM_MESA_INCLUDE_DIR" ]; then
+            echo "❌ Custom Mesa include directory not found: $CUSTOM_MESA_INCLUDE_DIR"
+            exit 1
+          fi
           
-          echo "Build command blocking activated - Mesa builds will be blocked"
-
-      - name: Nuclear Mesa isolation - Force custom libraries only
-        run: |
-          echo "=== NUCLEAR MESA ISOLATION ==="
+          echo "✅ Custom Mesa directories found"
           
-          # Completely remove any CI-built Mesa
-          echo "Removing any CI-built Mesa completely..."
-          rm -rf /home/gbins/mesa /tmp/mesa* /var/tmp/mesa* || true
-          sudo rm -rf /usr/lib/libEGL* /usr/lib/libGLESv2* /usr/lib/libmesa* || true
-          sudo rm -rf /usr/local/lib/libEGL* /usr/local/lib/libGLESv2* /usr/local/lib/libmesa* || true
+          # Check for all required libraries
+          REQUIRED_LIBS=("libEGL.a" "libGLESv2.a" "libglapi_static.a" "libmesa_util.a" "libsoftpipe.a" "libblake3.a" "libmesa.a")
           
-          # Set explicit linker flags to force our custom libraries
-          export LDFLAGS="-L$(pwd)/Vita3K-Switch/external/custom-mesa/lib"
-          export CPPFLAGS="-I$(pwd)/Vita3K-Switch/external/custom-mesa/include"
-          
-          # Create a custom linker script to force our libraries
-          cat > /tmp/custom-linker.sh << 'EOF'
-          #!/bin/sh
-          # Force custom Mesa libraries only
-          CUSTOM_LIB_DIR="$(pwd)/Vita3K-Switch/external/custom-mesa/lib"
-          
-          # Remove any system Mesa from linker search
-          NEW_LDFLAGS=""
-          for flag in $LDFLAGS; do
-            if echo "$flag" | grep -q "/usr\|/usr/local\|/opt"; then
-              echo "Removing system path: $flag"
-            else
-              NEW_LDFLAGS="$NEW_LDFLAGS $flag"
+          for lib in "${REQUIRED_LIBS[@]}"; do
+            if [ ! -f "$CUSTOM_MESA_LIB_DIR/$lib" ]; then
+              echo "❌ Required library not found: $lib"
+              exit 1
             fi
+            size=$(stat -c%s "$CUSTOM_MESA_LIB_DIR/$lib" 2>/dev/null || echo "unknown")
+            echo "✅ Found: $lib ($size bytes)"
           done
           
-          # Add our custom library path first
-          export LDFLAGS="-L$CUSTOM_LIB_DIR $NEW_LDFLAGS"
-          export LIBS="-lEGL -lGLESv2 -lglapi_static -lmesa_util -lmesa -lsoftpipe -lblake3"
+          echo "✅ All required Mesa libraries present"
           
-          echo "Forced linker flags: $LDFLAGS"
-          echo "Forced libraries: $LIBS"
+          # Check for required headers
+          REQUIRED_HEADERS=("EGL/egl.h" "GLES2/gl2.h" "KHR/khrplatform.h")
           
-          exec "$@"
-          EOF
+          for header in "${REQUIRED_HEADERS[@]}"; do
+            if [ ! -f "$CUSTOM_MESA_INCLUDE_DIR/$header" ]; then
+              echo "❌ Required header not found: $header"
+              exit 1
+            fi
+            echo "✅ Found: $header"
+          done
           
-          chmod +x /tmp/custom-linker.sh
+          echo "✅ All required Mesa headers present"
           
-          echo "Nuclear Mesa isolation complete"
-
-      - name: Complete linker isolation - Force only custom Mesa
-        run: |
-          echo "=== COMPLETE LINKER ISOLATION ==="
+          # Set environment variables for the build
+          export CUSTOM_MESA_DIR="$CUSTOM_MESA_DIR"
+          export CUSTOM_MESA_LIB_DIR="$CUSTOM_MESA_LIB_DIR"
+          export CUSTOM_MESA_INCLUDE_DIR="$CUSTOM_MESA_INCLUDE_DIR"
           
-          # Set environment to force ONLY our custom Mesa libraries
-          export CUSTOM_MESA_LIB_DIR="$(pwd)/Vita3K-Switch/external/custom-mesa/lib"
-          export CUSTOM_MESA_INCLUDE_DIR="$(pwd)/Vita3K-Switch/external/custom-mesa/include"
-          
-          # Remove ALL system Mesa from linker search
-          export LDFLAGS="-L$CUSTOM_MESA_LIB_DIR"
-          export CPPFLAGS="-I$CUSTOM_MESA_INCLUDE_DIR"
-          
-          # Clear any system Mesa environment
-          unset PKG_CONFIG_PATH PKG_CONFIG_LIBDIR
-          unset MESA_GL_VERSION_OVERRIDE MESA_GLSL_VERSION_OVERRIDE
-          
-          # Create a CMake toolchain file to force our libraries
-          cat > /tmp/custom-mesa-toolchain.cmake << 'EOF'
-          # Force custom Mesa libraries only - but don't interfere with devkitPro
-          set(CUSTOM_MESA_DIR "$(pwd)/Vita3K-Switch/external/custom-mesa")
-          set(CUSTOM_MESA_LIB_DIR "${CUSTOM_MESA_DIR}/lib")
-          set(CUSTOM_MESA_INCLUDE_DIR "${CUSTOM_MESA_DIR}/include")
-          
-          # Don't remove devkitPro paths - only remove Mesa-specific system paths
-          list(REMOVE_ITEM CMAKE_LIBRARY_PATH "/usr/lib/libEGL*" "/usr/lib/libGLESv2*" "/usr/lib/libmesa*")
-          list(REMOVE_ITEM CMAKE_INCLUDE_PATH "/usr/include/EGL" "/usr/include/GLES2" "/usr/include/mesa")
-          
-          # Add our custom Mesa paths
-          list(APPEND CMAKE_LIBRARY_PATH "${CUSTOM_MESA_LIB_DIR}")
-          list(APPEND CMAKE_INCLUDE_PATH "${CUSTOM_MESA_INCLUDE_DIR}")
-          list(APPEND CMAKE_PREFIX_PATH "${CUSTOM_MESA_DIR}")
-          
-          # Disable Mesa find_package but keep other find_package working
-          set(CMAKE_DISABLE_FIND_PACKAGE_EGL TRUE)
-          set(CMAKE_DISABLE_FIND_PACKAGE_GLESv2 TRUE)
-          set(CMAKE_DISABLE_FIND_PACKAGE_Mesa TRUE)
-          
-          # Set explicit linker flags for Mesa only
-          set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L${CUSTOM_MESA_LIB_DIR}")
-          set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -L${CUSTOM_MESA_LIB_DIR}")
-          
-          # Force our Mesa libraries
-          set(EGL_LIBRARIES "${CUSTOM_MESA_LIB_DIR}/libEGL.a")
-          set(GLESv2_LIBRARIES "${CUSTOM_MESA_LIB_DIR}/libGLESv2.a")
-          set(EGL_FOUND TRUE)
-          set(GLESv2_FOUND TRUE)
-          set(MESA_FOUND TRUE)
-          EOF
-          
-          echo "Complete linker isolation configured"
+          echo "=== CUSTOM MESA VERIFICATION COMPLETE ==="
+          echo "CUSTOM_MESA_DIR: $CUSTOM_MESA_DIR"
+          echo "CUSTOM_MESA_LIB_DIR: $CUSTOM_MESA_LIB_DIR"
+          echo "CUSTOM_MESA_INCLUDE_DIR: $CUSTOM_MESA_INCLUDE_DIR"
 
       - name: Build VitaNS for Nintendo Switch
         if: success()
         run: |
-          echo "Building VitaNS with COMPLETE custom Mesa isolation"
-          echo "Using ONLY custom Mesa libraries from Vita3K-Switch/external/custom-mesa/lib"
+          echo "Building VitaNS with custom Mesa libraries"
+          echo "Using custom Mesa libraries from Vita3K-Switch/external/custom-mesa/lib"
           
           cd Vita3K-Switch
           mkdir -p build
           cd build
           
-          # Use Switch toolchain without interfering with devkitPro
+          # Build with Switch toolchain and custom Mesa
           cmake .. \
             -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake \
             -DVITANS_RENDERER_BACKEND=gles2
           
-          # Build with explicit Mesa library path only for Mesa libraries
-          make -j$(nproc) LDFLAGS="-L$(pwd)/../external/custom-mesa/lib"
+          # Build the project
+          make -j$(nproc)
+
+
 
       - name: Build Validation and Basic Testing
         run: |
