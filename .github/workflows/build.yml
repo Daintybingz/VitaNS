@@ -36,6 +36,25 @@ jobs:
           export DEVKITA64=/opt/devkitpro/devkitA64
           export PATH=$DEVKITA64/bin:$PATH
 
+      - name: Clean any existing Mesa build artifacts
+        run: |
+          echo "=== CLEANING ANY EXISTING MESA BUILD ARTIFACTS ==="
+          
+          # Remove any existing Mesa build directories
+          rm -rf /home/gbins/mesa /tmp/mesa* /var/tmp/mesa* || true
+          rm -rf /home/runner/work/VitaNS/VitaNS/Mesa/build-switch* || true
+          rm -rf /home/runner/work/VitaNS/VitaNS/Mesa/build* || true
+          
+          # Remove any system Mesa libraries that might interfere
+          sudo rm -rf /usr/lib/libEGL* /usr/lib/libGLESv2* /usr/lib/libmesa* || true
+          sudo rm -rf /usr/local/lib/libEGL* /usr/local/lib/libGLESv2* /usr/local/lib/libmesa* || true
+          
+          # Clear any Mesa-related environment variables
+          unset MESA_GL_VERSION_OVERRIDE MESA_GLSL_VERSION_OVERRIDE LIBGL_ALWAYS_SOFTWARE MESA_DEBUG || true
+          unset PKG_CONFIG_PATH PKG_CONFIG_LIBDIR || true
+          
+          echo "✅ Cleaned any existing Mesa build artifacts"
+
       - name: Verify custom Mesa libraries exist
         run: |
           echo "=== VERIFYING CUSTOM MESA LIBRARIES ==="
