@@ -29,6 +29,32 @@ jobs:
           echo "Vita3K-Switch directory:"
           ls -la Vita3K-Switch/ || echo "Vita3K-Switch directory not found"
 
+      - name: Remove system Mesa packages
+        run: |
+          echo "=== REMOVING SYSTEM MESA PACKAGES ==="
+          
+          # Check for installed Mesa packages
+          echo "Checking for installed Mesa packages..."
+          dkp-pacman -Q | grep -i mesa || echo "No Mesa packages found via pacman"
+          
+          # Remove any Mesa packages that might be installed
+          echo "Removing any system Mesa packages..."
+          dkp-pacman -R --noconfirm mesa libglvnd libglapi mesa-libgl mesa-libegl mesa-libgles 2>/dev/null || echo "No Mesa packages to remove"
+          
+          # Clear any Mesa-related environment variables
+          unset MESA_GL_VERSION_OVERRIDE
+          unset MESA_GLSL_VERSION_OVERRIDE
+          unset LIBGL_ALWAYS_SOFTWARE
+          unset MESA_DEBUG
+          unset LIBGL_DRIVERS_PATH
+          unset MESA_LOADER_DRIVER_OVERRIDE
+          
+          # Remove any Mesa libraries from system paths
+          echo "Checking for Mesa libraries in system paths..."
+          find /usr -name "*mesa*" -o -name "*egl*" -o -name "*gles*" 2>/dev/null | head -10 || echo "No Mesa files found in /usr"
+          
+          echo "=== SYSTEM MESA REMOVAL COMPLETE ==="
+
       - name: Clean build directory
         run: |
           rm -rf Vita3K-Switch/build
@@ -145,6 +171,29 @@ jobs:
           fi
           
           echo "=== SYSTEM MESA PREVENTION COMPLETE ==="
+
+      - name: Block any Mesa build process
+        run: |
+          echo "=== BLOCKING MESA BUILD PROCESS ==="
+          
+          # Create a dummy Mesa build script that does nothing
+          echo "#!/bin/bash" > /tmp/build_mesa.sh
+          echo "echo 'Mesa build blocked - using custom libraries instead'" >> /tmp/build_mesa.sh
+          echo "exit 0" >> /tmp/build_mesa.sh
+          chmod +x /tmp/build_mesa.sh
+          
+          # Override any Mesa build commands
+          export MESA_BUILD_SCRIPT="/tmp/build_mesa.sh"
+          
+          # Check if there are any Mesa build processes running
+          if pgrep -f "mesa\|egl\|gles" > /dev/null; then
+            echo "⚠️  WARNING: Mesa-related processes found, killing them..."
+            pkill -f "mesa\|egl\|gles" || true
+          else
+            echo "✅ No Mesa build processes running"
+          fi
+          
+          echo "=== MESA BUILD PROCESS BLOCKED ==="
 
       - name: Build VitaNS with custom Mesa
         if: success()

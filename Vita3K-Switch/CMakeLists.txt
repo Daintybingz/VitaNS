@@ -145,6 +145,20 @@ set(EGL_FOUND FALSE)
 set(GLESv2_FOUND FALSE)
 set(MESA_FOUND FALSE)
 
+# AGGRESSIVE: Remove any system Mesa from find paths
+list(REMOVE_ITEM CMAKE_PREFIX_PATH "/usr" "/usr/local" "/opt")
+list(REMOVE_ITEM CMAKE_LIBRARY_PATH "/usr/lib" "/usr/local/lib" "/opt/lib")
+list(REMOVE_ITEM CMAKE_INCLUDE_PATH "/usr/include" "/usr/local/include" "/opt/include")
+
+# Force pkg-config to not find system Mesa
+set(ENV{PKG_CONFIG_PATH} "")
+set(ENV{PKG_CONFIG_LIBDIR} "")
+
+# Override any find_package calls for Mesa
+set(CMAKE_DISABLE_FIND_PACKAGE_EGL TRUE)
+set(CMAKE_DISABLE_FIND_PACKAGE_GLESv2 TRUE)
+set(CMAKE_DISABLE_FIND_PACKAGE_Mesa TRUE)
+
 # DEBUG: Print current working directory and paths
 message(STATUS "=== MESA DEBUG INFO ===")
 message(STATUS "CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
