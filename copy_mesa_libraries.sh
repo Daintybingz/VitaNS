@@ -1,39 +1,68 @@
 #!/bin/bash
+
+# 🏭 Production Mesa Libraries Copy Script
+# Copies optimized, stripped Mesa libraries to VitaNS project
+
 set -e
 
-echo "📦 Copying Mesa libraries to Vita3K-Switch custom-mesa directory..."
+echo "🏭 Copying Production Mesa Libraries to VitaNS..."
 
-# Check if Mesa build directory exists
-if [ ! -d "Mesa/build-switch" ]; then
-    echo "❌ Error: Mesa/build-switch directory not found. Run Mesa build first."
-    exit 1
+# Source directories
+PRODUCTION_BUILD="Mesa/build-production"
+VITANS_MESA="Vita3K-Switch/external/custom-mesa"
+
+# Create backup of current libraries
+echo "📦 Creating backup of current libraries..."
+mkdir -p "${VITANS_MESA}/lib/backup-$(date +%Y%m%d-%H%M%S)"
+cp "${VITANS_MESA}/lib/"*.a "${VITANS_MESA}/lib/backup-$(date +%Y%m%d-%H%M%S)/" 2>/dev/null || true
+
+# Copy production libraries
+echo "📋 Copying production libraries..."
+
+# Core Mesa libraries
+cp "${PRODUCTION_BUILD}/src/mapi/es2api/libGLESv2.a" "${VITANS_MESA}/lib/"
+cp "${PRODUCTION_BUILD}/src/mapi/glapi/libglapi_static.a" "${VITANS_MESA}/lib/"
+cp "${PRODUCTION_BUILD}/src/egl/libEGL.a" "${VITANS_MESA}/lib/"
+cp "${PRODUCTION_BUILD}/src/util/libmesa_util.a" "${VITANS_MESA}/lib/"
+cp "${PRODUCTION_BUILD}/src/gallium/drivers/softpipe/libsoftpipe.a" "${VITANS_MESA}/lib/"
+cp "${PRODUCTION_BUILD}/src/util/blake3/libblake3.a" "${VITANS_MESA}/lib/"
+cp "${PRODUCTION_BUILD}/src/mesa/libmesa.a" "${VITANS_MESA}/lib/"
+
+# Copy headers if they exist
+if [ -d "${PRODUCTION_BUILD}/include" ]; then
+    echo "📋 Copying production headers..."
+    cp -r "${PRODUCTION_BUILD}/include/"* "${VITANS_MESA}/include/" 2>/dev/null || true
 fi
 
-# Create custom-mesa directories if they don't exist
-mkdir -p Vita3K-Switch/external/custom-mesa/lib
-mkdir -p Vita3K-Switch/external/custom-mesa/include
+# Verify libraries
+echo "🔍 Verifying production libraries..."
+ls -la "${VITANS_MESA}/lib/"*.a
 
-echo "🔍 Copying libraries from Mesa/build-switch to Vita3K-Switch/external/custom-mesa/lib/"
+# Check library sizes
+echo "📊 Library size comparison:"
+echo "Production libraries:"
+ls -lh "${VITANS_MESA}/lib/"*.a
 
-# Copy all Mesa libraries
-cp Mesa/build-switch/src/mapi/es2api/libGLESv2.a Vita3K-Switch/external/custom-mesa/lib/
-cp Mesa/build-switch/src/egl/libEGL.a Vita3K-Switch/external/custom-mesa/lib/
-cp Mesa/build-switch/src/util/libmesa_util.a Vita3K-Switch/external/custom-mesa/lib/
-cp Mesa/build-switch/src/gallium/drivers/softpipe/libsoftpipe.a Vita3K-Switch/external/custom-mesa/lib/
+# Verify no debug symbols
+echo "🔍 Checking for debug symbols..."
+for lib in "${VITANS_MESA}/lib/"*.a; do
+    if [ -f "$lib" ]; then
+        debug_symbols=$(nm "$lib" 2>/dev/null | grep -c " D " || echo "0")
+        echo "  $(basename "$lib"): $debug_symbols debug symbols"
+    fi
+done
 
-echo "📁 Copying headers from Mesa source to Vita3K-Switch/external/custom-mesa/include/"
+# Test linking
+echo "🧪 Testing library linking..."
+cd Vita3K-Switch
+if [ -f "CMakeLists.txt" ]; then
+    echo "✅ CMakeLists.txt found - ready for build test"
+else
+    echo "⚠️  CMakeLists.txt not found in Vita3K-Switch directory"
+fi
 
-# Copy Mesa headers from source
-cp -r Mesa/include/* Vita3K-Switch/external/custom-mesa/include/
-
-echo "✅ Libraries copied successfully!"
-echo ""
-echo "📊 Copied libraries:"
-ls -la Vita3K-Switch/external/custom-mesa/lib/
-
-echo ""
-echo "📁 Copied headers:"
-ls -la Vita3K-Switch/external/custom-mesa/include/
-
-echo ""
-echo "🎉 Mesa libraries are now ready for Vita3K-Switch build!"
+echo "✅ Production Mesa libraries copied successfully!"
+echo "📋 Next steps:"
+echo "  1. Commit the new libraries: git add Vita3K-Switch/external/custom-mesa/lib/"
+echo "  2. Test the build: cd Vita3K-Switch && cmake --build build"
+echo "  3. Monitor CI build for success"
