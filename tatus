@@ -1,3 +1,13 @@
 [33m328ef76[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m fix: Add Python module path and test Python code generation for Mesa build
 [33mdcfefdc[m fix: Remove non-existent Mesa options (dri-drivers, gallium-clover, gallium-dri)
 [33mb61523b[m fix: Use correct option types for Mesa build (boolean vs feature types)
+[33m0b7d60c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m Integrate production-optimized Mesa libraries with stripped symbols and clean paths
+[33m5751757[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m Add custom Mesa libraries and build scripts for Switch compatibility
+[33mf5a5752[m 🧹 Clean Mesa build artifacts - Remove any existing Mesa builds that might interfere
+[33mf5ab12e[m 🔧 Fix shell syntax error in GitHub Actions - Use sh-compatible array syntax
+[33mbc95923[m 🔧 Simplify GitHub Actions workflow - Remove Mesa build steps and use only custom libraries
+[33m5678955[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m Update Mesa libraries with working rebuild - all symbols preserved, production ready
+[33m6413b38[m Restore working Mesa libraries with all required symbols
+[33m0b7d60c[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m Integrate production-optimized Mesa libraries with stripped symbols and clean paths
+[33m5751757[m Add custom Mesa libraries and build scripts for Switch compatibility
+[33mf5a5752[m 🧹 Clean Mesa build artifacts - Remove any existing Mesa builds that might interfere

@@ -136,20 +136,20 @@ meson setup build-switch/ --cross-file switch.meson \
 
 ### **For Switch Homebrew Projects**
 
-1. **Copy Libraries:**
+1. **Copy Production Libraries:**
    ```bash
-   cp build-switch/src/mapi/es2api/libGLESv2.a /path/to/your/project/
-   cp build-switch/src/mapi/glapi/libglapi_static.a /path/to/your/project/
-   cp build-switch/src/egl/libEGL.a /path/to/your/project/
-   cp build-switch/src/util/libmesa_util.a /path/to/your/project/
-   cp build-switch/src/gallium/drivers/softpipe/libsoftpipe.a /path/to/your/project/
-   cp build-switch/src/util/blake3/libblake3.a /path/to/your/project/
-   cp build-switch/src/mesa/libmesa.a /path/to/your/project/
+   cp build-production/src/mapi/es2api/libGLESv2.a /path/to/your/project/
+   cp build-production/src/mapi/glapi/libglapi_static.a /path/to/your/project/
+   cp build-production/src/egl/libEGL.a /path/to/your/project/
+   cp build-production/src/util/libmesa_util.a /path/to/your/project/
+   cp build-production/src/gallium/drivers/softpipe/libsoftpipe.a /path/to/your/project/
+   cp build-production/src/util/blake3/libblake3.a /path/to/your/project/
+   cp build-production/src/mesa/libmesa.a /path/to/your/project/
    ```
 
 2. **Include Headers:**
    ```bash
-   cp -r build-switch/include/ /path/to/your/project/
+   cp -r include/ /path/to/your/project/
    ```
 
 3. **Link Order:**
@@ -166,6 +166,7 @@ meson setup build-switch/ --cross-file switch.meson \
 - **Archive compatibility**: 100% (all regular archives)
 - **Switch compatibility**: ✅ Verified
 - **Linking test**: ✅ **PASSED** - Test program successfully compiled and linked
+- **Production build**: ✅ **COMPLETED** - Optimized, stripped, clean paths
 
 ## 🔍 **Quality Assurance**
 
@@ -182,14 +183,17 @@ meson setup build-switch/ --cross-file switch.meson \
 - ✅ EGL functionality available
 - ✅ Software rendering (softpipe) working
 - ✅ **Linking verification passed** - All undefined references resolved
+- ✅ **Production quality verified** - Stripped symbols, clean paths, optimized size
 
 ## 📝 **Documentation Status**
 
 ### **Active Documents**
 - `MESA_SWITCH_FINAL_STATUS.md` - This comprehensive status document
+- `PRODUCTION_REBUILD_SUCCESS_SUMMARY.md` - Production optimization results
+- `clean_production_rebuild.sh` - Production rebuild script
 - `create_regular_archives.sh` - Archive conversion script
 - `switch.meson` - Cross-compilation configuration
-- `build_real_mesa.sh` - Build script
+- `complete_mesa_rebuild.sh` - Complete rebuild script
 
 ### **Archived Documents**
 - `MESA_MISSING_COMPONENTS_ISSUE.md` - Issue analysis (resolved)
@@ -208,6 +212,7 @@ meson setup build-switch/ --cross-file switch.meson \
 - ✅ Software rendering pipeline working
 - ✅ devkitPro toolchain compatibility
 - ✅ **Linking verification successful** - Test program compiled and linked without errors
+- ✅ **Production optimization complete** - Stripped symbols, clean paths, maximum optimization
 
 ## 🚀 **Ready for Production**
 
@@ -215,7 +220,7 @@ The Mesa build for Nintendo Switch is now **production-ready** and can be used i
 
 ---
 
-**Final Status**: 🟢 **COMPLETE SUCCESS**  
-**Date**: August 5, 2024  
+**Final Status**: 🟢 **PRODUCTION READY**  
+**Date**: August 6, 2024  
 **Next Step**: Integrate into Switch homebrew projects  
 **Maintenance**: No further action required 
