@@ -191,6 +191,28 @@ jobs:
           
           echo "✅ All critical Mesa symbols verified"
 
+      - name: Debug CMake linking process
+        run: |
+          echo "=== DEBUGGING CMAKE LINKING PROCESS ==="
+          
+          cd Vita3K-Switch
+          mkdir -p build-debug
+          cd build-debug
+          
+          # Run CMake with verbose output
+          cmake .. \
+            -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/Switch.cmake \
+            -DVITANS_RENDERER_BACKEND=gles2 \
+            --debug-output
+          
+          # Show what libraries CMake found
+          echo "=== CMAKE LIBRARY DETECTION ==="
+          grep -i "mesa\|egl\|gles" CMakeCache.txt || echo "No Mesa-related entries in CMakeCache.txt"
+          
+          # Show the actual link command that will be used
+          echo "=== LINK COMMAND DEBUG ==="
+          make -n VitaNS 2>&1 | grep -E "(gcc|g\+\+|ld)" | head -5
+
       - name: Build VitaNS for Nintendo Switch
         if: success()
         run: |
