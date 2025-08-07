@@ -55,6 +55,44 @@ jobs:
           
           echo "✅ Cleaned any existing Mesa build artifacts"
 
+      - name: Aggressively block system Mesa detection
+        run: |
+          echo "=== AGGRESSIVELY BLOCKING SYSTEM MESA DETECTION ==="
+          
+          # Create dummy pkg-config files to block system Mesa
+          mkdir -p /tmp/block-mesa/pkgconfig
+          cat > /tmp/block-mesa/pkgconfig/egl.pc << 'EOF'
+          Name: egl
+          Description: Dummy EGL package to block system Mesa
+          Version: 0.0.0
+          Libs: -L/__w/VitaNS/VitaNS/Vita3K-Switch/external/custom-mesa/lib -lEGL
+          Cflags: -I/__w/VitaNS/VitaNS/Vita3K-Switch/external/custom-mesa/include
+          EOF
+          
+          cat > /tmp/block-mesa/pkgconfig/glesv2.pc << 'EOF'
+          Name: glesv2
+          Description: Dummy GLESv2 package to block system Mesa
+          Version: 0.0.0
+          Libs: -L/__w/VitaNS/VitaNS/Vita3K-Switch/external/custom-mesa/lib -lGLESv2
+          Cflags: -I/__w/VitaNS/VitaNS/Vita3K-Switch/external/custom-mesa/include
+          EOF
+          
+          # Set pkg-config to use our dummy files
+          export PKG_CONFIG_PATH="/tmp/block-mesa/pkgconfig:$PKG_CONFIG_PATH"
+          
+          # Block any Mesa-related environment variables
+          export MESA_GL_VERSION_OVERRIDE=""
+          export MESA_GLSL_VERSION_OVERRIDE=""
+          export LIBGL_ALWAYS_SOFTWARE=""
+          export MESA_DEBUG=""
+          
+          # Remove Mesa from any search paths
+          export CMAKE_PREFIX_PATH=""
+          export CMAKE_LIBRARY_PATH=""
+          export CMAKE_INCLUDE_PATH=""
+          
+          echo "✅ Aggressively blocked system Mesa detection"
+
       - name: Verify custom Mesa libraries exist
         run: |
           echo "=== VERIFYING CUSTOM MESA LIBRARIES ==="
@@ -111,6 +149,47 @@ jobs:
           echo "CUSTOM_MESA_DIR: $CUSTOM_MESA_DIR"
           echo "CUSTOM_MESA_LIB_DIR: $CUSTOM_MESA_LIB_DIR"
           echo "CUSTOM_MESA_INCLUDE_DIR: $CUSTOM_MESA_INCLUDE_DIR"
+
+      - name: Verify Mesa library symbols
+        run: |
+          echo "=== VERIFYING MESA LIBRARY SYMBOLS ==="
+          
+          CUSTOM_MESA_LIB_DIR="$(pwd)/Vita3K-Switch/external/custom-mesa/lib"
+          
+          # Check for critical symbols in libglapi_static.a
+          echo "Checking libglapi_static.a for _glapi_get_proc_address..."
+          if nm "$CUSTOM_MESA_LIB_DIR/libglapi_static.a" 2>/dev/null | grep -q "_glapi_get_proc_address"; then
+            echo "✅ _glapi_get_proc_address found in libglapi_static.a"
+          else
+            echo "❌ _glapi_get_proc_address NOT found in libglapi_static.a"
+            echo "Available symbols in libglapi_static.a:"
+            nm "$CUSTOM_MESA_LIB_DIR/libglapi_static.a" 2>/dev/null | head -10
+            exit 1
+          fi
+          
+          # Check for critical symbols in libEGL.a
+          echo "Checking libEGL.a for _eglDriver..."
+          if nm "$CUSTOM_MESA_LIB_DIR/libEGL.a" 2>/dev/null | grep -q "_eglDriver"; then
+            echo "✅ _eglDriver found in libEGL.a"
+          else
+            echo "❌ _eglDriver NOT found in libEGL.a"
+            echo "Available symbols in libEGL.a:"
+            nm "$CUSTOM_MESA_LIB_DIR/libEGL.a" 2>/dev/null | head -10
+            exit 1
+          fi
+          
+          # Check for threading symbols in libmesa_util.a
+          echo "Checking libmesa_util.a for _simple_mtx_plain_init_once..."
+          if nm "$CUSTOM_MESA_LIB_DIR/libmesa_util.a" 2>/dev/null | grep -q "_simple_mtx_plain_init_once"; then
+            echo "✅ _simple_mtx_plain_init_once found in libmesa_util.a"
+          else
+            echo "❌ _simple_mtx_plain_init_once NOT found in libmesa_util.a"
+            echo "Available symbols in libmesa_util.a:"
+            nm "$CUSTOM_MESA_LIB_DIR/libmesa_util.a" 2>/dev/null | head -10
+            exit 1
+          fi
+          
+          echo "✅ All critical Mesa symbols verified"
 
       - name: Build VitaNS for Nintendo Switch
         if: success()
