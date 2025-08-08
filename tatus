@@ -16,3 +16,8 @@
 [33m5fb039c[m ci: trigger GitHub Actions build
 [33m1a4208f[m Switch: wrap Mesa static libs in --start-group/--end-group and adjust order to resolve _glapi_get_proc_address and _eglDriver
 [33m0b8933e[m Add comprehensive Mesa library symbol verification script
+[33m243640e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m Add dlfcn.h stub and fix CMakeLists.txt for Switch compatibility
+[33m102c0f1[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m Add Mesa libraries and Switch native window integration
+[33mb053f06[m ci: ensure elf2nro in PATH and convert VitaNS.elf to VitaNS.nro if needed
+[33m5fb039c[m ci: trigger GitHub Actions build
+[33m1a4208f[m Switch: wrap Mesa static libs in --start-group/--end-group and adjust order to resolve _glapi_get_proc_address and _eglDriver
