@@ -14,7 +14,7 @@ class Renderer; // <-- Add this line
 class IGraphicsBackend;
 class SwitchInput;
 class GpuSubsystem;
-#include "../../modules/SceGxm/SceGxm.h"
+class SceGxm; // forward declaration to avoid circular include
 
 enum class EmulatorState {
     UNINITIALIZED,
