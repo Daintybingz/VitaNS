@@ -22,13 +22,13 @@ find_library(NX_LIBRARY nx)
 find_library(Z_LIBRARY z)
 find_library(BZ2_LIBRARY bz2)
 
-# Include directories
+# Include directories - prioritize our custom headers
 include_directories(
+    ${CUSTOM_MESA_INCLUDE_DIR}  # Must come first to override system headers
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui
     ${CMAKE_CURRENT_SOURCE_DIR}/external/nlohmann
     ${CMAKE_CURRENT_SOURCE_DIR}/external/spdlog
-    ${CUSTOM_MESA_INCLUDE_DIR}
     ${SDL2_INCLUDE_DIRS}
     ${SDL2_TTF_INCLUDE_DIRS}
     ${FREETYPE_INCLUDE_DIRS}
@@ -71,13 +71,21 @@ target_link_libraries(VitaNS PRIVATE
     -lm
 )
 
-# Set compiler flags
+# Set compiler flags and definitions
 target_compile_options(VitaNS PRIVATE
     ${SDL2_CFLAGS_OTHER}
     ${SDL2_TTF_CFLAGS_OTHER}
     ${FREETYPE_CFLAGS_OTHER}
     ${PNG_CFLAGS_OTHER}
     ${HARFBUZZ_CFLAGS_OTHER}
+)
+
+# Add compiler definitions to disable dynamic OpenGL loading
+target_compile_definitions(VitaNS PRIVATE
+    IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+    IMGUI_DISABLE_DEMO_WINDOWS
+    IMGUI_IMPL_OPENGL_ES2
+    IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 )
 
 # Set linker flags

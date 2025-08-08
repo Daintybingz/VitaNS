@@ -11,3 +11,8 @@
 [33m0b7d60c[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m Integrate production-optimized Mesa libraries with stripped symbols and clean paths
 [33m5751757[m Add custom Mesa libraries and build scripts for Switch compatibility
 [33mf5a5752[m 🧹 Clean Mesa build artifacts - Remove any existing Mesa builds that might interfere
+[33m102c0f1[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m Add Mesa libraries and Switch native window integration
+[33mb053f06[m ci: ensure elf2nro in PATH and convert VitaNS.elf to VitaNS.nro if needed
+[33m5fb039c[m ci: trigger GitHub Actions build
+[33m1a4208f[m Switch: wrap Mesa static libs in --start-group/--end-group and adjust order to resolve _glapi_get_proc_address and _eglDriver
+[33m0b8933e[m Add comprehensive Mesa library symbol verification script
