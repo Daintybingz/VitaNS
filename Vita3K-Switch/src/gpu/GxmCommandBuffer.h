@@ -3,6 +3,8 @@
 #include <memory>
 #include <cstdint>
 #include <string>
+#include <tuple>
+#include <GLES2/gl2.h>
 
 // Enum for command types
 enum class GxmGpuCommandType {

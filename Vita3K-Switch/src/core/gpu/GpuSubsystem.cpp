@@ -2,10 +2,12 @@
 #include "../../renderer/Renderer.h"
 #include "../../gpu/GxmExecutor.h"
 #include "../../gpu/GxmCommandBuffer.h"
+#include "../../renderer/RendererGLES2.h"
 
 GpuSubsystem::GpuSubsystem(Renderer* renderer) : renderer(renderer) {
     // Initialize GXM command parsing
-    gxmExecutor = std::make_unique<GxmExecutor>(renderer);
+    auto* gles2 = dynamic_cast<RendererGLES2*>(renderer);
+    gxmExecutor = std::make_unique<GxmExecutor>(gles2);
     printf("[GpuSubsystem] Initialized with renderer\n");
 }
 
