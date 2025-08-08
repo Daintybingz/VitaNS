@@ -26,7 +26,7 @@
 #include "../../renderer/Renderer.h"
 #include "../../renderer/RendererStub.cpp"
 #include <vector>
-#include "../display/display_buffer.h"
+#include "../../display/display_buffer.h"
 #include "../../renderer/RendererFactory.h"
 #include "../renderer/RendererSoftware.h"
 
