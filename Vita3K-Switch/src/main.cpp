@@ -1,7 +1,7 @@
 #include <switch.h>
+#include <switch/services/hid.h>
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
-#include "switch_native_window.h"
 #include "platform/switch_native_window.h"
 #include <cstdio>
 
