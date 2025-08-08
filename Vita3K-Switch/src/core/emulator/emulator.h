@@ -120,6 +120,7 @@ public:
 #ifndef VITANS_PLATFORM_SWITCH
     SceGxm* getSceGxm();
 #endif
+    GpuSubsystem* getGpuSubsystem() { return gpu_subsystem.get(); }
 
     // Add missing methods
     // void setRenderer(IGraphicsBackend* r); // PHASE 1: Commented out

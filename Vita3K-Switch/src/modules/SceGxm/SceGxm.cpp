@@ -87,7 +87,8 @@ int SceGxm::sceGxmDrawWrapper(Emulator& emulator, unsigned int nid, const std::v
     const void* vertexData = (const void*)args[3];
     uint32_t vertexSize = args[4];
     
-    return instance->sceGxmDraw(context, primitiveType, vertexCount, vertexData, vertexSize);
+    // Disambiguate to the overload with vertex data
+    return instance->sceGxmDraw(context, primitiveType, vertexCount, vertexData, vertexSize, nullptr, 0, 0);
 }
 
 int SceGxm::sceGxmBeginSceneWrapper(Emulator& emulator, unsigned int nid, const std::vector<unsigned int>& args) {
@@ -1079,21 +1080,21 @@ void SceGxm::finalize() {
 // Helper to emit a buffer upload command to the GXM command buffer
 void SceGxm::emitUploadVertexBuffer(const void* data, size_t size) {
     // Get the current GXM command buffer (stub: real impl should get from GpuSubsystem)
-    auto* gpu = Emulator::getInstance().gpu_subsystem;
+    auto* gpu = Emulator::getInstance().getGpuSubsystem();
     if (!gpu) return;
     auto cmd = std::make_unique<GxmUploadVertexBufferCommand>();
     cmd->data = malloc(size); memcpy((void*)cmd->data, data, size); cmd->size = size;
     gpu->currentBuffer->add(std::move(cmd));
 }
 void SceGxm::emitUploadIndexBuffer(const void* data, size_t size, uint32_t indexType) {
-    auto* gpu = Emulator::getInstance().gpu_subsystem;
+    auto* gpu = Emulator::getInstance().getGpuSubsystem();
     if (!gpu) return;
     auto cmd = std::make_unique<GxmUploadIndexBufferCommand>();
     cmd->data = malloc(size); memcpy((void*)cmd->data, data, size); cmd->size = size; cmd->indexType = indexType;
     gpu->currentBuffer->add(std::move(cmd));
 }
 void SceGxm::emitUploadShader(const std::string& name, const std::string& vertSrc, const std::string& fragSrc) {
-    auto* gpu = Emulator::getInstance().gpu_subsystem;
+    auto* gpu = Emulator::getInstance().getGpuSubsystem();
     if (!gpu) return;
     auto cmd = std::make_unique<GxmUploadShaderCommand>();
     cmd->name = name; cmd->vertSrc = vertSrc; cmd->fragSrc = fragSrc;
@@ -1141,7 +1142,7 @@ int SceGxm::sceGxmShaderPatcherRegisterProgram(SceGxmShaderPatcher* shaderPatche
 }
 
 void SceGxm::emitSetupVertexAttributes(const std::vector<std::tuple<int, int, GLenum, size_t>>& layout, size_t stride) {
-    auto* gpu = Emulator::getInstance().gpu_subsystem;
+    auto* gpu = Emulator::getInstance().getGpuSubsystem();
     if (!gpu) return;
     auto cmd = std::make_unique<GxmSetupVertexAttributesCommand>();
     cmd->layout = layout;
@@ -1149,7 +1150,7 @@ void SceGxm::emitSetupVertexAttributes(const std::vector<std::tuple<int, int, GL
     gpu->currentBuffer->add(std::move(cmd));
 }
 void SceGxm::emitSetUniform(const std::string& name, const std::vector<float>& values) {
-    auto* gpu = Emulator::getInstance().gpu_subsystem;
+    auto* gpu = Emulator::getInstance().getGpuSubsystem();
     if (!gpu) return;
     auto cmd = std::make_unique<GxmSetUniformCommand>();
     cmd->name = name;
@@ -1157,7 +1158,7 @@ void SceGxm::emitSetUniform(const std::string& name, const std::vector<float>& v
     gpu->currentBuffer->add(std::move(cmd));
 }
 void SceGxm::emitSetSampler(const std::string& name, int unit) {
-    auto* gpu = Emulator::getInstance().gpu_subsystem;
+    auto* gpu = Emulator::getInstance().getGpuSubsystem();
     if (!gpu) return;
     auto cmd = std::make_unique<GxmSetSamplerCommand>();
     cmd->name = name;
