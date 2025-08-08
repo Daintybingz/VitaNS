@@ -1,7 +1,8 @@
 #ifndef SWITCH_NATIVE_WINDOW_IMPL_H
 #define SWITCH_NATIVE_WINDOW_IMPL_H
 
-#include "switch_native_window.h"
+// Use the external definition from custom Mesa include directory
+#include <switch_native_window.h>
 
 #ifdef __cplusplus
 extern "C" {
