@@ -11,7 +11,7 @@
 #include "modules/SceAudio/SceAudio.h"
 #include "modules/SceTouch/SceTouch.h"
 #include "../memory/memory_manager.h"
-#include "cpu/switch_cpu_backend.h"
+#include "../cpu/switch_cpu_backend.h"
 #include "../../modules/module.h"
 #include "../../input/switch_input.h"
 #include "../../firmware/modules/display/sceDisplay.h"
