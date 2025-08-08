@@ -28,7 +28,7 @@
 #include <vector>
 #include "../../display/display_buffer.h"
 #include "../../renderer/RendererFactory.h"
-#include "../renderer/RendererSoftware.h"
+#include "../../renderer/RendererSoftware.h"
 
 #ifndef VITANS_PLATFORM_SWITCH
 #warning "VITANS_PLATFORM_SWITCH is not defined for this translation unit. Ensure CMake sets it globally."
