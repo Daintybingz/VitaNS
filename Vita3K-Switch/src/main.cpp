@@ -1,5 +1,4 @@
 #include <switch.h>
-#include <switch/services/hid.h>
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
 #include "platform/switch_native_window.h"
@@ -109,9 +108,12 @@ int main(int argc, char* argv[]) {
     printf("VitaNS: Mesa EGL test completed successfully!\n");
     
     // Keep console open for a moment to see output
+    PadState pad;
+    padInitializeDefault(&pad);
     while (appletMainLoop()) {
-        hidScanInput();
-        if (hidKeysDown(CONTROLLER_P1_AUTO) & KEY_PLUS) {
+        padUpdate(&pad);
+        u64 kDown = padGetButtonsDown(&pad);
+        if (kDown & HidNpadButton_Plus) {
             break;
         }
         consoleUpdate(nullptr);
