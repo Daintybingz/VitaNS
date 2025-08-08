@@ -64,7 +64,6 @@ target_link_libraries(VitaNS PRIVATE
     "${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a"
     "${CUSTOM_MESA_LIB_DIR}/libblake3.a"
     "${CUSTOM_MESA_LIB_DIR}/libmesa.a"
-    "${CUSTOM_MESA_LIB_DIR}/libglapi_static.a"
     -Wl,--end-group
     # System dependencies required by Mesa
     -lpthread
