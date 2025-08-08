@@ -10,7 +10,7 @@
 #include "modules/SceDisplay/SceDisplay.h"
 #include "modules/SceAudio/SceAudio.h"
 #include "modules/SceTouch/SceTouch.h"
-#include "memory/memory_manager.h"
+#include "../memory/memory_manager.h"
 #include "cpu/switch_cpu_backend.h"
 #include "../../modules/module.h"
 #include "../../input/switch_input.h"
