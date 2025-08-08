@@ -3,6 +3,7 @@
 #include "../../renderer/gl/RendererGLES3.h"
 #include "../../renderer/gl/IGraphicsBackend.h"
 #include "../module/module_registry.h"
+#include "../../modules/SceGxm/SceGxm.h" // ensure SceGxm is a complete type for dynamic_cast
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
