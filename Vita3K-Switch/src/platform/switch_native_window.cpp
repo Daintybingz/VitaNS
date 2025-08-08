@@ -16,11 +16,10 @@ static void *acquire_framebuffer(void *userdata, int32_t *out_stride_bytes) {
     SwitchWindowContext *ctx = (SwitchWindowContext *)userdata;
     if (!ctx) return nullptr;
     
-    framebufferBegin(&ctx->fb, NULL);
-    ctx->framebuffer_ptr = framebufferGetPixels(&ctx->fb);
-    if (out_stride_bytes) {
-        *out_stride_bytes = framebufferGetStride(&ctx->fb);
-    }
+    int stride = 0;
+    ctx->framebuffer_ptr = framebufferBegin(&ctx->fb, &stride);
+    ctx->stride_bytes = stride;
+    if (out_stride_bytes) *out_stride_bytes = ctx->stride_bytes;
     return ctx->framebuffer_ptr;
 }
 
@@ -38,7 +37,7 @@ static void present(void *userdata,
         // Clear to dark blue (RGBA: 0x10, 0x20, 0x40, 0xFF)
         uint32_t *dst = (uint32_t *)ctx->framebuffer_ptr;
         uint32_t dark_blue = 0xFF402010; // RGBA8888 format
-        int32_t dst_stride = framebufferGetStride(&ctx->fb) / 4; // Convert to pixel count
+        int32_t dst_stride = ctx->stride_bytes / 4; // Convert to pixel count
         
         for (int y = 0; y < height; ++y) {
             for (int x = 0; x < width; ++x) {
@@ -49,7 +48,7 @@ static void present(void *userdata,
         // Copy source pixels to framebuffer
         uint8_t *dst = (uint8_t *)ctx->framebuffer_ptr;
         const uint8_t *src = (const uint8_t *)src_pixels;
-        int32_t dst_stride = framebufferGetStride(&ctx->fb);
+        int32_t dst_stride = ctx->stride_bytes;
         
         // Copy row by row
         int32_t copy_width = (src_stride_bytes < dst_stride) ? src_stride_bytes : dst_stride;
@@ -71,7 +70,7 @@ extern "C" int switch_native_window_create(switch_native_window *out, int width,
     
     // Create window and framebuffer
     SwitchWindowContext *ctx = new SwitchWindowContext();
-    nwindowCreate(&ctx->nwin);
+    ctx->nwin = nwindowGetDefault();
     framebufferCreate(&ctx->fb, ctx->nwin, width, height, PIXEL_FORMAT_RGBA_8888, 2);
     framebufferMakeLinear(&ctx->fb);
     
