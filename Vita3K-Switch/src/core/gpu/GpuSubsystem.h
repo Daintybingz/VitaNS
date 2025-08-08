@@ -1,6 +1,7 @@
 #pragma once
 #include "../../renderer/Renderer.h"
-#include "../../modules/SceGxm/GxmExecutor.h"
+#include "../../gpu/GxmExecutor.h"
+#include "../../gpu/GxmCommandBuffer.h"
 #include <memory>
 
 class GpuSubsystem {
@@ -10,9 +11,12 @@ public:
     
     void beginFrame();
     void endFrame();
-    void executeGxmCommand(const GxmCommand& cmd);
+
+    // Access to the command buffer for modules to enqueue commands
+    GxmCommandBuffer& getCommandBuffer() { return commandBuffer; }
     
 private:
     Renderer* renderer;
     std::unique_ptr<GxmExecutor> gxmExecutor;
+    GxmCommandBuffer commandBuffer;
 }; 

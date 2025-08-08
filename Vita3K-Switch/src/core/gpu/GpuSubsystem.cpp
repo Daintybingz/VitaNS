@@ -1,6 +1,7 @@
 #include "GpuSubsystem.h"
 #include "../../renderer/Renderer.h"
-#include "../../modules/SceGxm/GxmExecutor.h"
+#include "../../gpu/GxmExecutor.h"
+#include "../../gpu/GxmCommandBuffer.h"
 
 GpuSubsystem::GpuSubsystem(Renderer* renderer) : renderer(renderer) {
     // Initialize GXM command parsing
@@ -8,11 +9,7 @@ GpuSubsystem::GpuSubsystem(Renderer* renderer) : renderer(renderer) {
     printf("[GpuSubsystem] Initialized with renderer\n");
 }
 
-void GpuSubsystem::executeGxmCommand(const GxmCommand& cmd) {
-    if (gxmExecutor) {
-        gxmExecutor->executeCommand(cmd);
-    }
-}
+// Execution of queued commands would be triggered by begin/end frame or elsewhere as needed
 
 void GpuSubsystem::beginFrame() {
     if (renderer) {

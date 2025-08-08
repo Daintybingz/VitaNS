@@ -1,5 +1,6 @@
 #include "SceGxm.h"
 #include "../../renderer/gl/switch_renderer.h"
+#include "../../gpu/GxmCommandBuffer.h"
 #include <cstdio>
 #include <cstring>
 #include <unordered_map>
@@ -1083,22 +1084,29 @@ void SceGxm::emitUploadVertexBuffer(const void* data, size_t size) {
     auto* gpu = Emulator::getInstance().getGpuSubsystem();
     if (!gpu) return;
     auto cmd = std::make_unique<GxmUploadVertexBufferCommand>();
-    cmd->data = malloc(size); memcpy((void*)cmd->data, data, size); cmd->size = size;
-    gpu->currentBuffer->add(std::move(cmd));
+    cmd->data = malloc(size);
+    memcpy((void*)cmd->data, data, size);
+    cmd->size = size;
+    gpu->getCommandBuffer().add(std::move(cmd));
 }
 void SceGxm::emitUploadIndexBuffer(const void* data, size_t size, uint32_t indexType) {
     auto* gpu = Emulator::getInstance().getGpuSubsystem();
     if (!gpu) return;
     auto cmd = std::make_unique<GxmUploadIndexBufferCommand>();
-    cmd->data = malloc(size); memcpy((void*)cmd->data, data, size); cmd->size = size; cmd->indexType = indexType;
-    gpu->currentBuffer->add(std::move(cmd));
+    cmd->data = malloc(size);
+    memcpy((void*)cmd->data, data, size);
+    cmd->size = size;
+    cmd->indexType = indexType;
+    gpu->getCommandBuffer().add(std::move(cmd));
 }
 void SceGxm::emitUploadShader(const std::string& name, const std::string& vertSrc, const std::string& fragSrc) {
     auto* gpu = Emulator::getInstance().getGpuSubsystem();
     if (!gpu) return;
     auto cmd = std::make_unique<GxmUploadShaderCommand>();
-    cmd->name = name; cmd->vertSrc = vertSrc; cmd->fragSrc = fragSrc;
-    gpu->currentBuffer->add(std::move(cmd));
+    cmd->name = name;
+    cmd->vertSrc = vertSrc;
+    cmd->fragSrc = fragSrc;
+    gpu->getCommandBuffer().add(std::move(cmd));
 }
 
 // In sceGxmDraw, extract vertex/index data from emulated memory and emit upload commands
@@ -1147,7 +1155,7 @@ void SceGxm::emitSetupVertexAttributes(const std::vector<std::tuple<int, int, GL
     auto cmd = std::make_unique<GxmSetupVertexAttributesCommand>();
     cmd->layout = layout;
     cmd->stride = stride;
-    gpu->currentBuffer->add(std::move(cmd));
+    gpu->getCommandBuffer().add(std::move(cmd));
 }
 void SceGxm::emitSetUniform(const std::string& name, const std::vector<float>& values) {
     auto* gpu = Emulator::getInstance().getGpuSubsystem();
@@ -1155,7 +1163,7 @@ void SceGxm::emitSetUniform(const std::string& name, const std::vector<float>& v
     auto cmd = std::make_unique<GxmSetUniformCommand>();
     cmd->name = name;
     cmd->values = values;
-    gpu->currentBuffer->add(std::move(cmd));
+    gpu->getCommandBuffer().add(std::move(cmd));
 }
 void SceGxm::emitSetSampler(const std::string& name, int unit) {
     auto* gpu = Emulator::getInstance().getGpuSubsystem();
@@ -1163,5 +1171,5 @@ void SceGxm::emitSetSampler(const std::string& name, int unit) {
     auto cmd = std::make_unique<GxmSetSamplerCommand>();
     cmd->name = name;
     cmd->unit = unit;
-    gpu->currentBuffer->add(std::move(cmd));
+    gpu->getCommandBuffer().add(std::move(cmd));
 }
