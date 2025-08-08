@@ -31,6 +31,7 @@
 #endif
 
 #include <dlfcn.h>
+#include "switch_compat.h"
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>

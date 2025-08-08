@@ -77,7 +77,12 @@ For current status and usage instructions, see:
 - `MESA_SWITCH_FINAL_STATUS.md` - Comprehensive final status document
 - `create_regular_archives.sh` - Archive conversion script
 - `switch.meson` - Cross-compilation configuration
-- `build_real_mesa.sh` - Build script
+- `rebuild_and_copy.sh` - Current rebuild and packaging script
+
+## Aug 8, 2024 updates
+
+- Introduced a built-in surfaceless EGL driver for Switch (`src/egl/drivers/switch/egl_switch_stub.c`) to ensure `libEGL.a` defines `_eglDriver` without `dlfcn`/GBM.
+- Updated top-level `README.md`, `REBUILD_RESULTS_SUMMARY.md`, and `MESA_SWITCH_FINAL_STATUS.md` with symbol checks and linker grouping guidance.
 
 ---
 

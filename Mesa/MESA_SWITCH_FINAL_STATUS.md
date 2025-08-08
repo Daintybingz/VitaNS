@@ -152,10 +152,15 @@ meson setup build-switch/ --cross-file switch.meson \
    cp -r include/ /path/to/your/project/
    ```
 
-3. **Link Order:**
-   ```bash
-   -lGLESv2 -lglapi_static -lEGL -lmesa_util -lsoftpipe -lblake3 -lmesa
-   ```
+3. **Link Order and Grouping:**
+   - Prefer grouping to resolve circular deps:
+     ```bash
+     -Wl,--start-group libEGL.a libGLESv2.a libmesa_util.a libsoftpipe.a libblake3.a libmesa.a libglapi_static.a -Wl,--end-group
+     ```
+   - If listing individually, use this order:
+     ```
+     libEGL.a libGLESv2.a libmesa_util.a libsoftpipe.a libblake3.a libmesa.a libglapi_static.a -lpthread -lm
+     ```
 
 ## 📊 **Build Statistics**
 
@@ -180,7 +185,7 @@ meson setup build-switch/ --cross-file switch.meson \
 - ✅ Regular archives (not thin archives)
 - ✅ All critical symbols present
 - ✅ OpenGL ES 2.0 functionality complete
-- ✅ EGL functionality available
+- ✅ EGL functionality available (built-in surfaceless driver defines `_eglDriver`)
 - ✅ Software rendering (softpipe) working
 - ✅ **Linking verification passed** - All undefined references resolved
 - ✅ **Production quality verified** - Stripped symbols, clean paths, optimized size
@@ -221,6 +226,6 @@ The Mesa build for Nintendo Switch is now **production-ready** and can be used i
 ---
 
 **Final Status**: 🟢 **PRODUCTION READY**  
-**Date**: August 6, 2024  
+**Date**: August 8, 2024  
 **Next Step**: Integrate into Switch homebrew projects  
 **Maintenance**: No further action required 

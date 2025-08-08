@@ -137,3 +137,33 @@ With these libraries, GitHub Actions should now:
 **Status**: ✅ **READY FOR WINDOWS TRANSFER**  
 **Next Step**: Copy `mesa-libraries-for-windows/` to Windows machine  
 **Expected Result**: **GitHub Actions build success** 
+
+---
+
+## 🔁 Update: EGL driver and symbol/linking verification (Aug 8, 2024)
+
+- **EGL driver**: Introduced a built-in surfaceless EGL driver for Switch (`src/egl/drivers/switch/egl_switch_stub.c`). This ensures `libEGL.a` contains a concrete driver and defines `_eglDriver`.
+- **Symbol checks**:
+  - `libEGL.a`: now shows a definition for `_eglDriver` (definition present in `nm`).
+  - `libglapi_static.a`: contains `_glapi_get_proc_address` (T).
+- **Linking order**: When linking, wrap Mesa static libs to resolve circular deps and ensure GL dispatch is pulled in:
+  ```bash
+  -Wl,--start-group libEGL.a libGLESv2.a libmesa_util.a libsoftpipe.a libblake3.a libmesa.a libglapi_static.a -Wl,--end-group
+  ```
+- **Archive type**: All delivered `.a` are regular archives (no thin archives).
+
+### Current delivered sizes (Aug 8, 2024)
+```
+libmesa_util.a    ~4.6M
+libglapi_static.a ~2.6M
+libsoftpipe.a     ~354K
+libEGL.a          ~268K
+libGLESv2.a       ~169K
+libblake3.a       ~34K
+libmesa.a         ~2.8K
+```
+
+### Build configuration (core flags)
+```bash
+-Dstrip=false -Ddebug=false -Doptimization=2 -Dplatforms=surfaceless -Dgallium-drivers=softpipe -Dshared-glapi=disabled -Dgles2=enabled -Dglx=disabled -Dgbm=disabled
+```

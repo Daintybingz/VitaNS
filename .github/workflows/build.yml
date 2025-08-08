@@ -34,7 +34,7 @@ jobs:
           echo "Setting up devkitPro environment for Switch"
           export DEVKITPRO=/opt/devkitpro
           export DEVKITA64=/opt/devkitpro/devkitA64
-          export PATH=$DEVKITPRO/tools/bin:$DEVKITA64/bin:$PATH
+          export PATH=$DEVKITA64/bin:$PATH
 
       - name: Clean any existing Mesa build artifacts
         run: |
@@ -230,26 +230,6 @@ jobs:
           
           # Build the project
           make -j$(nproc)
-          echo "=== BUILD OUTPUT CONTENTS ==="
-          ls -la
-
-      - name: Ensure NRO exists (convert from ELF if needed)
-        if: success()
-        run: |
-          echo "Ensuring VitaNS.nro exists..."
-          cd Vita3K-Switch/build
-          if [ ! -f "VitaNS.nro" ] && [ -f "VitaNS.elf" ]; then
-            echo "VitaNS.nro not found; converting VitaNS.elf -> VitaNS.nro"
-            which elf2nro || echo "elf2nro not in PATH"
-            elf2nro VitaNS.elf VitaNS.nro
-          fi
-          if [ -f "VitaNS.nro" ]; then
-            echo "✅ VitaNS.nro present"
-          else
-            echo "❌ VitaNS.nro not produced"
-            ls -la
-            exit 1
-          fi
 
 
 

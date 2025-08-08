@@ -23,13 +23,13 @@ This repository contains a **fully functional custom Mesa build** for Nintendo S
 
 | Library | Size | Purpose | Status |
 |---------|------|---------|--------|
-| `libGLESv2.a` | 504K | OpenGL ES 2.0 API | ✅ **Complete** |
-| `libglapi_static.a` | 6.0M | GL API dispatch | ✅ **Complete** |
-| `libEGL.a` | 1.2M | EGL interface | ✅ **Complete** |
-| `libmesa_util.a` | 11M | Utilities, threading | ✅ **Complete** |
-| `libsoftpipe.a` | 6.0M | Software renderer | ✅ **Complete** |
-| `libblake3.a` | 869K | Hashing | ✅ **Complete** |
-| `libmesa.a` | 7.3K | Core Mesa | ✅ **Complete** |
+| `libGLESv2.a` | 169K | OpenGL ES 2.0 API | ✅ **Complete** |
+| `libglapi_static.a` | 2.6M | GL API dispatch | ✅ **Complete** |
+| `libEGL.a` | 268K | EGL interface | ✅ **Complete** |
+| `libmesa_util.a` | 4.6M | Utilities, threading | ✅ **Complete** |
+| `libsoftpipe.a` | 354K | Software renderer | ✅ **Complete** |
+| `libblake3.a` | 34K | Hashing | ✅ **Complete** |
+| `libmesa.a` | 2.8K | Core Mesa | ✅ **Complete** |
 
 ## 🚀 **Quick Start**
 
@@ -52,31 +52,38 @@ cd mesa
 ### **2. Integrate into Your Project**
 ```bash
 # Copy libraries to your project
-cp build-switch/src/mapi/es2api/libGLESv2.a /path/to/your/project/lib/
-cp build-switch/src/mapi/glapi/libglapi_static.a /path/to/your/project/lib/
-cp build-switch/src/egl/libEGL.a /path/to/your/project/lib/
-cp build-switch/src/util/libmesa_util.a /path/to/your/project/lib/
-cp build-switch/src/gallium/drivers/softpipe/libsoftpipe.a /path/to/your/project/lib/
-cp build-switch/src/util/blake3/libblake3.a /path/to/your/project/lib/
-cp build-switch/src/mesa/libmesa.a /path/to/your/project/lib/
+cp mesa-libraries-for-windows/libGLESv2.a /path/to/your/project/lib/
+cp mesa-libraries-for-windows/libglapi_static.a /path/to/your/project/lib/
+cp mesa-libraries-for-windows/libEGL.a /path/to/your/project/lib/
+cp mesa-libraries-for-windows/libmesa_util.a /path/to/your/project/lib/
+cp mesa-libraries-for-windows/libsoftpipe.a /path/to/your/project/lib/
+cp mesa-libraries-for-windows/libblake3.a /path/to/your/project/lib/
+cp mesa-libraries-for-windows/libmesa.a /path/to/your/project/lib/
 
 # Copy headers
 cp -r build-switch/include/* /path/to/your/project/include/
 ```
 
-### **3. Update Your CMakeLists.txt**
+### **3. Linker setup (ordering and grouping)**
+Wrap Mesa static libs to resolve circular deps and ensure `_glapi_get_proc_address` is pulled in:
+
+```bash
+-Wl,--start-group \
+  libEGL.a libGLESv2.a libmesa_util.a libsoftpipe.a libblake3.a libmesa.a libglapi_static.a \
+-Wl,--end-group
+```
+
+For CMake, ensure these libraries are added in this order (you can also inject the group flags using target_link_options if needed):
 ```cmake
 # Add Mesa libraries in dependency order
 target_link_libraries(YourProject PRIVATE
-    # Mesa libraries
-    ${PROJECT_SOURCE_DIR}/lib/libGLESv2.a
-    ${PROJECT_SOURCE_DIR}/lib/libglapi_static.a
     ${PROJECT_SOURCE_DIR}/lib/libEGL.a
+    ${PROJECT_SOURCE_DIR}/lib/libGLESv2.a
     ${PROJECT_SOURCE_DIR}/lib/libmesa_util.a
     ${PROJECT_SOURCE_DIR}/lib/libsoftpipe.a
     ${PROJECT_SOURCE_DIR}/lib/libblake3.a
     ${PROJECT_SOURCE_DIR}/lib/libmesa.a
-    # System dependencies
+    ${PROJECT_SOURCE_DIR}/lib/libglapi_static.a
     -lpthread -lm
 )
 
@@ -90,10 +97,11 @@ target_include_directories(YourProject PRIVATE
 
 ## 🔧 **Build Scripts**
 
-- **`build_real_mesa.sh`** - Main build script (compiles all Mesa components)
-- **`create_regular_archives.sh`** - Converts thin archives to regular archives
-- **`verify_mesa_completion.sh`** - Verifies all symbols and archive types
-- **`verify_final_build.sh`** - Final verification script
+- `rebuild_and_copy.sh` - Rebuilds and packages `mesa-libraries-for-windows/` with correct flags
+- `create_regular_archives.sh` - Converts thin archives to regular archives
+- `complete_mesa_rebuild.sh` - Full clean rebuild with verification
+- `verify_mesa_completion.sh` - Verifies symbols and archive types
+- `verify_final_build.sh` - Final verification script
 
 ## ✅ **Verification Results**
 
@@ -102,7 +110,33 @@ All critical components verified and working:
 - ✅ **GL API Dispatch System**: `_glapi_tls_Dispatch` and `_glapi_get_proc_address` present
 - ✅ **Utility Functions**: All threading and synchronization functions included
 - ✅ **System Integration**: All system functions properly included
-- ✅ **EGL Driver**: Complete EGL functionality available
+- ✅ **EGL Driver**: Built-in surfaceless driver for Switch defines `_eglDriver`
+
+## 🔌 Switch native window integration
+
+- Include `switch_native_window.h` and create a `switch_native_window` instance in your app. Pass it as the `native_window` to `eglCreateWindowSurface`:
+
+```c
+#include <EGL/egl.h>
+#include "switch_native_window.h"
+
+static void *acquire_fb(void *ud, int32_t *out_stride) { /* return fb ptr or NULL */ }
+static void present(void *ud, const void *src, int32_t stride, int32_t w, int32_t h, int32_t fmt) { /* blit to screen */ }
+
+switch_native_window win = {
+  .userdata = NULL,
+  .width = 1280,
+  .height = 720,
+  .stride_bytes = 1280 * 4,
+  .format = SWITCH_FORMAT_RGBA8888,
+  .acquire_framebuffer = acquire_fb,   // optional if present() copies
+  .present = present,                  // optional if acquire_fb() returns fb to copy into
+};
+
+EGLSurface surf = eglCreateWindowSurface(dpy, cfg, (EGLNativeWindowType)&win, NULL);
+```
+
+- Current behavior: driver fills a solid RGBA buffer and calls either `present` or copies to the framebuffer from `acquire_framebuffer`. This validates onscreen present; rendering via softpipe will replace this next.
 - ✅ **Archive Compatibility**: All libraries are regular archives (not thin)
 
 ## 📝 **Technical Details**
@@ -140,5 +174,5 @@ All critical components verified and working:
 
 ---
 
-**Last Updated**: August 5, 2024  
+**Last Updated**: August 8, 2024  
 **Status**: ✅ **READY FOR USE** 

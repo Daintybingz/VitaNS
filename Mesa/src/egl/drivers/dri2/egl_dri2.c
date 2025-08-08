@@ -26,6 +26,7 @@
  */
 
 #include <dlfcn.h>
+#include "switch_compat.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>

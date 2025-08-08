@@ -60,7 +60,7 @@ inc_loader = include_directories('../loader')
 inc_gallium = include_directories('../gallium')
 inc_gallium_aux = include_directories('../gallium/auxiliary')
 inc_mesa = include_directories('../mesa')
-inc_st_dri = include_directories('.')
+inc_st_dri = include_directories('../gallium/frontends/dri')
 inc_wgl = include_directories('.')
 inc_gallium_drivers = include_directories('../gallium/drivers')
 inc_gallium_winsys = include_directories('../gallium/winsys')
@@ -105,7 +105,7 @@ c_args_for_egl = [asan_c_args]
 cpp_args_for_egl = []
 link_for_egl = []
 deps_for_egl = []
-incs_for_egl = [inc_include, inc_src, inc_egl]
+incs_for_egl = [inc_include, inc_src, inc_egl, inc_egl_dri2]
 
 if with_gallium_softpipe
   c_args_for_egl += '-DGALLIUM_SOFTPIPE'
@@ -188,6 +188,7 @@ if with_dri2
   files_egl += files(
     'drivers/dri2/platform_device.c',
     'drivers/dri2/platform_surfaceless.c',
+    'drivers/dri2/dlfcn_stub.c',
   )
 
   if with_platform_x11
@@ -235,6 +236,9 @@ elif with_platform_windows
   files_egl += files('drivers/wgl/egl_wgl.c')
   incs_for_egl += [inc_wgl, inc_gallium, inc_gallium_aux, inc_mesa, inc_mapi]
   link_for_egl += libgallium_wgl
+else
+  # Built-in minimal Switch surfaceless driver to provide _eglDriver
+  files_egl += files('drivers/switch/egl_switch_stub.c')
 endif
 
 if cc.has_function('mincore')

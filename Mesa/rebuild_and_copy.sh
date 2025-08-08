@@ -65,9 +65,17 @@ cp build-complete/src/gallium/drivers/softpipe/libsoftpipe.a mesa-libraries-for-
 cp build-complete/src/util/blake3/libblake3.a mesa-libraries-for-windows/
 cp build-complete/src/mesa/libmesa.a mesa-libraries-for-windows/
 
-# Copy headers if they exist
+# Copy headers
+mkdir -p mesa-libraries-for-windows/include
 if [ -d "build-complete/include" ]; then
-    cp -r build-complete/include mesa-libraries-for-windows/
+    cp -r build-complete/include/* mesa-libraries-for-windows/include/
+else
+    echo "ℹ️  Note: build-complete/include not found; copying source headers"
+    cp -r include/* mesa-libraries-for-windows/include/
+fi
+# Also include Switch native window header for app integration
+if [ -f "include/switch_native_window.h" ]; then
+    cp include/switch_native_window.h mesa-libraries-for-windows/include/
 fi
 
 echo "✅ Mesa rebuild finished!"
