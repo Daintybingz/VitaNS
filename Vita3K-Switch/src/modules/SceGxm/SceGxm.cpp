@@ -1,6 +1,7 @@
 #include "SceGxm.h"
 #include "../../renderer/gl/switch_renderer.h"
 #include "../../gpu/GxmCommandBuffer.h"
+#include "../../core/gpu/GpuSubsystem.h"
 #include <cstdio>
 #include <cstring>
 #include <unordered_map>
