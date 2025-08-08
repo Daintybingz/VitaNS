@@ -16,9 +16,9 @@ static void *acquire_framebuffer(void *userdata, int32_t *out_stride_bytes) {
     SwitchWindowContext *ctx = (SwitchWindowContext *)userdata;
     if (!ctx) return nullptr;
     
-    int stride = 0;
+    u32 stride = 0;
     ctx->framebuffer_ptr = framebufferBegin(&ctx->fb, &stride);
-    ctx->stride_bytes = stride;
+    ctx->stride_bytes = static_cast<int32_t>(stride);
     if (out_stride_bytes) *out_stride_bytes = ctx->stride_bytes;
     return ctx->framebuffer_ptr;
 }
