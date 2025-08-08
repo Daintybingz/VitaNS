@@ -580,7 +580,22 @@ public:
     int sceGxmEndScene(SceGxmContext* context, const void* vertexCallback, void* vertexCallbackData, const void* fragmentCallback, void* fragmentCallbackData);
     int sceGxmSetVertexProgram(SceGxmContext* context, const SceGxmVertexProgram* vertexProgram);
     int sceGxmSetFragmentProgram(SceGxmContext* context, const SceGxmFragmentProgram* fragmentProgram);
-    int sceGxmDraw(SceGxmContext* context, SceGxmPrimitiveType primType, SceGxmIndexFormat indexType, const void* indexData, uint32_t indexCount);
+    // Draw APIs
+    int sceGxmDraw(SceGxmContext* context,
+                   SceGxmPrimitiveType primType,
+                   SceGxmIndexFormat indexType,
+                   const void* indexData,
+                   uint32_t indexCount);
+
+    // Overload matching implementation and wrappers (vertex data focused)
+    int sceGxmDraw(SceGxmContext* context,
+                   SceGxmPrimitiveType primType,
+                   int vertexCount,
+                   const void* vertexData,
+                   uint32_t vertexSize,
+                   const void* indexData = nullptr,
+                   uint32_t indexCount = 0,
+                   uint32_t indexType = 0);
     int sceGxmDrawInstanced(SceGxmContext* context, SceGxmPrimitiveType primType, SceGxmIndexFormat indexType, const void* indexData, uint32_t indexCount, uint32_t instanceCount);
     static int sceGxmBeginSceneWrapper(Emulator& emulator, unsigned int nid, const std::vector<unsigned int>& args);
     static int sceGxmEndSceneWrapper(Emulator& emulator, unsigned int nid, const std::vector<unsigned int>& args);
@@ -619,4 +634,12 @@ private:
     std::mutex mutex;
     GLuint convertTextureFormat(SceGxmTextureFormat format);
     GLenum convertPrimitiveType(SceGxmPrimitiveType primType);
+
+    // Command emission helpers (implemented in SceGxm.cpp)
+    void emitUploadVertexBuffer(const void* data, size_t size);
+    void emitUploadIndexBuffer(const void* data, size_t size, uint32_t indexType);
+    void emitUploadShader(const std::string& name, const std::string& vertSrc, const std::string& fragSrc);
+    void emitSetupVertexAttributes(const std::vector<std::tuple<int, int, GLenum, size_t>>& layout, size_t stride);
+    void emitSetUniform(const std::string& name, const std::vector<float>& values);
+    void emitSetSampler(const std::string& name, int unit);
 };
