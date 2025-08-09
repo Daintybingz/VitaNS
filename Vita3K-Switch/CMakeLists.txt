@@ -71,6 +71,7 @@ target_link_libraries(VitaNS PRIVATE
     "${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a"
     "${CUSTOM_MESA_LIB_DIR}/libblake3.a"
     "${CUSTOM_MESA_LIB_DIR}/libmesa.a"
+    "${CUSTOM_MESA_LIB_DIR}/libglapi_static.a"
     -Wl,--end-group
     # System dependencies required by Mesa
     -lpthread
@@ -92,6 +93,7 @@ target_compile_definitions(VitaNS PRIVATE
     IMGUI_DISABLE_DEMO_WINDOWS
     IMGUI_IMPL_OPENGL_ES2
     IMGUI_IMPL_OPENGL_LOADER_CUSTOM
+    MESA_GLESv2_ENABLE_TLS
     VITANS_RENDERER_SOFTWARE
 )
 
