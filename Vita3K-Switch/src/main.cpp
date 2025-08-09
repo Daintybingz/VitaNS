@@ -3,38 +3,81 @@
 #include <GLES2/gl2.h>
 #include "platform/switch_native_window.h"
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
+
+// Debug logging macro
+#define DEBUG_LOG(msg, ...) do { \
+    printf("[DEBUG] %s:%d: " msg "\n", __func__, __LINE__, ##__VA_ARGS__); \
+    consoleUpdate(nullptr); \
+} while(0)
+
+// Safe error checking macro
+#define CHECK_EGL_ERROR(operation) do { \
+    EGLint error = eglGetError(); \
+    if (error != EGL_SUCCESS) { \
+        DEBUG_LOG("EGL Error after %s: 0x%x", operation, error); \
+        return -1; \
+    } \
+} while(0)
 
 int main(int argc, char* argv[]) {
     // Initialize console for debug output
     consoleInit(nullptr);
-    printf("VitaNS: Starting Mesa EGL test...\n");
+    DEBUG_LOG("=== VitaNS Runtime Debug Version ===");
+    DEBUG_LOG("Mesa EGL initialization test starting...");
+    DEBUG_LOG("Built: %s %s", __DATE__, __TIME__);
     
-    // Create native window
+    // Wait a moment for console to stabilize
+    svcSleepThread(100000000); // 100ms
+    
+    DEBUG_LOG("Step 1: Creating native window...");
     switch_native_window native_win;
+    
+    // Add some safety checks
+    memset(&native_win, 0, sizeof(native_win));
+    
     if (switch_native_window_create(&native_win, 1280, 720) != 0) {
-        printf("Failed to create native window\n");
+        DEBUG_LOG("FAILED: Native window creation failed");
+        svcSleepThread(2000000000); // 2 seconds to see error
         return -1;
     }
-    printf("Native window created: %dx%d\n", native_win.width, native_win.height);
+    DEBUG_LOG("SUCCESS: Native window created: %dx%d", native_win.width, native_win.height);
+    DEBUG_LOG("  - framebuffer_ptr: %p", native_win.framebuffer_ptr);
+    DEBUG_LOG("  - stride_bytes: %u", native_win.stride_bytes);
     
-    // Initialize EGL
+    DEBUG_LOG("Step 2: Getting EGL display...");
+    // Clear any previous EGL errors
+    while (eglGetError() != EGL_SUCCESS);
+    
     EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    CHECK_EGL_ERROR("eglGetDisplay");
+    
     if (display == EGL_NO_DISPLAY) {
-        printf("Failed to get EGL display\n");
+        DEBUG_LOG("FAILED: eglGetDisplay returned EGL_NO_DISPLAY");
         switch_native_window_destroy(&native_win);
+        svcSleepThread(2000000000);
         return -1;
     }
-    printf("EGL display obtained\n");
+    DEBUG_LOG("SUCCESS: EGL display obtained: %p", display);
     
+    DEBUG_LOG("Step 3: Initializing EGL...");
     EGLint major, minor;
-    if (!eglInitialize(display, &major, &minor)) {
-        printf("Failed to initialize EGL\n");
+    EGLBoolean init_result = eglInitialize(display, &major, &minor);
+    EGLint init_error = eglGetError();
+    
+    if (!init_result) {
+        DEBUG_LOG("FAILED: eglInitialize returned EGL_FALSE");
+        DEBUG_LOG("EGL Error: 0x%x", init_error);
         switch_native_window_destroy(&native_win);
+        svcSleepThread(3000000000); // 3 seconds to see error
         return -1;
     }
-    printf("EGL initialized: version %d.%d\n", major, minor);
+    DEBUG_LOG("SUCCESS: EGL initialized: version %d.%d", major, minor);
+    DEBUG_LOG("EGL Vendor: %s", eglQueryString(display, EGL_VENDOR));
+    DEBUG_LOG("EGL Version: %s", eglQueryString(display, EGL_VERSION));
     
-    // Choose EGL config
+    DEBUG_LOG("Step 4: Choosing EGL config...");
     const EGLint config_attribs[] = {
         EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
         EGL_RED_SIZE, 8,
@@ -48,66 +91,109 @@ int main(int argc, char* argv[]) {
     
     EGLConfig config;
     EGLint num_configs;
-    if (!eglChooseConfig(display, config_attribs, &config, 1, &num_configs)) {
-        printf("Failed to choose EGL config\n");
+    EGLBoolean config_result = eglChooseConfig(display, config_attribs, &config, 1, &num_configs);
+    CHECK_EGL_ERROR("eglChooseConfig");
+    
+    if (!config_result || num_configs == 0) {
+        DEBUG_LOG("FAILED: eglChooseConfig - result: %s, configs found: %d", 
+                  config_result ? "true" : "false", num_configs);
+        eglTerminate(display);
         switch_native_window_destroy(&native_win);
+        svcSleepThread(2000000000);
         return -1;
     }
-    printf("EGL config chosen\n");
+    DEBUG_LOG("SUCCESS: EGL config chosen (%d configs available)", num_configs);
     
-    // Create EGL surface
+    DEBUG_LOG("Step 5: Creating EGL surface...");
     EGLSurface surface = eglCreateWindowSurface(display, config, 
                                                (EGLNativeWindowType)&native_win, nullptr);
+    CHECK_EGL_ERROR("eglCreateWindowSurface");
+    
     if (surface == EGL_NO_SURFACE) {
-        printf("Failed to create EGL surface\n");
+        DEBUG_LOG("FAILED: eglCreateWindowSurface returned EGL_NO_SURFACE");
+        eglTerminate(display);
         switch_native_window_destroy(&native_win);
+        svcSleepThread(2000000000);
         return -1;
     }
-    printf("EGL surface created\n");
+    DEBUG_LOG("SUCCESS: EGL surface created: %p", surface);
     
-    // Create EGL context
+    DEBUG_LOG("Step 6: Creating EGL context...");
     const EGLint context_attribs[] = {
         EGL_CONTEXT_CLIENT_VERSION, 2,
         EGL_NONE
     };
     
     EGLContext context = eglCreateContext(display, config, EGL_NO_CONTEXT, context_attribs);
+    CHECK_EGL_ERROR("eglCreateContext");
+    
     if (context == EGL_NO_CONTEXT) {
-        printf("Failed to create EGL context\n");
+        DEBUG_LOG("FAILED: eglCreateContext returned EGL_NO_CONTEXT");
+        eglDestroySurface(display, surface);
+        eglTerminate(display);
         switch_native_window_destroy(&native_win);
+        svcSleepThread(2000000000);
         return -1;
     }
-    printf("EGL context created\n");
+    DEBUG_LOG("SUCCESS: EGL context created: %p", context);
     
-    // Make current
-    if (!eglMakeCurrent(display, surface, surface, context)) {
-        printf("Failed to make EGL context current\n");
+    DEBUG_LOG("Step 7: Making EGL context current...");
+    EGLBoolean make_current_result = eglMakeCurrent(display, surface, surface, context);
+    CHECK_EGL_ERROR("eglMakeCurrent");
+    
+    if (!make_current_result) {
+        DEBUG_LOG("FAILED: eglMakeCurrent returned EGL_FALSE");
+        eglDestroyContext(display, context);
+        eglDestroySurface(display, surface);
+        eglTerminate(display);
         switch_native_window_destroy(&native_win);
+        svcSleepThread(2000000000);
         return -1;
     }
-    printf("EGL context made current\n");
+    DEBUG_LOG("SUCCESS: EGL context made current");
     
-    // Test basic OpenGL ES 2.0 functionality
+    DEBUG_LOG("Step 8: Testing OpenGL ES operations...");
+    
+    // Test OpenGL ES calls with error checking
+    DEBUG_LOG("Setting clear color...");
     glClearColor(0.1f, 0.2f, 0.4f, 1.0f); // Dark blue color
-    glClear(GL_COLOR_BUFFER_BIT);
-    
-    // Swap buffers
-    if (!eglSwapBuffers(display, surface)) {
-        printf("Failed to swap buffers\n");
+    GLenum gl_error = glGetError();
+    if (gl_error != GL_NO_ERROR) {
+        DEBUG_LOG("FAILED: glClearColor error: 0x%x", gl_error);
     } else {
-        printf("Buffers swapped successfully - you should see a dark blue screen!\n");
+        DEBUG_LOG("SUCCESS: glClearColor set");
     }
     
-    // Cleanup
+    DEBUG_LOG("Clearing screen...");
+    glClear(GL_COLOR_BUFFER_BIT);
+    gl_error = glGetError();
+    if (gl_error != GL_NO_ERROR) {
+        DEBUG_LOG("FAILED: glClear error: 0x%x", gl_error);
+    } else {
+        DEBUG_LOG("SUCCESS: Screen cleared");
+    }
+    
+    DEBUG_LOG("Step 9: Swapping buffers...");
+    EGLBoolean swap_result = eglSwapBuffers(display, surface);
+    CHECK_EGL_ERROR("eglSwapBuffers");
+    
+    if (!swap_result) {
+        DEBUG_LOG("FAILED: eglSwapBuffers returned EGL_FALSE");
+    } else {
+        DEBUG_LOG("SUCCESS: Buffers swapped - you should see a dark blue screen!");
+    }
+    
+    DEBUG_LOG("Step 10: Cleanup...");
     eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     eglDestroyContext(display, context);
     eglDestroySurface(display, surface);
     eglTerminate(display);
     switch_native_window_destroy(&native_win);
     
-    printf("VitaNS: Mesa EGL test completed successfully!\n");
+    DEBUG_LOG("=== VitaNS Mesa EGL test completed successfully! ===");
+    DEBUG_LOG("Press [+] to exit...");
     
-    // Keep console open for a moment to see output
+    // Keep console open to see output
     PadState pad;
     padInitializeDefault(&pad);
     while (appletMainLoop()) {
@@ -117,6 +203,7 @@ int main(int argc, char* argv[]) {
             break;
         }
         consoleUpdate(nullptr);
+        svcSleepThread(16666667); // ~60 FPS
     }
     
     consoleExit(nullptr);
