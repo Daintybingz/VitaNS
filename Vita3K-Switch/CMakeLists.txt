@@ -107,3 +107,10 @@ set_target_properties(VitaNS PROPERTIES
     OUTPUT_NAME "VitaNS"
     SUFFIX ".nro"
 )
+
+# Configure minimal test target (basic libnx only)
+target_link_libraries(VitaNS_minimal PRIVATE nx)
+set_target_properties(VitaNS_minimal PROPERTIES
+    OUTPUT_NAME "VitaNS_minimal"
+    SUFFIX ".nro"
+)
