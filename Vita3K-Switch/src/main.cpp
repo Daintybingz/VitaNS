@@ -10,6 +10,7 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <sys/stat.h>
 
 // Global log file
 static std::ofstream g_logFile;
@@ -102,7 +103,7 @@ int main(int argc, char* argv[]) {
     AppletOperationMode mode = appletGetOperationMode();
     DEBUG_LOG("System Info:");
     DEBUG_LOG("  - Operation Mode: %s", mode == AppletOperationMode_Console ? "Docked" : "Handheld");
-    DEBUG_LOG("  - Program ID: %016lX", appletGetProgramId());
+    DEBUG_LOG("  - VitaNS Debug Build Started");
     
     // Wait a moment for console to stabilize
     svcSleepThread(100000000); // 100ms

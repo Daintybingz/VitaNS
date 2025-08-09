@@ -6,6 +6,7 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <sys/stat.h>
 
 // Global log file for minimal test
 static std::ofstream g_logFile;
