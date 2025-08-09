@@ -5,28 +5,104 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <csignal>
+#include <fstream>
+#include <chrono>
+#include <iomanip>
+#include <sstream>
 
-// Debug logging macro
+// Global log file
+static std::ofstream g_logFile;
+static bool g_logInitialized = false;
+
+// Initialize logging to SD card
+static void initializeLogging() {
+    if (g_logInitialized) return;
+    
+    // Create log directory
+    mkdir("sdmc:/switch", 0777);
+    mkdir("sdmc:/switch/vitans", 0777);
+    mkdir("sdmc:/switch/vitans/logs", 0777);
+    
+    // Create timestamped log filename
+    auto now = std::chrono::system_clock::now();
+    auto time_t = std::chrono::system_clock::to_time_t(now);
+    std::stringstream ss;
+    ss << "sdmc:/switch/vitans/logs/vitans_debug_" 
+       << std::put_time(std::localtime(&time_t), "%Y%m%d_%H%M%S") 
+       << ".log";
+    
+    g_logFile.open(ss.str(), std::ios::out | std::ios::app);
+    if (g_logFile.is_open()) {
+        g_logInitialized = true;
+        g_logFile << "=== VitaNS Debug Log Started ===" << std::endl;
+        g_logFile.flush();
+    }
+}
+
+// Enhanced debug logging macro with file output
 #define DEBUG_LOG(msg, ...) do { \
-    printf("[DEBUG] %s:%d: " msg "\n", __func__, __LINE__, ##__VA_ARGS__); \
+    initializeLogging(); \
+    char buffer[1024]; \
+    snprintf(buffer, sizeof(buffer), "[DEBUG] %s:%d: " msg, __func__, __LINE__, ##__VA_ARGS__); \
+    printf("%s\n", buffer); \
+    if (g_logInitialized && g_logFile.is_open()) { \
+        g_logFile << buffer << std::endl; \
+        g_logFile.flush(); \
+    } \
     consoleUpdate(nullptr); \
 } while(0)
 
-// Safe error checking macro
+// Safe error checking macro with logging
 #define CHECK_EGL_ERROR(operation) do { \
     EGLint error = eglGetError(); \
     if (error != EGL_SUCCESS) { \
         DEBUG_LOG("EGL Error after %s: 0x%x", operation, error); \
+        closeLogging(); \
         return -1; \
     } \
 } while(0)
 
+// Close logging safely
+static void closeLogging() {
+    if (g_logInitialized && g_logFile.is_open()) {
+        g_logFile << "=== VitaNS Debug Log Ended ===" << std::endl;
+        g_logFile.close();
+    }
+    g_logInitialized = false;
+}
+
+// Signal handler for crashes
+static void crashHandler(int sig) {
+    DEBUG_LOG("CRITICAL: Caught signal %d - Application crashing!", sig);
+    DEBUG_LOG("This indicates a serious error occurred during execution");
+    closeLogging();
+    exit(1);
+}
+
 int main(int argc, char* argv[]) {
     // Initialize console for debug output
     consoleInit(nullptr);
-    DEBUG_LOG("=== VitaNS No-ImGui Test Version ===");
-    DEBUG_LOG("Testing EGL without any ImGui dependencies...");
+    
+    // Set up crash handlers
+    signal(SIGABRT, crashHandler);
+    signal(SIGFPE, crashHandler);
+    signal(SIGILL, crashHandler);
+    signal(SIGINT, crashHandler);
+    signal(SIGSEGV, crashHandler);
+    signal(SIGTERM, crashHandler);
+    
+    DEBUG_LOG("=== VitaNS Runtime Debug Version ===");
+    DEBUG_LOG("Mesa EGL initialization test starting...");
     DEBUG_LOG("Built: %s %s", __DATE__, __TIME__);
+    DEBUG_LOG("Logging to: sdmc:/switch/vitans/logs/");
+    DEBUG_LOG("Register dump will be available in this log if crash occurs");
+    
+    // Log system information
+    AppletOperationMode mode = appletGetOperationMode();
+    DEBUG_LOG("System Info:");
+    DEBUG_LOG("  - Operation Mode: %s", mode == AppletOperationMode_Console ? "Docked" : "Handheld");
+    DEBUG_LOG("  - Program ID: %016lX", appletGetProgramId());
     
     // Wait a moment for console to stabilize
     svcSleepThread(100000000); // 100ms
@@ -39,6 +115,7 @@ int main(int argc, char* argv[]) {
     
     if (switch_native_window_create(&native_win, 1280, 720) != 0) {
         DEBUG_LOG("FAILED: Native window creation failed");
+        closeLogging();
         svcSleepThread(2000000000); // 2 seconds to see error
         return -1;
     }
@@ -180,29 +257,19 @@ int main(int argc, char* argv[]) {
     
     if (!swap_result) {
         DEBUG_LOG("FAILED: eglSwapBuffers returned EGL_FALSE");
-    } else {
+            } else {
         DEBUG_LOG("SUCCESS: Buffers swapped - you should see a dark blue screen!");
     }
     
-    // Show a pattern to verify rendering works
-    DEBUG_LOG("Step 10: Testing basic rendering...");
-    for (int frame = 0; frame < 60; ++frame) {
-        // Animate color slightly
-        float r = 0.1f + 0.1f * (float)frame / 60.0f;
-        glClearColor(r, 0.2f, 0.4f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        eglSwapBuffers(display, surface);
-        svcSleepThread(16666667); // ~60 FPS
-    }
-    
-    DEBUG_LOG("Step 11: Cleanup...");
+    DEBUG_LOG("Step 10: Cleanup...");
     eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     eglDestroyContext(display, context);
     eglDestroySurface(display, surface);
     eglTerminate(display);
     switch_native_window_destroy(&native_win);
     
-    DEBUG_LOG("=== VitaNS No-ImGui test completed successfully! ===");
+    DEBUG_LOG("=== VitaNS Mesa EGL test completed successfully! ===");
+    DEBUG_LOG("SUCCESS: All EGL operations completed without crash!");
     DEBUG_LOG("Press [+] to exit...");
     
     // Keep console open to see output
@@ -212,12 +279,14 @@ int main(int argc, char* argv[]) {
         padUpdate(&pad);
         u64 kDown = padGetButtonsDown(&pad);
         if (kDown & HidNpadButton_Plus) {
+            DEBUG_LOG("Plus button pressed - exiting normally");
             break;
         }
         consoleUpdate(nullptr);
         svcSleepThread(16666667); // ~60 FPS
     }
     
+    closeLogging();
     consoleExit(nullptr);
     return 0;
 }
