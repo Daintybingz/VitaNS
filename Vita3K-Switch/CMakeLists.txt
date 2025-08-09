@@ -52,6 +52,9 @@ list(FILTER SOURCES EXCLUDE REGEX ".*/src/modules/SceGxm/SceGxm_shader\\.cpp$")
 # Create executable
 add_executable(VitaNS ${SOURCES})
 
+# Create minimal test executable (no EGL/Mesa dependencies)
+add_executable(VitaNS_minimal src/main_minimal.cpp)
+
 # Link libraries with proper Mesa linking using linker groups
 target_link_libraries(VitaNS PRIVATE
     nx
