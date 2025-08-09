@@ -55,6 +55,9 @@ add_executable(VitaNS ${SOURCES})
 # Create minimal test executable (no EGL/Mesa dependencies)
 add_executable(VitaNS_minimal src/main_minimal.cpp)
 
+# Create ultra-minimal test (only basic Switch services)
+add_executable(VitaNS_ultra_minimal src/main_ultra_minimal.cpp)
+
 # Link libraries with proper Mesa linking using linker groups
 target_link_libraries(VitaNS PRIVATE
     nx
@@ -115,5 +118,12 @@ set_target_properties(VitaNS PROPERTIES
 target_link_libraries(VitaNS_minimal PRIVATE nx)
 set_target_properties(VitaNS_minimal PROPERTIES
     OUTPUT_NAME "VitaNS_minimal"
+    SUFFIX ".nro"
+)
+
+# Configure ultra-minimal test target (only libnx)
+target_link_libraries(VitaNS_ultra_minimal PRIVATE nx)
+set_target_properties(VitaNS_ultra_minimal PROPERTIES
+    OUTPUT_NAME "VitaNS_ultra_minimal"
     SUFFIX ".nro"
 )
