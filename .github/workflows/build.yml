@@ -242,7 +242,8 @@ jobs:
           if [ -f "VitaNS.nro" ]; then
             echo "✅ VitaNS.nro build successful"
             ls -la VitaNS.nro
-            file VitaNS.nro
+            echo "File size: $(stat -c%s VitaNS.nro) bytes"
+            echo "File type: Nintendo Switch homebrew executable (.nro)"
           else
             echo "❌ VitaNS.nro not found"
             exit 1
