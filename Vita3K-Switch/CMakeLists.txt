@@ -42,6 +42,13 @@ file(GLOB_RECURSE SOURCES
     "external/imgui/*.cpp"
 )
 
+# Exclude tools and duplicate ImGui sources that cause multiple definitions
+list(FILTER SOURCES EXCLUDE REGEX ".*/external/imgui/misc/fonts/binary_to_compressed_c\\.cpp$")
+list(FILTER SOURCES EXCLUDE REGEX ".*/external/imgui/imgui_impl_opengl3\\.cpp$")
+list(FILTER SOURCES EXCLUDE REGEX ".*/external/imgui/imgui_impl_sdl2\\.cpp$")
+list(FILTER SOURCES EXCLUDE REGEX ".*/src/modules/SceGxm/tools/.*\\.cpp$")
+list(FILTER SOURCES EXCLUDE REGEX ".*/src/modules/SceGxm/SceGxm_shader\\.cpp$")
+
 # Create executable
 add_executable(VitaNS ${SOURCES})
 
