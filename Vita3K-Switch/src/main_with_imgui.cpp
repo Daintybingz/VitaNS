@@ -24,8 +24,8 @@
 int main(int argc, char* argv[]) {
     // Initialize console for debug output
     consoleInit(nullptr);
-    DEBUG_LOG("=== VitaNS No-ImGui Test Version ===");
-    DEBUG_LOG("Testing EGL without any ImGui dependencies...");
+    DEBUG_LOG("=== VitaNS Runtime Debug Version ===");
+    DEBUG_LOG("Mesa EGL initialization test starting...");
     DEBUG_LOG("Built: %s %s", __DATE__, __TIME__);
     
     // Wait a moment for console to stabilize
@@ -184,25 +184,14 @@ int main(int argc, char* argv[]) {
         DEBUG_LOG("SUCCESS: Buffers swapped - you should see a dark blue screen!");
     }
     
-    // Show a pattern to verify rendering works
-    DEBUG_LOG("Step 10: Testing basic rendering...");
-    for (int frame = 0; frame < 60; ++frame) {
-        // Animate color slightly
-        float r = 0.1f + 0.1f * (float)frame / 60.0f;
-        glClearColor(r, 0.2f, 0.4f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        eglSwapBuffers(display, surface);
-        svcSleepThread(16666667); // ~60 FPS
-    }
-    
-    DEBUG_LOG("Step 11: Cleanup...");
+    DEBUG_LOG("Step 10: Cleanup...");
     eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     eglDestroyContext(display, context);
     eglDestroySurface(display, surface);
     eglTerminate(display);
     switch_native_window_destroy(&native_win);
     
-    DEBUG_LOG("=== VitaNS No-ImGui test completed successfully! ===");
+    DEBUG_LOG("=== VitaNS Mesa EGL test completed successfully! ===");
     DEBUG_LOG("Press [+] to exit...");
     
     // Keep console open to see output
