@@ -39,19 +39,12 @@ include_directories(
     # ${HARFBUZZ_INCLUDE_DIRS}
 )
 
-# Collect source files - excluding ImGui temporarily
-file(GLOB_RECURSE SOURCES 
-    "src/*.cpp"
-    # Temporarily disable ImGui to test if it's causing crashes
-    # "external/imgui/*.cpp"
+# Collect only essential source files for no-ImGui test
+set(SOURCES 
+    "src/main.cpp"
+    "src/platform/switch_native_window.cpp"
+    # Only include essential platform files - exclude everything else to avoid SDL2 dependencies
 )
-
-# Exclude tools and duplicate ImGui sources that cause multiple definitions
-list(FILTER SOURCES EXCLUDE REGEX ".*/external/imgui/misc/fonts/binary_to_compressed_c\\.cpp$")
-list(FILTER SOURCES EXCLUDE REGEX ".*/external/imgui/imgui_impl_opengl3\\.cpp$")
-list(FILTER SOURCES EXCLUDE REGEX ".*/external/imgui/imgui_impl_sdl2\\.cpp$")
-list(FILTER SOURCES EXCLUDE REGEX ".*/src/modules/SceGxm/tools/.*\\.cpp$")
-list(FILTER SOURCES EXCLUDE REGEX ".*/src/modules/SceGxm/SceGxm_shader\\.cpp$")
 
 # Create executable
 add_executable(VitaNS ${SOURCES})
