@@ -99,7 +99,7 @@ target_compile_definitions(VitaNS PRIVATE
 
 # Set linker flags
 set_target_properties(VitaNS PROPERTIES
-    LINK_FLAGS "${SDL2_LDFLAGS} ${SDL2_TTF_LDFLAGS} ${FREETYPE_LDFLAGS} ${PNG_LDFLAGS} ${HARFBUZZ_LDFLAGS}"
+    LINK_FLAGS "${SDL2_LDFLAGS} ${SDL2_TTF_LDFLAGS} ${FREETYPE_LDFLAGS} ${PNG_LDFLAGS} ${HARFBUZZ_LDFLAGS} -Wl,--allow-multiple-definition"
 )
 
 # Set output name for Switch
