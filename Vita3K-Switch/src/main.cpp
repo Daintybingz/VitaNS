@@ -43,8 +43,9 @@ int main(int argc, char* argv[]) {
         return -1;
     }
     DEBUG_LOG("SUCCESS: Native window created: %dx%d", native_win.width, native_win.height);
-    DEBUG_LOG("  - framebuffer_ptr: %p", native_win.framebuffer_ptr);
-    DEBUG_LOG("  - stride_bytes: %u", native_win.stride_bytes);
+    DEBUG_LOG("  - userdata: %p", native_win.userdata);
+    DEBUG_LOG("  - stride_bytes: %d", native_win.stride_bytes);
+    DEBUG_LOG("  - format: %d", native_win.format);
     
     DEBUG_LOG("Step 2: Getting EGL display...");
     // Clear any previous EGL errors
