@@ -65,7 +65,7 @@ target_link_libraries(VitaNS PRIVATE
     # Begin linker group for Mesa static libraries to resolve circular dependencies
     -Wl,--start-group
     # Order: consumers first, providers after
-    "${CUSTOM_MESA_LIB_DIR}/libEGL.a"
+    -Wl,--whole-archive "${CUSTOM_MESA_LIB_DIR}/libEGL.a" -Wl,--no-whole-archive
     "${CUSTOM_MESA_LIB_DIR}/libGLESv2.a"
     "${CUSTOM_MESA_LIB_DIR}/libmesa_util.a"
     "${CUSTOM_MESA_LIB_DIR}/libsoftpipe.a"
