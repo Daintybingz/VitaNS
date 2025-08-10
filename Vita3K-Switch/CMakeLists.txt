@@ -15,6 +15,9 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
+# Add Switch-specific include paths
+include_directories(/opt/devkitpro/libnx/include)
+
 project(VitaNS)
 
 # Set C++ standard

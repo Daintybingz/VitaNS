@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
     // Wait for input to exit
     while (appletMainLoop()) {
         hidScanInput();
-        if (hidKeysDown(CONTROLLER_P1_AUTO) & KEY_PLUS) {
+        if (hidKeysDown(HidControllerID_Player1) & HidNpadButton_Plus) {
             break;
         }
         svcSleepThread(10000000); // 10ms
