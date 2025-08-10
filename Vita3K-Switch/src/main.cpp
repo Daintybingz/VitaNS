@@ -248,7 +248,7 @@ int main(int argc, char* argv[]) {
     gl_error = glGetError();
     if (gl_error != GL_NO_ERROR) {
         DEBUG_LOG("FAILED: glClear error: 0x%x", gl_error);
-    } else {
+            } else {
         DEBUG_LOG("SUCCESS: Screen cleared");
     }
     

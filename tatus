@@ -21,3 +21,17 @@
 [33mb053f06[m ci: ensure elf2nro in PATH and convert VitaNS.elf to VitaNS.nro if needed
 [33m5fb039c[m ci: trigger GitHub Actions build
 [33m1a4208f[m Switch: wrap Mesa static libs in --start-group/--end-group and adjust order to resolve _glapi_get_proc_address and _eglDriver
+warning: in the working copy of 'Vita3K-Switch/src/main.cpp', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/Vita3K-Switch/src/main.cpp b/Vita3K-Switch/src/main.cpp[m
+[1mindex 5f469af..3902526 100755[m
+[1m--- a/Vita3K-Switch/src/main.cpp[m
+[1m+++ b/Vita3K-Switch/src/main.cpp[m
+[36m@@ -248,7 +248,7 @@[m [mint main(int argc, char* argv[]) {[m
+     gl_error = glGetError();[m
+     if (gl_error != GL_NO_ERROR) {[m
+         DEBUG_LOG("FAILED: glClear error: 0x%x", gl_error);[m
+[31m-    } else {[m
+[32m+[m[32m            } else {[m
+         DEBUG_LOG("SUCCESS: Screen cleared");[m
+     }[m
+     [m
