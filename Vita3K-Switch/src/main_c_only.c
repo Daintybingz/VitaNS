@@ -11,22 +11,21 @@ int main(int argc, char* argv[]) {
         return -1;
     }
     
-    // Initialize input
-    if (R_FAILED(hidInitialize())) {
-        return -1;
-    }
+    // Initialize input using modern Switch HID API
+    PadState pad;
+    padInitializeDefault(&pad);
     
     // Wait for input to exit
     while (appletMainLoop()) {
-        hidScanInput();
-        if (hidKeysDown(HidControllerID_Player1) & HidNpadButton_Plus) {
+        padUpdate(&pad);
+        u64 kDown = padGetButtonsDown(&pad);
+        if (kDown & HidNpadButton_Plus) {
             break;
         }
         svcSleepThread(10000000); // 10ms
     }
     
     // Cleanup
-    hidExit();
     viExit();
     smExit();
     
