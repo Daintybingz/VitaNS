@@ -11,22 +11,10 @@ int main(int argc, char* argv[]) {
         return -1;
     }
     
-    // Initialize input
-    if (R_FAILED(hidInitialize())) {
-        return -1;
-    }
-    
-    // Wait for input to exit
-    while (appletMainLoop()) {
-        hidScanInput();
-        if (hidKeysDown(HidControllerID_Player1) & HidNpadButton_Plus) {
-            break;
-        }
-        svcSleepThread(10000000); // 10ms
-    }
+    // Just wait a bit and exit - no input handling
+    svcSleepThread(1000000000); // 1 second
     
     // Cleanup
-    hidExit();
     viExit();
     smExit();
     
