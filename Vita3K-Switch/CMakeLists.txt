@@ -68,6 +68,10 @@ list(FILTER SOURCES EXCLUDE REGEX ".*/external/imgui/imgui_impl_sdl2\\.cpp$")
 list(FILTER SOURCES EXCLUDE REGEX ".*/src/modules/SceGxm/tools/.*\\.cpp$")
 list(FILTER SOURCES EXCLUDE REGEX ".*/src/modules/SceGxm/SceGxm_shader\\.cpp$")
 
+# Exclude test files from main build
+list(FILTER SOURCES EXCLUDE REGEX ".*/src/main_.*\\.cpp$")
+list(FILTER SOURCES EXCLUDE REGEX ".*/src/main_.*\\.c$")
+
 # Create executable
 add_executable(VitaNS ${SOURCES})
 
