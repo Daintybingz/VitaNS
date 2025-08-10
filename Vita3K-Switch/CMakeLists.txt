@@ -1,4 +1,20 @@
 cmake_minimum_required(VERSION 3.16)
+
+# Set Switch platform before project definition
+set(CMAKE_SYSTEM_NAME NintendoSwitch)
+set(CMAKE_SYSTEM_PROCESSOR aarch64)
+
+# Set Switch toolchain paths
+set(CMAKE_C_COMPILER aarch64-none-elf-gcc)
+set(CMAKE_CXX_COMPILER aarch64-none-elf-g++)
+set(CMAKE_ASM_COMPILER aarch64-none-elf-gcc)
+
+# Set Switch root path
+set(CMAKE_FIND_ROOT_PATH /opt/devkitpro/devkitA64/aarch64-none-elf)
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
 project(VitaNS)
 
 # Set C++ standard
@@ -57,6 +73,9 @@ add_executable(VitaNS_minimal src/main_minimal.cpp)
 
 # Create ultra-minimal test (only basic Switch services)
 add_executable(VitaNS_ultra_minimal src/main_ultra_minimal.cpp)
+
+# Create C-only test (bypass C++ runtime entirely)
+add_executable(VitaNS_c_only src/main_c_only.c)
 
 # Link libraries with proper Mesa linking using linker groups
 target_link_libraries(VitaNS PRIVATE
@@ -125,5 +144,12 @@ set_target_properties(VitaNS_minimal PROPERTIES
 target_link_libraries(VitaNS_ultra_minimal PRIVATE nx)
 set_target_properties(VitaNS_ultra_minimal PROPERTIES
     OUTPUT_NAME "VitaNS_ultra_minimal"
+    SUFFIX ".nro"
+)
+
+# Configure C-only test target (only libnx, no C++)
+target_link_libraries(VitaNS_c_only PRIVATE nx)
+set_target_properties(VitaNS_c_only PROPERTIES
+    OUTPUT_NAME "VitaNS_c_only"
     SUFFIX ".nro"
 )
