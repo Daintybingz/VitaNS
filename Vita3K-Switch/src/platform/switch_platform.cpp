@@ -6,19 +6,7 @@
 #include <cstdlib>
 #include <algorithm>
 
-// Fallback stubs for input functions if not defined by libnx
-#ifndef hidScanInput
-static inline void hidScanInput() {}
-#endif
-#ifndef hidKeysHeld
-static inline uint64_t hidKeysHeld(int) { return 0; }
-#endif
-#ifndef hidTouchCount
-static inline uint32_t hidTouchCount() { return 0; }
-#endif
-#ifndef hidTouchRead
-static inline void hidTouchRead(touchPosition*, uint32_t) {}
-#endif
+// Modern Switch HID API - no legacy functions needed
 
 // Singleton instance
 SwitchPlatform& SwitchPlatform::getInstance() {
@@ -35,6 +23,7 @@ SwitchPlatform::SwitchPlatform()
       currentButtonState(0),
       previousButtonState(0),
       touchActive(false) {
+    // Pad will be initialized in initialize() method
 }
 
 SwitchPlatform::~SwitchPlatform() {
@@ -66,6 +55,9 @@ bool SwitchPlatform::initialize() {
     
     // Initialize button mappings
     initializeButtonMappings();
+    
+    // Initialize input system
+    padInitializeDefault(&pad);
     
     // Create necessary directories
     createDirectory(getBasePath());
@@ -159,16 +151,13 @@ void SwitchPlatform::updateInputState() {
     // Update previous state
     previousButtonState = currentButtonState;
     
-    // Get current button state
-    hidScanInput();
-    currentButtonState = hidKeysHeld((int)CONTROLLER_P1_AUTO);
+    // Get current button state using modern Switch HID API
+    padUpdate(&pad);
+    currentButtonState = padGetButtonsDown(&pad);
     
-    // Get touch state
+    // Get touch state (simplified for now)
     touchActive = false;
-    if (hidTouchCount() > 0) {
-        hidTouchRead(&touchPos, 0);
-        touchActive = true;
-    }
+    // Touch handling can be added later if needed
 }
 
 bool SwitchPlatform::isButtonPressed(uint32_t button) const {
@@ -198,21 +187,20 @@ bool SwitchPlatform::isTouchActive() const {
 }
 
 void SwitchPlatform::initializeButtonMappings() {
-    // PS Vita to Switch button mappings
-    // These are just examples and can be customized
+    // PS Vita to Switch button mappings using modern Switch HID API
     vitaToSwitchMap.clear();
-    vitaToSwitchMap.push_back({SCE_CTRL_UP, KEY_DUP});
-    vitaToSwitchMap.push_back({SCE_CTRL_DOWN, KEY_DDOWN});
-    vitaToSwitchMap.push_back({SCE_CTRL_LEFT, KEY_DLEFT});
-    vitaToSwitchMap.push_back({SCE_CTRL_RIGHT, KEY_DRIGHT});
-    vitaToSwitchMap.push_back({SCE_CTRL_CROSS, KEY_A});
-    vitaToSwitchMap.push_back({SCE_CTRL_CIRCLE, KEY_B});
-    vitaToSwitchMap.push_back({SCE_CTRL_SQUARE, KEY_Y});
-    vitaToSwitchMap.push_back({SCE_CTRL_TRIANGLE, KEY_X});
-    vitaToSwitchMap.push_back({SCE_CTRL_L1, KEY_L});
-    vitaToSwitchMap.push_back({SCE_CTRL_R1, KEY_R});
-    vitaToSwitchMap.push_back({SCE_CTRL_START, KEY_PLUS});
-    vitaToSwitchMap.push_back({SCE_CTRL_SELECT, KEY_MINUS});
+    vitaToSwitchMap.push_back({SCE_CTRL_UP, HidNpadButton_Up});
+    vitaToSwitchMap.push_back({SCE_CTRL_DOWN, HidNpadButton_Down});
+    vitaToSwitchMap.push_back({SCE_CTRL_LEFT, HidNpadButton_Left});
+    vitaToSwitchMap.push_back({SCE_CTRL_RIGHT, HidNpadButton_Right});
+    vitaToSwitchMap.push_back({SCE_CTRL_CROSS, HidNpadButton_A});
+    vitaToSwitchMap.push_back({SCE_CTRL_CIRCLE, HidNpadButton_B});
+    vitaToSwitchMap.push_back({SCE_CTRL_SQUARE, HidNpadButton_Y});
+    vitaToSwitchMap.push_back({SCE_CTRL_TRIANGLE, HidNpadButton_X});
+    vitaToSwitchMap.push_back({SCE_CTRL_L1, HidNpadButton_L});
+    vitaToSwitchMap.push_back({SCE_CTRL_R1, HidNpadButton_R});
+    vitaToSwitchMap.push_back({SCE_CTRL_START, HidNpadButton_Plus});
+    vitaToSwitchMap.push_back({SCE_CTRL_SELECT, HidNpadButton_Minus});
     
     // Switch to PS Vita button mappings (reverse of above)
     for (const auto& pair : vitaToSwitchMap) {

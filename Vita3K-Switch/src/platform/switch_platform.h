@@ -6,25 +6,7 @@
 #include <vector>
 #include <memory>
 
-// Missing libnx constants and types (if not provided by switch.h)
-#ifndef KEY_DUP
-#define KEY_DUP          0x0000000000000008ULL
-#define KEY_DDOWN        0x0000000000000002ULL
-#define KEY_DLEFT        0x0000000000000004ULL
-#define KEY_DRIGHT       0x0000000000000001ULL
-#define KEY_A            0x0000000000000010ULL
-#define KEY_B            0x0000000000000020ULL
-#define KEY_X            0x0000000000000040ULL
-#define KEY_Y            0x0000000000000080ULL
-#define KEY_L            0x0000000000000100ULL
-#define KEY_R            0x0000000000000200ULL
-#define KEY_PLUS         0x0000000000000400ULL
-#define KEY_MINUS        0x0000000000000800ULL
-#endif
-
-#ifndef CONTROLLER_P1_AUTO
-#define CONTROLLER_P1_AUTO 0
-#endif
+// Modern Switch HID API constants are provided by switch.h
 
 // Touch position structure (if not defined by libnx)
 #ifndef touchPosition
@@ -112,6 +94,7 @@ private:
     uint64_t previousButtonState;
     touchPosition touchPos;
     bool touchActive;
+    PadState pad;  // Modern Switch HID pad state
     
     // Button mapping tables
     std::vector<std::pair<uint32_t, uint32_t>> vitaToSwitchMap;
