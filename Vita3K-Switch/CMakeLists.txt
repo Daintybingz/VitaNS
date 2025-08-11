@@ -93,6 +93,9 @@ add_executable(VitaNS_bare_minimum src/main_bare_minimum.cpp)
 # Create bare minimum C test (no C++ runtime)
 add_executable(VitaNS_bare_c src/main_bare_c.c)
 
+# Create bare metal test (no libnx, just raw ARM code)
+add_executable(VitaNS_bare_metal src/main_bare_metal.c)
+
 # Link libraries with proper Mesa linking using linker groups
 target_link_libraries(VitaNS PRIVATE
     nx
@@ -189,4 +192,12 @@ target_link_libraries(VitaNS_bare_c PRIVATE nx)
 set_target_properties(VitaNS_bare_c PROPERTIES
     OUTPUT_NAME "VitaNS_bare_c"
     SUFFIX ".nro"
+)
+
+# Configure bare metal test target (no libnx)
+target_link_libraries(VitaNS_bare_metal PRIVATE)  # No libraries
+set_target_properties(VitaNS_bare_metal PROPERTIES
+    OUTPUT_NAME "VitaNS_bare_metal"
+    SUFFIX ".nro"
+    LINK_FLAGS "-specs=${DEVKITPRO}/libnx/switch.specs -g -march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIE -L${DEVKITPRO}/portlibs/switch/lib -L${DEVKITPRO}/libnx/lib -Wl,-Map,VitaNS_bare_metal.map"
 )
