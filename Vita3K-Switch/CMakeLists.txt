@@ -90,6 +90,9 @@ add_executable(VitaNS_super_simple src/main_super_simple.cpp)
 # Create bare minimum test (just returns 0)
 add_executable(VitaNS_bare_minimum src/main_bare_minimum.cpp)
 
+# Create bare minimum C test (no C++ runtime)
+add_executable(VitaNS_bare_c src/main_bare_c.c)
+
 # Link libraries with proper Mesa linking using linker groups
 target_link_libraries(VitaNS PRIVATE
     nx
@@ -178,5 +181,12 @@ set_target_properties(VitaNS_super_simple PROPERTIES
 target_link_libraries(VitaNS_bare_minimum PRIVATE nx)
 set_target_properties(VitaNS_bare_minimum PROPERTIES
     OUTPUT_NAME "VitaNS_bare_minimum"
+    SUFFIX ".nro"
+)
+
+# Configure bare minimum C test target (only libnx, no C++ runtime)
+target_link_libraries(VitaNS_bare_c PRIVATE nx)
+set_target_properties(VitaNS_bare_c PROPERTIES
+    OUTPUT_NAME "VitaNS_bare_c"
     SUFFIX ".nro"
 )
